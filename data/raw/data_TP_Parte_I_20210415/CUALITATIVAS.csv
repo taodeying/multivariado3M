@@ -1,0 +1,42 @@
+VARIEDAD;TIPO;SEXO;CORNAMEN;TORNAMEN;PEDUNC;VERRUGAS ;MOTEADO;CLADOSP;CMV
+A1 ;Alf;Fem;Blanca;Espin;Obt;No;No;No;No
+A2 ;Alf;Fem;Negra;Espin;Obt;No;No;No;No
+A3 ;Alf;Fem;Negra;Pelos;Cue;No;No;No;No
+A4 ;Alf;Fem;Negra;Pelos;Agu;No;No;-1;-1
+A5 ;Alf;Fem;Negra;Espin;Cue;No;No;No;No
+A6 ;Alf;Fem;Negra;Espin;Cue;No;No;No;No
+A7 ;Alf;Fem;Negra;Espin;Cue;No;No;No;No
+A8 ;Alf;Fem;Negra;Espin;Cue;No;No;No;No
+F1 ;Fra;Fem;Negra;Espin;Agu;Si;No;Si;Si
+F2 ;Fra;MyF;Negra;Espin;Agu;Si;No;No;Si
+F3 ;Fra;Fem;Negra;Espin;Obt;Si;No;-1;Si
+F4 ;Fra;Fem;Negra;Espin;Obt;Si;No;-1;-1
+F5 ;Fra;Mas;Negra;Espin;Obt;Si;Si;-1;-1
+F6 ;Fra;Mas;Blanca;Espin;Agu;Si;Si;-1;-1
+F7 ;Fra;Mas;Negra;Espin;Agu;Si;Si;-1;-1
+F8 ;Fra;Fem;Negra;Espin;Obt;Si;No;-1;-1
+F9 ;Fra;Mas;Negra;Espin;Obt;Si;No;Si;Si
+F10;Fra;Mas;Negra;Espin;Obt;Si;No;Si;Si
+F11;Fra;Mas;Negra;Espin;Obt;Si;No;Si;Si
+H1 ;Hol;Fem;Negra;Espin;Cue;No;No;No;Si
+H2 ;Hol;Fem;Negra;Espin;Cue;No;No;Si;No
+H3 ;Hol;Fem;Negra;Espin;Cue;No;No;No;No
+H4 ;Hol;Fem;Negra;Espin;Cue;No;No;No;No
+H5 ;Hol;Fem;Negra;Espin;Cue;No;No;Si;No
+H6 ;Hol;Fem;Negra;Espin;Cue;No;No;Si;No
+H7 ;Hol;Fem;Negra;Espin;Cue;No;No;Si;No
+H8 ;Hol;Fem;Negra;Espin;Cue;No;No;-1;-1
+H9 ;Hol;Fem;Negra;Espin;Cue;No;No;No;No
+H10;Hol;Fem;Negra;Espin;Cue;No;No;Si;No
+H11;Hol;Fem;Negra;Espin;Cue;No;No;-1;-1
+H12;Hol;Fem;Negra;Espin;Cue;No;No;Si;No
+H13;Hol;Fem;Negra;Espin;Cue;No;No;-1;-1
+H14;Hol;Fem;Negra;Espin;Cue;No;No;Si;No
+H15;Hol;Fem;Negra;Espin;Cue;No;No;Si;No
+P1 ;Pep;Fem;Negra;Espin;Obt;Si;Si;Si;Si
+P2 ;Pep;Fem;Negra;Espin;Obt;Si;Si;No;Si
+P3 ;Pep;Mas;Negra;Espin;Obt;Si;Si;-1;-1
+P4 ;Pep;MyF;Negra;Espin;Obt;Si;Si;-1;-1
+P5 ;Pep;MyF;Negra;Espin;Obt;Si;Si;Si;Si
+P6 ;Pep;MyF;Blanca;Pelos;Obt;Si;Si;-1;Si
+P7 ;Pep;MyF;Blanca;Espin;Obt;Si;Si;Si;Si
