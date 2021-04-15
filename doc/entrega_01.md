@@ -519,8 +519,6 @@ datos %>% select(-VAR) %>%
 
 E. Estandarice las variables por media y desvío. Ahora puede responder al inciso (d) ?
 
-Aca hay que calcular el coeficiente de variacion.
-
 
 ```r
 # No utilizamos la primer columna
@@ -528,7 +526,7 @@ datos_std = scale(datos[-1])
 ```
 
 Como son variables estandarizadas, el coeficiente de variacion no existe,
-pero todas tienen desvio estandar 1.
+pero todas tienen desvio estandar 1 (ya que la media es 0)
 
 
 ```r
@@ -891,6 +889,8 @@ G. Pueden dividirse las variables en subgrupos, de modo que las variables dentro
 
 
 H. Encuentre la matriz que mide el grado de similaridad entre las variedades en función de la distancia euclídea calculada sobre los datos originales.
+
+OJO Q SOLO ESTÄ LA DE DISTANCIAS
 
 
 ```r

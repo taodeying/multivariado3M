@@ -1515,10 +1515,9 @@ LONANCHO
 </tbody>
 </table>
 <p>E. Estandarice las variables por media y desvío. Ahora puede responder al inciso (d) ?</p>
-<p>Aca hay que calcular el coeficiente de variacion.</p>
 <pre class="r"><code># No utilizamos la primer columna
 datos_std = scale(datos[-1])</code></pre>
-<p>Como son variables estandarizadas, el coeficiente de variacion no existe, pero todas tienen desvio estandar 1.</p>
+<p>Como son variables estandarizadas, el coeficiente de variacion no existe, pero todas tienen desvio estandar 1 (ya que la media es 0)</p>
 <pre class="r"><code>datos_std %&gt;%
     as_tibble() %&gt;% 
     summarise_all(function(x) sd(x, na.rm=TRUE) /  mean(x, na.rm=TRUE)) %&gt;% 
@@ -2314,6 +2313,7 @@ LONGF
 </table>
 <p>G. Pueden dividirse las variables en subgrupos, de modo que las variables dentro de un mismo subgrupo tengan elevadas correlaciones entre sí y que las que se encuentren en subgrupos diferentes tengan bajas correlaciones ? Si es así, cuáles variables quedan en cada uno de los subgrupos ?</p>
 <p>H. Encuentre la matriz que mide el grado de similaridad entre las variedades en función de la distancia euclídea calculada sobre los datos originales.</p>
+<p>OJO Q SOLO ESTÄ LA DE DISTANCIAS</p>
 <pre class="r"><code>aux = datos %&gt;% 
     select(-VAR) %&gt;% 
     data.frame()
