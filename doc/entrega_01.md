@@ -436,18 +436,19 @@ datos %>%
 D. Podría decir cuál y cuáles variables son las más dispersas ?
 
 
-    
-    ```r
-    datos %>% select(-VAR) %>%
+
+```r
+datos %>% select(-VAR) %>%
     cov() %>%
     diag() %>% 
     which.max() %>% 
-    names()
-    ```
-    
-    ```
-    ## [1] "PESOF"
-    ```
+    names() %>% 
+    print()
+```
+
+```
+## [1] "PESOF"
+```
 
 
 ```r
@@ -455,7 +456,8 @@ datos %>% select(-VAR) %>%
     cov() %>%
     diag() %>% 
     sort() %>% 
-    names()
+    names() %>% 
+    print()
 ```
 
 ```
@@ -463,6 +465,7 @@ datos %>% select(-VAR) %>%
 ##  [7] "TAMFLOR"  "ESPESORF" "LONGEND"  "ANCHOF"   "SUPHOJA"  "LONGF"   
 ## [13] "PESOF"
 ```
+
 E. Estandarice las variables por media y desvío. Ahora puede responder al inciso (d) ?
 
 Aca hay que calcular el coeficiente de variacion.
@@ -475,11 +478,13 @@ datos_std = scale(datos[-1])
 
 
 ```r
-datos %>% select(-VAR) %>%
+datos %>% 
+    select(-VAR) %>%
     mutate_all(scale) %>% 
     cov() %>%
     diag() %>% 
-    sort()
+    sort() %>% 
+    print()
 ```
 
 ```
@@ -493,7 +498,8 @@ F. Halle la matriz de correlación. Que variables son las más relacionadas?
 
 
 ```r
-datos %>% select(-VAR) %>%
+datos %>% 
+    select(-VAR) %>%
     cor() %>% 
     round(1)  %>% 
     kableExtra::kable() %>% 
@@ -736,7 +742,8 @@ datos %>% select(-VAR) %>%
 
 ```r
 ncol_datos = ncol(datos)-1
-datos %>% select(-VAR) %>%
+datos %>% 
+    select(-VAR) %>%
     cor() %>% 
     as_tibble() %>% 
     mutate(var0=colnames(.)) %>% 
@@ -828,6 +835,429 @@ G. Pueden dividirse las variables en subgrupos, de modo que las variables dentro
 
 
 H. Encuentre la matriz que mide el grado de similaridad entre las variedades en función de la distancia euclídea calculada sobre los datos originales.
+
+
+```r
+aux = datos %>% 
+    select(-VAR) %>% 
+    data.frame()
+
+rownames(aux) <- datos$VAR
+
+aux %>% 
+    dist(diag = T, upper=T) %>% 
+    as.matrix() %>% 
+    round(1)  %>% 
+    kableExtra::kable() %>% 
+    kableExtra::kable_styling(font_size = 8)%>% 
+    kableExtra::kable_classic_2()
+```
+
+<table class="table lightable-classic-2" style='font-size: 8px; margin-left: auto; margin-right: auto; font-family: "Arial Narrow", "Source Sans Pro", sans-serif; margin-left: auto; margin-right: auto;'>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> BLANCO </th>
+   <th style="text-align:right;"> BULIDA </th>
+   <th style="text-align:right;"> CURROT.T </th>
+   <th style="text-align:right;"> CANINO </th>
+   <th style="text-align:right;"> CANINO.T </th>
+   <th style="text-align:right;"> CHIRIVEL </th>
+   <th style="text-align:right;"> CORBATO </th>
+   <th style="text-align:right;"> CRISTALI </th>
+   <th style="text-align:right;"> CURROT </th>
+   <th style="text-align:right;"> GABACHET </th>
+   <th style="text-align:right;"> GANDIA </th>
+   <th style="text-align:right;"> GINESTA </th>
+   <th style="text-align:right;"> MANRI </th>
+   <th style="text-align:right;"> MARTINET </th>
+   <th style="text-align:right;"> PALABRAS </th>
+   <th style="text-align:right;"> PALAU </th>
+   <th style="text-align:right;"> R.CARLET </th>
+   <th style="text-align:right;"> TADEO </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> BLANCO </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 12.7 </td>
+   <td style="text-align:right;"> 18.5 </td>
+   <td style="text-align:right;"> 23.6 </td>
+   <td style="text-align:right;"> 16.4 </td>
+   <td style="text-align:right;"> 14.0 </td>
+   <td style="text-align:right;"> 18.4 </td>
+   <td style="text-align:right;"> 17.9 </td>
+   <td style="text-align:right;"> 20.4 </td>
+   <td style="text-align:right;"> 41.9 </td>
+   <td style="text-align:right;"> 24.5 </td>
+   <td style="text-align:right;"> 23.6 </td>
+   <td style="text-align:right;"> 23.0 </td>
+   <td style="text-align:right;"> 10.2 </td>
+   <td style="text-align:right;"> 21.3 </td>
+   <td style="text-align:right;"> 21.1 </td>
+   <td style="text-align:right;"> 13.7 </td>
+   <td style="text-align:right;"> 30.9 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> BULIDA </td>
+   <td style="text-align:right;"> 12.7 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 18.0 </td>
+   <td style="text-align:right;"> 20.9 </td>
+   <td style="text-align:right;"> 18.5 </td>
+   <td style="text-align:right;"> 9.1 </td>
+   <td style="text-align:right;"> 14.5 </td>
+   <td style="text-align:right;"> 18.9 </td>
+   <td style="text-align:right;"> 18.6 </td>
+   <td style="text-align:right;"> 37.4 </td>
+   <td style="text-align:right;"> 16.7 </td>
+   <td style="text-align:right;"> 13.9 </td>
+   <td style="text-align:right;"> 14.8 </td>
+   <td style="text-align:right;"> 13.9 </td>
+   <td style="text-align:right;"> 11.2 </td>
+   <td style="text-align:right;"> 15.7 </td>
+   <td style="text-align:right;"> 9.1 </td>
+   <td style="text-align:right;"> 30.7 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> CURROT.T </td>
+   <td style="text-align:right;"> 18.5 </td>
+   <td style="text-align:right;"> 18.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 32.5 </td>
+   <td style="text-align:right;"> 29.4 </td>
+   <td style="text-align:right;"> 12.7 </td>
+   <td style="text-align:right;"> 11.4 </td>
+   <td style="text-align:right;"> 5.8 </td>
+   <td style="text-align:right;"> 5.8 </td>
+   <td style="text-align:right;"> 30.9 </td>
+   <td style="text-align:right;"> 15.1 </td>
+   <td style="text-align:right;"> 19.3 </td>
+   <td style="text-align:right;"> 16.8 </td>
+   <td style="text-align:right;"> 26.1 </td>
+   <td style="text-align:right;"> 18.4 </td>
+   <td style="text-align:right;"> 11.1 </td>
+   <td style="text-align:right;"> 11.6 </td>
+   <td style="text-align:right;"> 39.7 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> CANINO </td>
+   <td style="text-align:right;"> 23.6 </td>
+   <td style="text-align:right;"> 20.9 </td>
+   <td style="text-align:right;"> 32.5 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 10.5 </td>
+   <td style="text-align:right;"> 27.8 </td>
+   <td style="text-align:right;"> 33.3 </td>
+   <td style="text-align:right;"> 31.7 </td>
+   <td style="text-align:right;"> 34.3 </td>
+   <td style="text-align:right;"> 57.0 </td>
+   <td style="text-align:right;"> 35.1 </td>
+   <td style="text-align:right;"> 32.0 </td>
+   <td style="text-align:right;"> 34.1 </td>
+   <td style="text-align:right;"> 17.4 </td>
+   <td style="text-align:right;"> 27.4 </td>
+   <td style="text-align:right;"> 34.1 </td>
+   <td style="text-align:right;"> 25.6 </td>
+   <td style="text-align:right;"> 11.8 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> CANINO.T </td>
+   <td style="text-align:right;"> 16.4 </td>
+   <td style="text-align:right;"> 18.5 </td>
+   <td style="text-align:right;"> 29.4 </td>
+   <td style="text-align:right;"> 10.5 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 25.0 </td>
+   <td style="text-align:right;"> 29.9 </td>
+   <td style="text-align:right;"> 28.6 </td>
+   <td style="text-align:right;"> 31.4 </td>
+   <td style="text-align:right;"> 54.1 </td>
+   <td style="text-align:right;"> 33.9 </td>
+   <td style="text-align:right;"> 31.4 </td>
+   <td style="text-align:right;"> 32.7 </td>
+   <td style="text-align:right;"> 9.5 </td>
+   <td style="text-align:right;"> 27.1 </td>
+   <td style="text-align:right;"> 31.6 </td>
+   <td style="text-align:right;"> 22.5 </td>
+   <td style="text-align:right;"> 16.3 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> CHIRIVEL </td>
+   <td style="text-align:right;"> 14.0 </td>
+   <td style="text-align:right;"> 9.1 </td>
+   <td style="text-align:right;"> 12.7 </td>
+   <td style="text-align:right;"> 27.8 </td>
+   <td style="text-align:right;"> 25.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 9.1 </td>
+   <td style="text-align:right;"> 13.5 </td>
+   <td style="text-align:right;"> 13.2 </td>
+   <td style="text-align:right;"> 31.6 </td>
+   <td style="text-align:right;"> 11.9 </td>
+   <td style="text-align:right;"> 11.4 </td>
+   <td style="text-align:right;"> 10.0 </td>
+   <td style="text-align:right;"> 19.8 </td>
+   <td style="text-align:right;"> 11.7 </td>
+   <td style="text-align:right;"> 10.1 </td>
+   <td style="text-align:right;"> 6.9 </td>
+   <td style="text-align:right;"> 36.9 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> CORBATO </td>
+   <td style="text-align:right;"> 18.4 </td>
+   <td style="text-align:right;"> 14.5 </td>
+   <td style="text-align:right;"> 11.4 </td>
+   <td style="text-align:right;"> 33.3 </td>
+   <td style="text-align:right;"> 29.9 </td>
+   <td style="text-align:right;"> 9.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 14.4 </td>
+   <td style="text-align:right;"> 9.7 </td>
+   <td style="text-align:right;"> 25.1 </td>
+   <td style="text-align:right;"> 9.8 </td>
+   <td style="text-align:right;"> 12.1 </td>
+   <td style="text-align:right;"> 9.3 </td>
+   <td style="text-align:right;"> 24.4 </td>
+   <td style="text-align:right;"> 12.0 </td>
+   <td style="text-align:right;"> 4.8 </td>
+   <td style="text-align:right;"> 8.8 </td>
+   <td style="text-align:right;"> 41.9 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> CRISTALI </td>
+   <td style="text-align:right;"> 17.9 </td>
+   <td style="text-align:right;"> 18.9 </td>
+   <td style="text-align:right;"> 5.8 </td>
+   <td style="text-align:right;"> 31.7 </td>
+   <td style="text-align:right;"> 28.6 </td>
+   <td style="text-align:right;"> 13.5 </td>
+   <td style="text-align:right;"> 14.4 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 9.3 </td>
+   <td style="text-align:right;"> 34.5 </td>
+   <td style="text-align:right;"> 18.5 </td>
+   <td style="text-align:right;"> 21.8 </td>
+   <td style="text-align:right;"> 19.1 </td>
+   <td style="text-align:right;"> 25.7 </td>
+   <td style="text-align:right;"> 20.4 </td>
+   <td style="text-align:right;"> 14.6 </td>
+   <td style="text-align:right;"> 13.0 </td>
+   <td style="text-align:right;"> 38.2 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> CURROT </td>
+   <td style="text-align:right;"> 20.4 </td>
+   <td style="text-align:right;"> 18.6 </td>
+   <td style="text-align:right;"> 5.8 </td>
+   <td style="text-align:right;"> 34.3 </td>
+   <td style="text-align:right;"> 31.4 </td>
+   <td style="text-align:right;"> 13.2 </td>
+   <td style="text-align:right;"> 9.7 </td>
+   <td style="text-align:right;"> 9.3 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 28.0 </td>
+   <td style="text-align:right;"> 13.5 </td>
+   <td style="text-align:right;"> 18.2 </td>
+   <td style="text-align:right;"> 15.7 </td>
+   <td style="text-align:right;"> 27.6 </td>
+   <td style="text-align:right;"> 16.7 </td>
+   <td style="text-align:right;"> 9.7 </td>
+   <td style="text-align:right;"> 12.9 </td>
+   <td style="text-align:right;"> 42.2 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GABACHET </td>
+   <td style="text-align:right;"> 41.9 </td>
+   <td style="text-align:right;"> 37.4 </td>
+   <td style="text-align:right;"> 30.9 </td>
+   <td style="text-align:right;"> 57.0 </td>
+   <td style="text-align:right;"> 54.1 </td>
+   <td style="text-align:right;"> 31.6 </td>
+   <td style="text-align:right;"> 25.1 </td>
+   <td style="text-align:right;"> 34.5 </td>
+   <td style="text-align:right;"> 28.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 23.0 </td>
+   <td style="text-align:right;"> 26.9 </td>
+   <td style="text-align:right;"> 24.4 </td>
+   <td style="text-align:right;"> 48.0 </td>
+   <td style="text-align:right;"> 30.8 </td>
+   <td style="text-align:right;"> 23.7 </td>
+   <td style="text-align:right;"> 32.8 </td>
+   <td style="text-align:right;"> 65.9 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GANDIA </td>
+   <td style="text-align:right;"> 24.5 </td>
+   <td style="text-align:right;"> 16.7 </td>
+   <td style="text-align:right;"> 15.1 </td>
+   <td style="text-align:right;"> 35.1 </td>
+   <td style="text-align:right;"> 33.9 </td>
+   <td style="text-align:right;"> 11.9 </td>
+   <td style="text-align:right;"> 9.8 </td>
+   <td style="text-align:right;"> 18.5 </td>
+   <td style="text-align:right;"> 13.5 </td>
+   <td style="text-align:right;"> 23.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 7.0 </td>
+   <td style="text-align:right;"> 5.8 </td>
+   <td style="text-align:right;"> 29.3 </td>
+   <td style="text-align:right;"> 10.8 </td>
+   <td style="text-align:right;"> 6.3 </td>
+   <td style="text-align:right;"> 13.3 </td>
+   <td style="text-align:right;"> 44.4 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GINESTA </td>
+   <td style="text-align:right;"> 23.6 </td>
+   <td style="text-align:right;"> 13.9 </td>
+   <td style="text-align:right;"> 19.3 </td>
+   <td style="text-align:right;"> 32.0 </td>
+   <td style="text-align:right;"> 31.4 </td>
+   <td style="text-align:right;"> 11.4 </td>
+   <td style="text-align:right;"> 12.1 </td>
+   <td style="text-align:right;"> 21.8 </td>
+   <td style="text-align:right;"> 18.2 </td>
+   <td style="text-align:right;"> 26.9 </td>
+   <td style="text-align:right;"> 7.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 5.7 </td>
+   <td style="text-align:right;"> 26.5 </td>
+   <td style="text-align:right;"> 7.6 </td>
+   <td style="text-align:right;"> 10.2 </td>
+   <td style="text-align:right;"> 13.0 </td>
+   <td style="text-align:right;"> 41.7 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> MANRI </td>
+   <td style="text-align:right;"> 23.0 </td>
+   <td style="text-align:right;"> 14.8 </td>
+   <td style="text-align:right;"> 16.8 </td>
+   <td style="text-align:right;"> 34.1 </td>
+   <td style="text-align:right;"> 32.7 </td>
+   <td style="text-align:right;"> 10.0 </td>
+   <td style="text-align:right;"> 9.3 </td>
+   <td style="text-align:right;"> 19.1 </td>
+   <td style="text-align:right;"> 15.7 </td>
+   <td style="text-align:right;"> 24.4 </td>
+   <td style="text-align:right;"> 5.8 </td>
+   <td style="text-align:right;"> 5.7 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 27.5 </td>
+   <td style="text-align:right;"> 10.3 </td>
+   <td style="text-align:right;"> 7.9 </td>
+   <td style="text-align:right;"> 12.3 </td>
+   <td style="text-align:right;"> 43.5 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> MARTINET </td>
+   <td style="text-align:right;"> 10.2 </td>
+   <td style="text-align:right;"> 13.9 </td>
+   <td style="text-align:right;"> 26.1 </td>
+   <td style="text-align:right;"> 17.4 </td>
+   <td style="text-align:right;"> 9.5 </td>
+   <td style="text-align:right;"> 19.8 </td>
+   <td style="text-align:right;"> 24.4 </td>
+   <td style="text-align:right;"> 25.7 </td>
+   <td style="text-align:right;"> 27.6 </td>
+   <td style="text-align:right;"> 48.0 </td>
+   <td style="text-align:right;"> 29.3 </td>
+   <td style="text-align:right;"> 26.5 </td>
+   <td style="text-align:right;"> 27.5 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 23.0 </td>
+   <td style="text-align:right;"> 26.7 </td>
+   <td style="text-align:right;"> 18.3 </td>
+   <td style="text-align:right;"> 24.3 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> PALABRAS </td>
+   <td style="text-align:right;"> 21.3 </td>
+   <td style="text-align:right;"> 11.2 </td>
+   <td style="text-align:right;"> 18.4 </td>
+   <td style="text-align:right;"> 27.4 </td>
+   <td style="text-align:right;"> 27.1 </td>
+   <td style="text-align:right;"> 11.7 </td>
+   <td style="text-align:right;"> 12.0 </td>
+   <td style="text-align:right;"> 20.4 </td>
+   <td style="text-align:right;"> 16.7 </td>
+   <td style="text-align:right;"> 30.8 </td>
+   <td style="text-align:right;"> 10.8 </td>
+   <td style="text-align:right;"> 7.6 </td>
+   <td style="text-align:right;"> 10.3 </td>
+   <td style="text-align:right;"> 23.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 11.2 </td>
+   <td style="text-align:right;"> 11.1 </td>
+   <td style="text-align:right;"> 36.9 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> PALAU </td>
+   <td style="text-align:right;"> 21.1 </td>
+   <td style="text-align:right;"> 15.7 </td>
+   <td style="text-align:right;"> 11.1 </td>
+   <td style="text-align:right;"> 34.1 </td>
+   <td style="text-align:right;"> 31.6 </td>
+   <td style="text-align:right;"> 10.1 </td>
+   <td style="text-align:right;"> 4.8 </td>
+   <td style="text-align:right;"> 14.6 </td>
+   <td style="text-align:right;"> 9.7 </td>
+   <td style="text-align:right;"> 23.7 </td>
+   <td style="text-align:right;"> 6.3 </td>
+   <td style="text-align:right;"> 10.2 </td>
+   <td style="text-align:right;"> 7.9 </td>
+   <td style="text-align:right;"> 26.7 </td>
+   <td style="text-align:right;"> 11.2 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 9.7 </td>
+   <td style="text-align:right;"> 42.6 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> R.CARLET </td>
+   <td style="text-align:right;"> 13.7 </td>
+   <td style="text-align:right;"> 9.1 </td>
+   <td style="text-align:right;"> 11.6 </td>
+   <td style="text-align:right;"> 25.6 </td>
+   <td style="text-align:right;"> 22.5 </td>
+   <td style="text-align:right;"> 6.9 </td>
+   <td style="text-align:right;"> 8.8 </td>
+   <td style="text-align:right;"> 13.0 </td>
+   <td style="text-align:right;"> 12.9 </td>
+   <td style="text-align:right;"> 32.8 </td>
+   <td style="text-align:right;"> 13.3 </td>
+   <td style="text-align:right;"> 13.0 </td>
+   <td style="text-align:right;"> 12.3 </td>
+   <td style="text-align:right;"> 18.3 </td>
+   <td style="text-align:right;"> 11.1 </td>
+   <td style="text-align:right;"> 9.7 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 33.7 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> TADEO </td>
+   <td style="text-align:right;"> 30.9 </td>
+   <td style="text-align:right;"> 30.7 </td>
+   <td style="text-align:right;"> 39.7 </td>
+   <td style="text-align:right;"> 11.8 </td>
+   <td style="text-align:right;"> 16.3 </td>
+   <td style="text-align:right;"> 36.9 </td>
+   <td style="text-align:right;"> 41.9 </td>
+   <td style="text-align:right;"> 38.2 </td>
+   <td style="text-align:right;"> 42.2 </td>
+   <td style="text-align:right;"> 65.9 </td>
+   <td style="text-align:right;"> 44.4 </td>
+   <td style="text-align:right;"> 41.7 </td>
+   <td style="text-align:right;"> 43.5 </td>
+   <td style="text-align:right;"> 24.3 </td>
+   <td style="text-align:right;"> 36.9 </td>
+   <td style="text-align:right;"> 42.6 </td>
+   <td style="text-align:right;"> 33.7 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+</tbody>
+</table>
 
 I. Podría decir cuales son los tres pares de variedades que presentan mayor semejanza ?
 

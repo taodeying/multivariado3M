@@ -75,12 +75,13 @@ datos %>%
 D. Podría decir cuál y cuáles variables son las más dispersas ?
 
 
-    ```{r}
+```{r}
 datos %>% select(-VAR) %>%
     cov() %>%
     diag() %>% 
     which.max() %>% 
-    names()
+    names() %>% 
+    print()
 
 ```
 
@@ -89,8 +90,10 @@ datos %>% select(-VAR) %>%
     cov() %>%
     diag() %>% 
     sort() %>% 
-    names()
+    names() %>% 
+    print()
 ```
+
 E. Estandarice las variables por media y desvío. Ahora puede responder al inciso (d) ?
 
 Aca hay que calcular el coeficiente de variacion.
@@ -101,17 +104,20 @@ datos_std = scale(datos[-1])
 ```
 
 ```{r}
-datos %>% select(-VAR) %>%
+datos %>% 
+    select(-VAR) %>%
     mutate_all(scale) %>% 
     cov() %>%
     diag() %>% 
-    sort()
+    sort() %>% 
+    print()
 ```
 
 F. Halle la matriz de correlación. Que variables son las más relacionadas?
 
 ```{r}
-datos %>% select(-VAR) %>%
+datos %>% 
+    select(-VAR) %>%
     cor() %>% 
     round(1)  %>% 
     kableExtra::kable() %>% 
@@ -122,7 +128,8 @@ datos %>% select(-VAR) %>%
 
 ```{r}
 ncol_datos = ncol(datos)-1
-datos %>% select(-VAR) %>%
+datos %>% 
+    select(-VAR) %>%
     cor() %>% 
     as_tibble() %>% 
     mutate(var0=colnames(.)) %>% 
@@ -152,6 +159,23 @@ G. Pueden dividirse las variables en subgrupos, de modo que las variables dentro
 
 
 H. Encuentre la matriz que mide el grado de similaridad entre las variedades en función de la distancia euclídea calculada sobre los datos originales.
+
+```{r}
+aux = datos %>% 
+    select(-VAR) %>% 
+    data.frame()
+
+rownames(aux) <- datos$VAR
+
+aux %>% 
+    dist(diag = T, upper=T) %>% 
+    as.matrix() %>% 
+    round(1)  %>% 
+    kableExtra::kable() %>% 
+    kableExtra::kable_styling(font_size = 8)%>% 
+    kableExtra::kable_classic_2()
+
+```
 
 I. Podría decir cuales son los tres pares de variedades que presentan mayor semejanza ?
 
