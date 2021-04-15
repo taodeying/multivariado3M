@@ -1,2 +1,2 @@
-# multivariado3V
-Doctorado en Estadística - UNR  - Análisis de datos multivariado a tres modos
+# Doctorado en Estadística - UNR  - Análisis de datos multivariado a tres modos
+
