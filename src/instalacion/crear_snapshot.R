@@ -1,0 +1,6 @@
+install.packages("renv")
+library(renv)
+renv::init()
+source(file = "src/instalacion/instalar_paquetes.R")
+instalar_paquetes()
+renv::snapshot()

@@ -1,0 +1,26 @@
+---
+title: "Entrega N1"
+author: "Grupo X"
+date: "4/15/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = '../')
+```
+
+
+
+## Librerias
+
+```{r cars}
+library(tidyverse)
+```
+
+## Datos
+
+```{r}
+dat <- read_csv2("data/raw/data_TP_Parte_I_20210415/DAMASCO.csv")
+```
+
