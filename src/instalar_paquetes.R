@@ -11,5 +11,4 @@ instalar_paquetes <- function() {
         }
     }
     
-    suppressPackageStartupMessages(require(tidyverse))
 }
