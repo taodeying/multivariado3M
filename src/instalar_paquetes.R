@@ -1,5 +1,13 @@
 instalar_paquetes <- function() {
-    pckg = c("tidyverse")
+    pckg = c(
+        "tidyverse", 
+        "corrplot", 
+        "ade4", 
+        "cluster", 
+        "FactoMineR", 
+        "gplots", 
+        "pvclust"
+    )
     
     is.installed <- function(mypkg) {
         is.element(mypkg, installed.packages()[, 1])
