@@ -57,11 +57,12 @@ datos %>% select(-VAR) %>%  cov() %>%  round(1)
 D. Podría decir cuál y cuáles variables son las más dispersas ?
 
 ```{r}
-sapply(datos[-1], function(x) mean(x) / sd(x)) %>%
+cvs = sapply(datos[-1], function(x) sd(x) / mean(x)) %>%
     sort()
+cvs
 ```
 Calculamos el coeficiente de variacion y vemos que las variables con mayor
-dispersion son, en orden decreciente, LONANCHO, LONGPET y PECLIMBO.
+dispersion son, en orden decreciente `r tail(names(cvs), 3)`.
 
 E. Estandarice las variables por media y desvío. Ahora puede responder al 
 inciso (d) ?
@@ -71,13 +72,8 @@ inciso (d) ?
 datos_std = scale(datos[-1])
 ```
 
-Como son variables estandarizadas, vamos a ver que todos tienen coeficiente de
-variacion igual a 0, que es un reflejo de que tienen media 0.
-
-```{r}
-sapply(as.data.frame(datos_std), function(x) mean(x) / sd(x)) %>%
-    sort()
-```
+Como son variables estandarizadas, el coeficiente de variacion no existe,
+pero todas tienen desvio estandar 1.
 
 F. Halle la matriz de correlación. Que variables son las más relacionadas?
 

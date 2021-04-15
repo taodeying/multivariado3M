@@ -416,7 +416,7 @@ pre code {
 <p>C. Encuentre el vector de medias y matriz de varianzas-covariancias asociados a la tabla de datos ?</p>
 <pre class="r"><code>datos %&gt;% 
     select(-VAR) %&gt;% 
-    summarise_all(mean, na.rm=T)</code></pre>
+    summarise_all(mean, na.rm = TRUE)</code></pre>
 <pre><code>## # A tibble: 1 x 13
 ##   TAMFLOR LONGPET ANCHOPET SUPHOJA LONANCHO PECLIMBO PESOF LONGF ANCHOF ESPESORF
 ##     &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;
@@ -451,27 +451,23 @@ pre code {
 ## PESOEND       2.7     1.0     4.5      2.3
 ## LONGEND      11.8     4.5    21.8     10.6
 ## ANCHOEND      7.1     2.3    10.6      6.2</code></pre>
+<pre class="r"><code># Alternativa
+# round(cov(datos[-1]), 1)</code></pre>
 <p>D. Podría decir cuál y cuáles variables son las más dispersas ?</p>
-<pre class="r"><code>datos %&gt;% select(-VAR) %&gt;%
-    cov() %&gt;%
-    diag() %&gt;% 
-    which.max() %&gt;% 
-    names()</code></pre>
-<pre><code>## [1] &quot;PESOF&quot;</code></pre>
-<pre class="r"><code>datos %&gt;% select(-VAR) %&gt;%
-    cov() %&gt;%
-    diag() %&gt;% 
-    sort() %&gt;% 
-    names()</code></pre>
-<pre><code>##  [1] &quot;PECLIMBO&quot; &quot;LONANCHO&quot; &quot;LONGPET&quot;  &quot;PESOEND&quot;  &quot;ANCHOPET&quot; &quot;ANCHOEND&quot;
-##  [7] &quot;TAMFLOR&quot;  &quot;ESPESORF&quot; &quot;LONGEND&quot;  &quot;ANCHOF&quot;   &quot;SUPHOJA&quot;  &quot;LONGF&quot;   
-## [13] &quot;PESOF&quot;</code></pre>
+<pre class="r"><code>cvs = sapply(datos[-1], function(x) sd(x) / mean(x)) %&gt;%
+    sort()
+cvs</code></pre>
+<pre><code>##   LONANCHO    LONGPET   PECLIMBO   ESPESORF    TAMFLOR     ANCHOF   ANCHOPET 
+## 0.06352566 0.07801095 0.08584090 0.10015108 0.10859632 0.11118866 0.11339458 
+##   ANCHOEND    SUPHOJA      LONGF    LONGEND      PESOF    PESOEND 
+## 0.12704116 0.13937826 0.14266419 0.21221305 0.25710082 0.41642983</code></pre>
+<p>Calculamos el coeficiente de variacion y vemos que las variables con mayor dispersion son, en orden decreciente LONGEND, PESOF, PESOEND.</p>
 <p>E. Estandarice las variables por media y desvío. Ahora puede responder al inciso (d) ?</p>
-<p>Aca hay que calcular el coeficiente de variacion.</p>
 <pre class="r"><code># No utilizamos la primer columna
 datos_std = scale(datos[-1])</code></pre>
+<p>Como son variables estandarizadas, el coeficiente de variacion no existe, pero todas tienen desvio estandar 1.</p>
 <p>F. Halle la matriz de correlación. Que variables son las más relacionadas?</p>
-<pre class="r"><code>cor(datos[-1])</code></pre>
+<pre class="r"><code>cor(datos[-1]) </code></pre>
 <pre><code>##             TAMFLOR    LONGPET   ANCHOPET     SUPHOJA   LONANCHO    PECLIMBO
 ## TAMFLOR   1.0000000  0.6851558  0.7339677  0.12472508  0.1534245 -0.16507825
 ## LONGPET   0.6851558  1.0000000  0.9175753  0.17565501  0.3376313 -0.30398888
@@ -514,6 +510,51 @@ datos_std = scale(datos[-1])</code></pre>
 ## PESOEND   0.94474076  0.91211836
 ## LONGEND   1.00000000  0.90888003
 ## ANCHOEND  0.90888003  1.00000000</code></pre>
+<p>A continuacion una tabla con las correlaciones entre variables, ordenadas de mayor a menor magnitud.</p>
+<pre class="r"><code>datos_corr = cor(datos[-1]) %&gt;%
+    as.table() %&gt;% 
+    as.data.frame() %&gt;% 
+    rename(
+        var1 = Var1,
+        var2 = Var2,
+        corr = Freq
+    ) %&gt;% 
+    unique() %&gt;%
+    filter(var1 != var2) %&gt;%
+    arrange(desc(abs(corr)))
+datos_corr %&gt;%
+    filter(abs(corr) &gt; 0.7)</code></pre>
+<pre><code>##        var1     var2      corr
+## 1    ANCHOF    PESOF 0.9852213
+## 2     PESOF   ANCHOF 0.9852213
+## 3   LONGEND  PESOEND 0.9447408
+## 4   PESOEND  LONGEND 0.9447408
+## 5  ESPESORF    PESOF 0.9412822
+## 6     PESOF ESPESORF 0.9412822
+## 7     LONGF    PESOF 0.9381432
+## 8     PESOF    LONGF 0.9381432
+## 9  ESPESORF   ANCHOF 0.9327883
+## 10   ANCHOF ESPESORF 0.9327883
+## 11 ANCHOPET  LONGPET 0.9175753
+## 12  LONGPET ANCHOPET 0.9175753
+## 13 ANCHOEND  PESOEND 0.9121184
+## 14  PESOEND ANCHOEND 0.9121184
+## 15 ANCHOEND  LONGEND 0.9088800
+## 16  LONGEND ANCHOEND 0.9088800
+## 17   ANCHOF    LONGF 0.9037702
+## 18    LONGF   ANCHOF 0.9037702
+## 19 ESPESORF    LONGF 0.8662107
+## 20    LONGF ESPESORF 0.8662107
+## 21  LONGEND    LONGF 0.7402514
+## 22    LONGF  LONGEND 0.7402514
+## 23 ANCHOPET  TAMFLOR 0.7339677
+## 24  TAMFLOR ANCHOPET 0.7339677
+## 25 ANCHOEND    LONGF 0.7204999
+## 26    LONGF ANCHOEND 0.7204999
+## 27  PESOEND    LONGF 0.7106499
+## 28    LONGF  PESOEND 0.7106499
+## 29  LONGEND  LONGPET 0.7092029
+## 30  LONGPET  LONGEND 0.7092029</code></pre>
 <p>G. Pueden dividirse las variables en subgrupos, de modo que las variables dentro de un mismo subgrupo tengan elevadas correlaciones entre sí y que las que se encuentren en subgrupos diferentes tengan bajas correlaciones ? Si es así, cuáles variables quedan en cada uno de los subgrupos ?</p>
 <p>H. Encuentre la matriz que mide el grado de similaridad entre las variedades en función de la distancia euclídea calculada sobre los datos originales.</p>
 <p>I. Podría decir cuales son los tres pares de variedades que presentan mayor semejanza ?</p>
