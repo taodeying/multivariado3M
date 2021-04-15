@@ -74,24 +74,20 @@ datos %>%
 
 D. Podría decir cuál y cuáles variables son las más dispersas ?
 
-
-```{r}
-datos %>% select(-VAR) %>%
-    cov() %>%
-    diag() %>% 
-    which.max() %>% 
-    names() %>% 
-    print()
-
-```
+Primero se calcula la matriz de covarianza y luego se extrae la diagonal (las varianzas). De esta manera, podemos decir que las variables más dispersas, en orden decreciente, son:
 
 ```{r}
 datos %>% select(-VAR) %>%
     cov() %>%
     diag() %>% 
     sort() %>% 
-    names() %>% 
-    print()
+    rev() %>% 
+    names() %>%
+    as_tibble() %>% 
+    mutate(orden = seq(ncol(datos)-1) ) %>% 
+    kableExtra::kable() %>% 
+    kableExtra::kable_styling(font_size = 10)%>% 
+    kableExtra::kable_classic_2()
 ```
 
 E. Estandarice las variables por media y desvío. Ahora puede responder al inciso (d) ?
@@ -102,6 +98,9 @@ Aca hay que calcular el coeficiente de variacion.
 # No utilizamos la primer columna
 datos_std = scale(datos[-1])
 ```
+
+Como son variables estandarizadas, el coeficiente de variacion no existe,
+pero todas tienen desvio estandar 1.
 
 ```{r}
 datos %>% 
@@ -115,6 +114,8 @@ datos %>%
 
 F. Halle la matriz de correlación. Que variables son las más relacionadas?
 
+La matriz de correlación es:
+
 ```{r}
 datos %>% 
     select(-VAR) %>%
@@ -125,6 +126,7 @@ datos %>%
     kableExtra::kable_classic_2()
 ```
 
+A continuacion una tabla con las 10 correlaciones más grandes entre variables, ordenadas de mayor a menor magnitud.
 
 ```{r}
 ncol_datos = ncol(datos)-1

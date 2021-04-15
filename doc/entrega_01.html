@@ -1382,26 +1382,141 @@ ANCHOEND
 </tbody>
 </table>
 <p>D. Podría decir cuál y cuáles variables son las más dispersas ?</p>
-<pre class="r"><code>datos %&gt;% select(-VAR) %&gt;%
-    cov() %&gt;%
-    diag() %&gt;% 
-    which.max() %&gt;% 
-    names() %&gt;% 
-    print()</code></pre>
-<pre><code>## [1] &quot;PESOF&quot;</code></pre>
+<p>Primero se calcula la matriz de covarianza y luego se extrae la diagonal (las varianzas). De esta manera, podemos decir que las variables más dispersas, en orden decreciente, son:</p>
 <pre class="r"><code>datos %&gt;% select(-VAR) %&gt;%
     cov() %&gt;%
     diag() %&gt;% 
     sort() %&gt;% 
-    names() %&gt;% 
-    print()</code></pre>
-<pre><code>##  [1] &quot;PECLIMBO&quot; &quot;LONANCHO&quot; &quot;LONGPET&quot;  &quot;PESOEND&quot;  &quot;ANCHOPET&quot; &quot;ANCHOEND&quot;
-##  [7] &quot;TAMFLOR&quot;  &quot;ESPESORF&quot; &quot;LONGEND&quot;  &quot;ANCHOF&quot;   &quot;SUPHOJA&quot;  &quot;LONGF&quot;   
-## [13] &quot;PESOF&quot;</code></pre>
+    rev() %&gt;% 
+    names() %&gt;%
+    as_tibble() %&gt;% 
+    mutate(orden = seq(ncol(datos)-1) ) %&gt;% 
+    kableExtra::kable() %&gt;% 
+    kableExtra::kable_styling(font_size = 10)%&gt;% 
+    kableExtra::kable_classic_2()</code></pre>
+<table class="table lightable-classic-2" style="font-size: 10px; margin-left: auto; margin-right: auto; font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+value
+</th>
+<th style="text-align:right;">
+orden
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+PESOF
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LONGF
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SUPHOJA
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ANCHOF
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LONGEND
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ESPESORF
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TAMFLOR
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ANCHOEND
+</td>
+<td style="text-align:right;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ANCHOPET
+</td>
+<td style="text-align:right;">
+9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PESOEND
+</td>
+<td style="text-align:right;">
+10
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LONGPET
+</td>
+<td style="text-align:right;">
+11
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LONANCHO
+</td>
+<td style="text-align:right;">
+12
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PECLIMBO
+</td>
+<td style="text-align:right;">
+13
+</td>
+</tr>
+</tbody>
+</table>
 <p>E. Estandarice las variables por media y desvío. Ahora puede responder al inciso (d) ?</p>
 <p>Aca hay que calcular el coeficiente de variacion.</p>
 <pre class="r"><code># No utilizamos la primer columna
 datos_std = scale(datos[-1])</code></pre>
+<p>Como son variables estandarizadas, el coeficiente de variacion no existe, pero todas tienen desvio estandar 1.</p>
 <pre class="r"><code>datos %&gt;% 
     select(-VAR) %&gt;%
     mutate_all(scale) %&gt;% 
@@ -1414,6 +1529,7 @@ datos_std = scale(datos[-1])</code></pre>
 ##    LONGF   ANCHOF ESPESORF    PESOF ANCHOEND 
 ##        1        1        1        1        1</code></pre>
 <p>F. Halle la matriz de correlación. Que variables son las más relacionadas?</p>
+<p>La matriz de correlación es:</p>
 <pre class="r"><code>datos %&gt;% 
     select(-VAR) %&gt;%
     cor() %&gt;% 
@@ -2042,6 +2158,7 @@ ANCHOEND
 </tr>
 </tbody>
 </table>
+<p>A continuacion una tabla con las 10 correlaciones más grandes entre variables, ordenadas de mayor a menor magnitud.</p>
 <pre class="r"><code>ncol_datos = ncol(datos)-1
 datos %&gt;% 
     select(-VAR) %&gt;%

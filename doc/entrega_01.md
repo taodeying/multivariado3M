@@ -435,20 +435,7 @@ datos %>%
 
 D. Podría decir cuál y cuáles variables son las más dispersas ?
 
-
-
-```r
-datos %>% select(-VAR) %>%
-    cov() %>%
-    diag() %>% 
-    which.max() %>% 
-    names() %>% 
-    print()
-```
-
-```
-## [1] "PESOF"
-```
+Primero se calcula la matriz de covarianza y luego se extrae la diagonal (las varianzas). De esta manera, podemos decir que las variables más dispersas, en orden decreciente, son:
 
 
 ```r
@@ -456,15 +443,77 @@ datos %>% select(-VAR) %>%
     cov() %>%
     diag() %>% 
     sort() %>% 
-    names() %>% 
-    print()
+    rev() %>% 
+    names() %>%
+    as_tibble() %>% 
+    mutate(orden = seq(ncol(datos)-1) ) %>% 
+    kableExtra::kable() %>% 
+    kableExtra::kable_styling(font_size = 10)%>% 
+    kableExtra::kable_classic_2()
 ```
 
-```
-##  [1] "PECLIMBO" "LONANCHO" "LONGPET"  "PESOEND"  "ANCHOPET" "ANCHOEND"
-##  [7] "TAMFLOR"  "ESPESORF" "LONGEND"  "ANCHOF"   "SUPHOJA"  "LONGF"   
-## [13] "PESOF"
-```
+<table class="table lightable-classic-2" style='font-size: 10px; margin-left: auto; margin-right: auto; font-family: "Arial Narrow", "Source Sans Pro", sans-serif; margin-left: auto; margin-right: auto;'>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> value </th>
+   <th style="text-align:right;"> orden </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> PESOF </td>
+   <td style="text-align:right;"> 1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LONGF </td>
+   <td style="text-align:right;"> 2 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> SUPHOJA </td>
+   <td style="text-align:right;"> 3 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ANCHOF </td>
+   <td style="text-align:right;"> 4 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LONGEND </td>
+   <td style="text-align:right;"> 5 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ESPESORF </td>
+   <td style="text-align:right;"> 6 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> TAMFLOR </td>
+   <td style="text-align:right;"> 7 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ANCHOEND </td>
+   <td style="text-align:right;"> 8 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ANCHOPET </td>
+   <td style="text-align:right;"> 9 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> PESOEND </td>
+   <td style="text-align:right;"> 10 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LONGPET </td>
+   <td style="text-align:right;"> 11 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LONANCHO </td>
+   <td style="text-align:right;"> 12 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> PECLIMBO </td>
+   <td style="text-align:right;"> 13 </td>
+  </tr>
+</tbody>
+</table>
 
 E. Estandarice las variables por media y desvío. Ahora puede responder al inciso (d) ?
 
@@ -475,6 +524,9 @@ Aca hay que calcular el coeficiente de variacion.
 # No utilizamos la primer columna
 datos_std = scale(datos[-1])
 ```
+
+Como son variables estandarizadas, el coeficiente de variacion no existe,
+pero todas tienen desvio estandar 1.
 
 
 ```r
@@ -495,6 +547,8 @@ datos %>%
 ```
 
 F. Halle la matriz de correlación. Que variables son las más relacionadas?
+
+La matriz de correlación es:
 
 
 ```r
@@ -738,6 +792,7 @@ datos %>%
 </tbody>
 </table>
 
+A continuacion una tabla con las 10 correlaciones más grandes entre variables, ordenadas de mayor a menor magnitud.
 
 
 ```r
