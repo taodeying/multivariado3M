@@ -658,6 +658,7 @@ pre code {
 <p>B. Cómo clasificaría las variables sobre las que se está trabajando ?</p>
 <p>Las variables con las que se esta trabajando son de tipo continuo en todos los casos. Mas aun, todas estan medidas en escala de intervalo.</p>
 <p>C. Encuentre el vector de medias y matriz de varianzas-covariancias asociados a la tabla de datos ?</p>
+<p>Las medias son:</p>
 <pre class="r"><code>datos %&gt;% 
     select(-VAR) %&gt;% 
     summarise_all(mean, na.rm=T) %&gt;% 
@@ -753,6 +754,7 @@ ANCHOEND
 </tr>
 </tbody>
 </table>
+<p>La matriz de covarianza es:</p>
 <pre class="r"><code>datos %&gt;% 
     select(-VAR) %&gt;%  
     cov() %&gt;%  

@@ -141,6 +141,7 @@ casos. Mas aun, todas estan medidas en escala de intervalo.
 
 C. Encuentre el vector de medias y matriz de varianzas-covariancias asociados a la tabla de datos ?
 
+Las medias son:
 
 
 ```r
@@ -190,6 +191,7 @@ datos %>%
 </tbody>
 </table>
 
+La matriz de covarianza es:
 
 
 ```r
