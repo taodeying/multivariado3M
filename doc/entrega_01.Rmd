@@ -56,6 +56,15 @@ dat %>% select(-VAR) %>%
 
 ```
 
+```{r}
+dat %>% select(-VAR) %>%
+    cov() %>%
+    diag() %>% 
+    sort() %>% 
+    names()
+
+```
+
 
 E. Estandarice las variables por media y desvío ? Ahora puede responder al inciso (d) ?
 
