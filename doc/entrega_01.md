@@ -437,13 +437,13 @@ datos %>%
 
 D. Podría decir cuál y cuáles variables son las más dispersas ?
 
-Primero se calcula la matriz de covarianza y luego se extrae la diagonal (las varianzas). De esta manera, podemos decir que las variables más dispersas, en orden decreciente, son:
+Utilizando el coeficiente de variación, podemos decir que las variables más dispersas, en orden decreciente, son:
 
 
 ```r
 datos %>% select(-VAR) %>%
-    cov() %>%
-    diag() %>% 
+    summarise_all(function(x) sd(x, na.rm=TRUE) /  mean(x, na.rm=TRUE)) %>% 
+    as_vector() %>% 
     sort() %>% 
     rev() %>% 
     names() %>%
@@ -463,55 +463,55 @@ datos %>% select(-VAR) %>%
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:left;"> PESOF </td>
+   <td style="text-align:left;"> PESOEND </td>
    <td style="text-align:right;"> 1 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> LONGF </td>
+   <td style="text-align:left;"> PESOF </td>
    <td style="text-align:right;"> 2 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> SUPHOJA </td>
+   <td style="text-align:left;"> LONGEND </td>
    <td style="text-align:right;"> 3 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> ANCHOF </td>
+   <td style="text-align:left;"> LONGF </td>
    <td style="text-align:right;"> 4 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> LONGEND </td>
+   <td style="text-align:left;"> SUPHOJA </td>
    <td style="text-align:right;"> 5 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> ESPESORF </td>
+   <td style="text-align:left;"> ANCHOEND </td>
    <td style="text-align:right;"> 6 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> TAMFLOR </td>
+   <td style="text-align:left;"> ANCHOPET </td>
    <td style="text-align:right;"> 7 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> ANCHOEND </td>
+   <td style="text-align:left;"> ANCHOF </td>
    <td style="text-align:right;"> 8 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> ANCHOPET </td>
+   <td style="text-align:left;"> TAMFLOR </td>
    <td style="text-align:right;"> 9 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> PESOEND </td>
+   <td style="text-align:left;"> ESPESORF </td>
    <td style="text-align:right;"> 10 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> LONGPET </td>
+   <td style="text-align:left;"> PECLIMBO </td>
    <td style="text-align:right;"> 11 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> LONANCHO </td>
+   <td style="text-align:left;"> LONGPET </td>
    <td style="text-align:right;"> 12 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> PECLIMBO </td>
+   <td style="text-align:left;"> LONANCHO </td>
    <td style="text-align:right;"> 13 </td>
   </tr>
 </tbody>
@@ -532,20 +532,19 @@ pero todas tienen desvio estandar 1.
 
 
 ```r
-datos %>% 
-    select(-VAR) %>%
-    mutate_all(scale) %>% 
-    cov() %>%
-    diag() %>% 
-    sort() %>% 
-    print()
+datos_std %>%
+    as_tibble() %>% 
+    summarise_all(function(x) sd(x, na.rm=TRUE) /  mean(x, na.rm=TRUE)) %>% 
+    round(1)
 ```
 
 ```
-##  LONGEND  LONGPET ANCHOPET  SUPHOJA  PESOEND  TAMFLOR LONANCHO PECLIMBO 
-##        1        1        1        1        1        1        1        1 
-##    LONGF   ANCHOF ESPESORF    PESOF ANCHOEND 
-##        1        1        1        1        1
+## # A tibble: 1 x 13
+##   TAMFLOR  LONGPET ANCHOPET SUPHOJA LONANCHO PECLIMBO   PESOF   LONGF   ANCHOF
+##     <dbl>    <dbl>    <dbl>   <dbl>    <dbl>    <dbl>   <dbl>   <dbl>    <dbl>
+## 1 2.22e15 -1.30e15 -5.65e15 3.13e15 -3.61e15  1.41e15 5.53e16 4.25e15 -2.52e15
+## # … with 4 more variables: ESPESORF <dbl>, PESOEND <dbl>, LONGEND <dbl>,
+## #   ANCHOEND <dbl>
 ```
 
 F. Halle la matriz de correlación. Que variables son las más relacionadas?

@@ -76,12 +76,13 @@ datos %>%
 
 D. Podría decir cuál y cuáles variables son las más dispersas ?
 
-Primero se calcula la matriz de covarianza y luego se extrae la diagonal (las varianzas). De esta manera, podemos decir que las variables más dispersas, en orden decreciente, son:
+Utilizando el coeficiente de variación, podemos decir que las variables más dispersas, en orden decreciente, son:
 
 ```{r}
+
 datos %>% select(-VAR) %>%
-    cov() %>%
-    diag() %>% 
+    summarise_all(function(x) sd(x, na.rm=TRUE) /  mean(x, na.rm=TRUE)) %>% 
+    as_vector() %>% 
     sort() %>% 
     rev() %>% 
     names() %>%
@@ -105,13 +106,10 @@ Como son variables estandarizadas, el coeficiente de variacion no existe,
 pero todas tienen desvio estandar 1.
 
 ```{r}
-datos %>% 
-    select(-VAR) %>%
-    mutate_all(scale) %>% 
-    cov() %>%
-    diag() %>% 
-    sort() %>% 
-    print()
+datos_std %>%
+    as_tibble() %>% 
+    summarise_all(function(x) sd(x, na.rm=TRUE) /  mean(x, na.rm=TRUE)) %>% 
+    round(1)
 ```
 
 F. Halle la matriz de correlación. Que variables son las más relacionadas?
