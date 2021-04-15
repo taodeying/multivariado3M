@@ -371,40 +371,48 @@ pre code {
 <div id="librerias" class="section level2">
 <h2>Librerias</h2>
 <pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
-<pre><code>## ✓ ggplot2 3.3.3     ✓ purrr   0.3.4
-## ✓ tibble  3.1.0     ✓ dplyr   1.0.5
-## ✓ tidyr   1.1.3     ✓ stringr 1.4.0
-## ✓ readr   1.4.0     ✓ forcats 0.5.1</code></pre>
-<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-## x dplyr::filter() masks stats::filter()
-## x dplyr::lag()    masks stats::lag()</code></pre>
 </div>
 <div id="datos" class="section level2">
 <h2>Datos</h2>
 <pre class="r"><code>datos &lt;- read_csv2(&quot;../data/raw/DAMASCO.csv&quot;)</code></pre>
-<pre><code>## ℹ Using &#39;,&#39; as decimal and &#39;.&#39; as grouping mark. Use `read_delim()` for more control.</code></pre>
-<pre><code>## 
-## ── Column specification ────────────────────────────────────────────────────────
-## cols(
-##   VAR = col_character(),
-##   TAMFLOR = col_double(),
-##   LONGPET = col_double(),
-##   ANCHOPET = col_double(),
-##   SUPHOJA = col_double(),
-##   LONANCHO = col_double(),
-##   PECLIMBO = col_double(),
-##   PESOF = col_double(),
-##   LONGF = col_double(),
-##   ANCHOF = col_double(),
-##   ESPESORF = col_double(),
-##   PESOEND = col_double(),
-##   LONGEND = col_double(),
-##   ANCHOEND = col_double()
-## )</code></pre>
+<p>Inspeccionamos con <code>str(datos)</code></p>
+<pre class="r"><code>str(datos)</code></pre>
+<pre><code>## spec_tbl_df[,14] [18 × 14] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
+##  $ VAR     : chr [1:18] &quot;BLANCO&quot; &quot;BULIDA&quot; &quot;CURROT.T&quot; &quot;CANINO&quot; ...
+##  $ TAMFLOR : num [1:18] 33.3 26.8 28.8 27.5 33.9 ...
+##  $ LONGPET : num [1:18] 13.9 13.4 12.7 12.3 14.4 ...
+##  $ ANCHOPET: num [1:18] 18.3 15.9 15.4 14.3 16.4 ...
+##  $ SUPHOJA : num [1:18] 44.1 36.7 51.7 36 39 ...
+##  $ LONANCHO: num [1:18] 1.053 1.112 0.912 1.005 1.058 ...
+##  $ PECLIMBO: num [1:18] 0.415 0.395 0.389 0.452 0.311 0.411 0.385 0.344 0.412 0.41 ...
+##  $ PESOF   : num [1:18] 49.3 49 43 66.8 63.1 ...
+##  $ LONGF   : num [1:18] 46.3 44.6 40.1 51.3 50.7 ...
+##  $ ANCHOF  : num [1:18] 44.9 45.1 43.5 50.8 49.2 ...
+##  $ ESPESORF: num [1:18] 45.4 43.4 43 49.1 46.8 ...
+##  $ PESOEND : num [1:18] 4.31 2.57 1.62 3.42 3.34 3.46 1.88 2.58 1.52 1.2 ...
+##  $ LONGEND : num [1:18] 31.1 25.3 20.1 23.8 29.1 ...
+##  $ ANCHOEND: num [1:18] 24.2 20.3 17.6 21.2 22.9 ...
+##  - attr(*, &quot;spec&quot;)=
+##   .. cols(
+##   ..   VAR = col_character(),
+##   ..   TAMFLOR = col_double(),
+##   ..   LONGPET = col_double(),
+##   ..   ANCHOPET = col_double(),
+##   ..   SUPHOJA = col_double(),
+##   ..   LONANCHO = col_double(),
+##   ..   PECLIMBO = col_double(),
+##   ..   PESOF = col_double(),
+##   ..   LONGF = col_double(),
+##   ..   ANCHOF = col_double(),
+##   ..   ESPESORF = col_double(),
+##   ..   PESOEND = col_double(),
+##   ..   LONGEND = col_double(),
+##   ..   ANCHOEND = col_double()
+##   .. )</code></pre>
 <p>A. Cuáles son los valores de n y p ? Cuanto vale y que indica el valor <span class="math inline">\(x_{32}\)</span> ? Y el vector <span class="math inline">\(x_6\)</span> ?</p>
-<p>El valor de <span class="math inline">\(n\)</span> es 18 y el valor de <span class="math inline">\(p\)</span> es 14.</p>
+<p>El valor de <span class="math inline">\(n\)</span> es 18 y el valor de <span class="math inline">\(p\)</span> es 14. El valor de <span class="math inline">\(x_{32}\)</span> es 28.84 e indica el tamano de la flor de la observacion 3. El vector <span class="math inline">\(x_6\)</span> indica la relacion entre el ancho y largo de la hoja.</p>
 <p>B. Cómo clasificaría las variables sobre las que se está trabajando ?</p>
+<p>Las variables con las que se esta trabajando son de tipo continuo en todos los casos. Mas aun, todas estan medidas en escala de intervalo.</p>
 <p>C. Encuentre el vector de medias y matriz de varianzas-covariancias asociados a la tabla de datos ?</p>
 <pre class="r"><code>datos %&gt;% 
     select(-VAR) %&gt;% 
@@ -458,11 +466,58 @@ pre code {
 <pre><code>##  [1] &quot;PECLIMBO&quot; &quot;LONANCHO&quot; &quot;LONGPET&quot;  &quot;PESOEND&quot;  &quot;ANCHOPET&quot; &quot;ANCHOEND&quot;
 ##  [7] &quot;TAMFLOR&quot;  &quot;ESPESORF&quot; &quot;LONGEND&quot;  &quot;ANCHOF&quot;   &quot;SUPHOJA&quot;  &quot;LONGF&quot;   
 ## [13] &quot;PESOF&quot;</code></pre>
-<p>E. Estandarice las variables por media y desvío ? Ahora puede responder al inciso (d) ?</p>
+<p>E. Estandarice las variables por media y desvío. Ahora puede responder al inciso (d) ?</p>
+<p>Aca hay que calcular el coeficiente de variacion.</p>
+<pre class="r"><code># No utilizamos la primer columna
+datos_std = scale(datos[-1])</code></pre>
 <p>F. Halle la matriz de correlación. Que variables son las más relacionadas?</p>
+<pre class="r"><code>cor(datos[-1])</code></pre>
+<pre><code>##             TAMFLOR    LONGPET   ANCHOPET     SUPHOJA   LONANCHO    PECLIMBO
+## TAMFLOR   1.0000000  0.6851558  0.7339677  0.12472508  0.1534245 -0.16507825
+## LONGPET   0.6851558  1.0000000  0.9175753  0.17565501  0.3376313 -0.30398888
+## ANCHOPET  0.7339677  0.9175753  1.0000000  0.35051296  0.2907789 -0.14121156
+## SUPHOJA   0.1247251  0.1756550  0.3505130  1.00000000 -0.3705336 -0.19079305
+## LONANCHO  0.1534245  0.3376313  0.2907789 -0.37053359  1.0000000 -0.25617042
+## PECLIMBO -0.1650783 -0.3039889 -0.1412116 -0.19079305 -0.2561704  1.00000000
+## PESOF     0.4035308  0.4032585  0.3728564 -0.20812915  0.5077245 -0.07304798
+## LONGF     0.5328034  0.4841062  0.4669850 -0.15192214  0.3763301 -0.05515004
+## ANCHOF    0.3962450  0.3960016  0.3787705 -0.21025797  0.5377335 -0.02363848
+## ESPESORF  0.3123319  0.4027731  0.4183162 -0.06819094  0.5188731 -0.10543394
+## PESOEND   0.5360243  0.6612145  0.6145157 -0.12718614  0.3814902  0.08964234
+## LONGEND   0.6200778  0.7092029  0.6492672 -0.12011013  0.4000549 -0.03210704
+## ANCHOEND  0.4720942  0.6988485  0.6047891 -0.14934520  0.3713133 -0.06389757
+##                PESOF       LONGF      ANCHOF    ESPESORF     PESOEND
+## TAMFLOR   0.40353080  0.53280336  0.39624498  0.31233191  0.53602432
+## LONGPET   0.40325849  0.48410621  0.39600160  0.40277305  0.66121451
+## ANCHOPET  0.37285639  0.46698504  0.37877047  0.41831623  0.61451568
+## SUPHOJA  -0.20812915 -0.15192214 -0.21025797 -0.06819094 -0.12718614
+## LONANCHO  0.50772450  0.37633013  0.53773352  0.51887310  0.38149016
+## PECLIMBO -0.07304798 -0.05515004 -0.02363848 -0.10543394  0.08964234
+## PESOF     1.00000000  0.93814324  0.98522128  0.94128220  0.61776756
+## LONGF     0.93814324  1.00000000  0.90377019  0.86621074  0.71064994
+## ANCHOF    0.98522128  0.90377019  1.00000000  0.93278825  0.61842706
+## ESPESORF  0.94128220  0.86621074  0.93278825  1.00000000  0.61560105
+## PESOEND   0.61776756  0.71064994  0.61842706  0.61560105  1.00000000
+## LONGEND   0.62423128  0.74025144  0.63860068  0.57378440  0.94474076
+## ANCHOEND  0.65210707  0.72049994  0.65276062  0.64741560  0.91211836
+##              LONGEND    ANCHOEND
+## TAMFLOR   0.62007778  0.47209422
+## LONGPET   0.70920292  0.69884853
+## ANCHOPET  0.64926723  0.60478912
+## SUPHOJA  -0.12011013 -0.14934520
+## LONANCHO  0.40005490  0.37131328
+## PECLIMBO -0.03210704 -0.06389757
+## PESOF     0.62423128  0.65210707
+## LONGF     0.74025144  0.72049994
+## ANCHOF    0.63860068  0.65276062
+## ESPESORF  0.57378440  0.64741560
+## PESOEND   0.94474076  0.91211836
+## LONGEND   1.00000000  0.90888003
+## ANCHOEND  0.90888003  1.00000000</code></pre>
 <p>G. Pueden dividirse las variables en subgrupos, de modo que las variables dentro de un mismo subgrupo tengan elevadas correlaciones entre sí y que las que se encuentren en subgrupos diferentes tengan bajas correlaciones ? Si es así, cuáles variables quedan en cada uno de los subgrupos ?</p>
 <p>H. Encuentre la matriz que mide el grado de similaridad entre las variedades en función de la distancia euclídea calculada sobre los datos originales.</p>
 <p>I. Podría decir cuales son los tres pares de variedades que presentan mayor semejanza ?</p>
+<p>J. Repita lo realizado en el inciso (h) pero sobre las variables estandarizadas por media y desvío estándar. Son las mimas las tres variedades más parecidas ? Comente al respecto</p>
 </div>
 
 

@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
 ```
 
 ## Librerias
@@ -27,8 +27,8 @@ Inspeccionamos con `str(datos)`
 str(datos)
 ```
 
-
-A. Cuáles son los valores de n y p ? Cuanto vale y que indica el valor $x_{32}$ ? Y el vector $x_6$ ?
+A. Cuáles son los valores de n y p ? Cuanto vale y que indica el valor $x_{32}$ ?
+Y el vector $x_6$ ?
 
 El valor de $n$ es `r nrow(datos)` y el valor de $p$ es `r ncol(datos)`. El
 valor de $x_{32}$ es `r datos[[3, 2]]` e indica el tamano de la flor de la 
@@ -45,44 +45,64 @@ C. Encuentre el vector de medias y matriz de varianzas-covariancias asociados a 
 ```{r}
 datos %>% 
     select(-VAR) %>% 
-    summarise_all(mean, na.rm=T)
+    summarise_all(mean, na.rm = TRUE)
 ```
 
 ```{r}
 datos %>% select(-VAR) %>%  cov() %>%  round(1)
+# Alternativa
+# round(cov(datos[-1]), 1)
 ```
 
 D. Podría decir cuál y cuáles variables son las más dispersas ?
 
 ```{r}
-datos %>% select(-VAR) %>%
-    cov() %>%
-    diag() %>% 
-    which.max() %>% 
-    names()
-
+sapply(datos[-1], function(x) mean(x) / sd(x)) %>%
+    sort()
 ```
+Calculamos el coeficiente de variacion y vemos que las variables con mayor
+dispersion son, en orden decreciente, LONANCHO, LONGPET y PECLIMBO.
 
-```{r}
-datos %>% select(-VAR) %>%
-    cov() %>%
-    diag() %>% 
-    sort() %>% 
-    names()
-```
-E. Estandarice las variables por media y desvío. Ahora puede responder al inciso (d) ?
-
-Aca hay que calcular el coeficiente de variacion.
+E. Estandarice las variables por media y desvío. Ahora puede responder al 
+inciso (d) ?
 
 ```{r}
 # No utilizamos la primer columna
 datos_std = scale(datos[-1])
 ```
 
+Como son variables estandarizadas, vamos a ver que todos tienen coeficiente de
+variacion igual a 0, que es un reflejo de que tienen media 0.
+
+```{r}
+sapply(as.data.frame(datos_std), function(x) mean(x) / sd(x)) %>%
+    sort()
+```
+
 F. Halle la matriz de correlación. Que variables son las más relacionadas?
 
 ```{r}
-cor(datos[-1])
+cor(datos[-1]) 
+```
+
+
+A continuacion una tabla con las correlaciones entre variables, ordenadas de 
+mayor a menor magnitud.
+
+```{r}
+datos_corr = cor(datos[-1]) %>%
+    as.table() %>% 
+    as.data.frame() %>% 
+    rename(
+        var1 = Var1,
+        var2 = Var2,
+        corr = Freq
+    ) %>% 
+    unique() %>%
+    filter(var1 != var2) %>%
+    arrange(desc(abs(corr)))
+datos_corr %>%
+    filter(abs(corr) > 0.7)
 ```
 
 G. Pueden dividirse las variables en subgrupos, de modo que las variables dentro de un mismo subgrupo
