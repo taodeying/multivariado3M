@@ -7,7 +7,6 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_knit$set(root.dir = '../')
 ```
 
 
@@ -24,3 +23,49 @@ library(tidyverse)
 dat <- read_csv2("data/raw/data_TP_Parte_I_20210415/DAMASCO.csv")
 ```
 
+A. Cuáles son los valores de n y p ? Cuanto vale y que indica el valor $x_{32}$ ? Y el vector $x_6$ ?
+
+```{r}
+nrow(dat)
+ncol(dat)
+```
+
+B. Cómo clasificaría las variables sobre las que se está trabajando ?
+
+C. Encuentre el vector de medias y matriz de varianzas-covariancias asociados a la tabla de datos ?
+
+```{r}
+dat %>% 
+    select(-VAR) %>% 
+    summarise_all(mean, na.rm=T)
+```
+
+```{r}
+dat %>% select(-VAR) %>%  cov() %>%  round(1)
+```
+
+
+D. Podría decir cuál y cuáles variables son las más dispersas ?
+
+```{r}
+dat %>% select(-VAR) %>%
+    cov() %>%
+    diag() %>% 
+    which.max() %>% 
+    names()
+
+```
+
+
+E. Estandarice las variables por media y desvío ? Ahora puede responder al inciso (d) ?
+
+F. Halle la matriz de correlación. Que variables son las más relacionadas?
+
+G. Pueden dividirse las variables en subgrupos, de modo que las variables dentro de un mismo subgrupo
+tengan elevadas correlaciones entre sí y que las que se encuentren en subgrupos diferentes tengan bajas
+correlaciones ? Si es así, cuáles variables quedan en cada uno de los subgrupos ?
+
+H. Encuentre la matriz que mide el grado de similaridad entre las variedades en función de la distancia
+euclídea calculada sobre los datos originales.
+
+I. Podría decir cuales son los tres pares de variedades que presentan mayor semejanza ?
