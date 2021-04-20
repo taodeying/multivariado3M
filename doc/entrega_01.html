@@ -574,54 +574,22 @@ pre code {
 
 <h1 class="title toc-ignore">Entrega 1</h1>
 <h4 class="author">Grupo X</h4>
-<h4 class="date">15 abril, 2021</h4>
+<h4 class="date">20 abril, 2021</h4>
 
 </div>
 
 
 <div id="librerias" class="section level2">
 <h2>Librerias</h2>
-<pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
-<pre><code>## ✓ ggplot2 3.3.3     ✓ purrr   0.3.4
-## ✓ tibble  3.1.0     ✓ dplyr   1.0.5
-## ✓ tidyr   1.1.3     ✓ stringr 1.4.0
-## ✓ readr   1.4.0     ✓ forcats 0.5.1</code></pre>
-<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-## x dplyr::filter() masks stats::filter()
-## x dplyr::lag()    masks stats::lag()</code></pre>
-<pre class="r"><code>library(kableExtra)</code></pre>
-<pre><code>## 
-## Attaching package: 'kableExtra'</code></pre>
-<pre><code>## The following object is masked from 'package:dplyr':
-## 
-##     group_rows</code></pre>
+<pre class="r"><code>library(tidyverse)
+library(kableExtra)</code></pre>
 </div>
 <div id="datos" class="section level2">
 <h2>Datos</h2>
 <pre class="r"><code>datos &lt;- read_csv2(&quot;../data/raw/DAMASCO.csv&quot;)</code></pre>
-<pre><code>## ℹ Using ',' as decimal and '.' as grouping mark. Use `read_delim()` for more control.</code></pre>
-<pre><code>## 
-## ── Column specification ────────────────────────────────────────────────────────
-## cols(
-##   VAR = col_character(),
-##   TAMFLOR = col_double(),
-##   LONGPET = col_double(),
-##   ANCHOPET = col_double(),
-##   SUPHOJA = col_double(),
-##   LONANCHO = col_double(),
-##   PECLIMBO = col_double(),
-##   PESOF = col_double(),
-##   LONGF = col_double(),
-##   ANCHOF = col_double(),
-##   ESPESORF = col_double(),
-##   PESOEND = col_double(),
-##   LONGEND = col_double(),
-##   ANCHOEND = col_double()
-## )</code></pre>
 <p>Inspeccionamos con <code>str(datos)</code></p>
 <pre class="r"><code>str(datos)</code></pre>
-<pre><code>## spec_tbl_df[,14] [18 × 14] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
+<pre><code>## spec_tbl_df[,14] [18 x 14] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
 ##  $ VAR     : chr [1:18] &quot;BLANCO&quot; &quot;BULIDA&quot; &quot;CURROT.T&quot; &quot;CANINO&quot; ...
 ##  $ TAMFLOR : num [1:18] 33.3 26.8 28.8 27.5 33.9 ...
 ##  $ LONGPET : num [1:18] 13.9 13.4 12.7 12.3 14.4 ...
@@ -654,7 +622,7 @@ pre code {
 ##   ..   ANCHOEND = col_double()
 ##   .. )</code></pre>
 <p>A. Cuáles son los valores de n y p ? Cuanto vale y que indica el valor <span class="math inline">\(x_{32}\)</span> ? Y el vector <span class="math inline">\(x_6\)</span> ?</p>
-<p>El valor de <span class="math inline">\(n\)</span> es 18 y el valor de <span class="math inline">\(p\)</span> es 14. El valor de <span class="math inline">\(x_{32}\)</span> es 28.84 e indica el tamano de la flor de la observacion 3. El vector <span class="math inline">\(x_6\)</span> indica la relacion entre el ancho y largo de la hoja.</p>
+<p>El valor de <span class="math inline">\(n\)</span> es 18 y el valor de <span class="math inline">\(p\)</span> es 14. El valor de <span class="math inline">\(x_{32}\)</span> es 28.84 e indica el tamaño de la flor de la observacion 3. El vector <span class="math inline">\(x_6\)</span> indica la relacion entre el ancho y largo de la hoja.</p>
 <p>B. Cómo clasificaría las variables sobre las que se está trabajando ?</p>
 <p>Las variables con las que se esta trabajando son de tipo continuo en todos los casos. Mas aun, todas estan medidas en escala de intervalo.</p>
 <p>C. Encuentre el vector de medias y matriz de varianzas-covariancias asociados a la tabla de datos ?</p>
@@ -1387,12 +1355,9 @@ ANCHOEND
 <p>Utilizando el coeficiente de variación, podemos decir que las variables más dispersas, en orden decreciente, son:</p>
 <pre class="r"><code>datos %&gt;% select(-VAR) %&gt;%
     summarise_all(function(x) sd(x, na.rm=TRUE) /  mean(x, na.rm=TRUE)) %&gt;% 
-    as_vector() %&gt;% 
-    sort() %&gt;% 
-    rev() %&gt;% 
-    names() %&gt;%
-    as_tibble() %&gt;% 
-    mutate(orden = seq(ncol(datos)-1) ) %&gt;% 
+    pivot_longer(cols= everything(), names_to = &quot;VAR&quot;, values_to=&quot;CV&quot;) %&gt;% 
+    arrange(desc(CV)) %&gt;% 
+    mutate(CV= round(CV, 2))%&gt;%
     kableExtra::kable() %&gt;% 
     kableExtra::kable_styling(font_size = 10)%&gt;% 
     kableExtra::kable_classic_2()</code></pre>
@@ -1400,10 +1365,10 @@ ANCHOEND
 <thead>
 <tr>
 <th style="text-align:left;">
-value
+VAR
 </th>
 <th style="text-align:right;">
-orden
+CV
 </th>
 </tr>
 </thead>
@@ -1413,7 +1378,7 @@ orden
 PESOEND
 </td>
 <td style="text-align:right;">
-1
+0.42
 </td>
 </tr>
 <tr>
@@ -1421,7 +1386,7 @@ PESOEND
 PESOF
 </td>
 <td style="text-align:right;">
-2
+0.26
 </td>
 </tr>
 <tr>
@@ -1429,7 +1394,7 @@ PESOF
 LONGEND
 </td>
 <td style="text-align:right;">
-3
+0.21
 </td>
 </tr>
 <tr>
@@ -1437,7 +1402,7 @@ LONGEND
 LONGF
 </td>
 <td style="text-align:right;">
-4
+0.14
 </td>
 </tr>
 <tr>
@@ -1445,7 +1410,7 @@ LONGF
 SUPHOJA
 </td>
 <td style="text-align:right;">
-5
+0.14
 </td>
 </tr>
 <tr>
@@ -1453,7 +1418,7 @@ SUPHOJA
 ANCHOEND
 </td>
 <td style="text-align:right;">
-6
+0.13
 </td>
 </tr>
 <tr>
@@ -1461,7 +1426,7 @@ ANCHOEND
 ANCHOPET
 </td>
 <td style="text-align:right;">
-7
+0.11
 </td>
 </tr>
 <tr>
@@ -1469,7 +1434,7 @@ ANCHOPET
 ANCHOF
 </td>
 <td style="text-align:right;">
-8
+0.11
 </td>
 </tr>
 <tr>
@@ -1477,7 +1442,7 @@ ANCHOF
 TAMFLOR
 </td>
 <td style="text-align:right;">
-9
+0.11
 </td>
 </tr>
 <tr>
@@ -1485,7 +1450,7 @@ TAMFLOR
 ESPESORF
 </td>
 <td style="text-align:right;">
-10
+0.10
 </td>
 </tr>
 <tr>
@@ -1493,7 +1458,7 @@ ESPESORF
 PECLIMBO
 </td>
 <td style="text-align:right;">
-11
+0.09
 </td>
 </tr>
 <tr>
@@ -1501,7 +1466,7 @@ PECLIMBO
 LONGPET
 </td>
 <td style="text-align:right;">
-12
+0.08
 </td>
 </tr>
 <tr>
@@ -1509,7 +1474,7 @@ LONGPET
 LONANCHO
 </td>
 <td style="text-align:right;">
-13
+0.06
 </td>
 </tr>
 </tbody>
@@ -1526,7 +1491,7 @@ datos_std = scale(datos[-1])</code></pre>
 ##   TAMFLOR  LONGPET ANCHOPET SUPHOJA LONANCHO PECLIMBO   PESOF   LONGF   ANCHOF
 ##     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;
 ## 1 2.22e15 -1.30e15 -5.65e15 3.13e15 -3.61e15  1.41e15 5.53e16 4.25e15 -2.52e15
-## # … with 4 more variables: ESPESORF &lt;dbl&gt;, PESOEND &lt;dbl&gt;, LONGEND &lt;dbl&gt;,
+## # ... with 4 more variables: ESPESORF &lt;dbl&gt;, PESOEND &lt;dbl&gt;, LONGEND &lt;dbl&gt;,
 ## #   ANCHOEND &lt;dbl&gt;</code></pre>
 <p>F. Halle la matriz de correlación. Que variables son las más relacionadas?</p>
 <p>La matriz de correlación es:</p>
@@ -2159,158 +2124,11 @@ ANCHOEND
 </tbody>
 </table>
 <p>A continuacion una tabla con las 10 correlaciones más grandes entre variables, ordenadas de mayor a menor magnitud.</p>
-<pre class="r"><code>ncol_datos = ncol(datos)-1
-datos %&gt;% 
-    select(-VAR) %&gt;%
-    cor() %&gt;% 
-    as_tibble() %&gt;% 
-    mutate(var0=colnames(.)) %&gt;% 
-    pivot_longer(
-        &quot;TAMFLOR&quot;:&quot;ANCHOEND&quot;, 
-        names_to=&quot;var1&quot;, values_to=&quot;corr&quot;
-    ) %&gt;% 
-    filter(
-        rep(
-            1:ncol_datos,
-            each=ncol_datos
-        ) &gt; 
-            rep(
-                1:ncol_datos,
-                times=ncol_datos
-            )
-    ) %&gt;% 
-    arrange(-abs(corr)) %&gt;% 
-    head(10) %&gt;% 
-    kableExtra::kable() %&gt;% 
-    kableExtra::kable_styling(font_size = 10)%&gt;% 
-    kableExtra::kable_classic_2()</code></pre>
-<table class="table lightable-classic-2" style="font-size: 10px; margin-left: auto; margin-right: auto; font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; margin-left: auto; margin-right: auto;">
-<thead>
-<tr>
-<th style="text-align:left;">
-var0
-</th>
-<th style="text-align:left;">
-var1
-</th>
-<th style="text-align:right;">
-corr
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-ANCHOF
-</td>
-<td style="text-align:left;">
-PESOF
-</td>
-<td style="text-align:right;">
-0.9852213
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-LONGEND
-</td>
-<td style="text-align:left;">
-PESOEND
-</td>
-<td style="text-align:right;">
-0.9447408
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-ESPESORF
-</td>
-<td style="text-align:left;">
-PESOF
-</td>
-<td style="text-align:right;">
-0.9412822
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-LONGF
-</td>
-<td style="text-align:left;">
-PESOF
-</td>
-<td style="text-align:right;">
-0.9381432
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-ESPESORF
-</td>
-<td style="text-align:left;">
-ANCHOF
-</td>
-<td style="text-align:right;">
-0.9327883
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-ANCHOPET
-</td>
-<td style="text-align:left;">
-LONGPET
-</td>
-<td style="text-align:right;">
-0.9175753
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-ANCHOEND
-</td>
-<td style="text-align:left;">
-PESOEND
-</td>
-<td style="text-align:right;">
-0.9121184
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-ANCHOEND
-</td>
-<td style="text-align:left;">
-LONGEND
-</td>
-<td style="text-align:right;">
-0.9088800
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-ANCHOF
-</td>
-<td style="text-align:left;">
-LONGF
-</td>
-<td style="text-align:right;">
-0.9037702
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-ESPESORF
-</td>
-<td style="text-align:left;">
-LONGF
-</td>
-<td style="text-align:right;">
-0.8662107
-</td>
-</tr>
-</tbody>
-</table>
+<pre class="r"><code>datos%&gt;%
+    select(-VAR)%&gt;%
+    cor()%&gt;%
+    corrplot::corrplot(method = c(&quot;color&quot;), type = &quot;lower&quot;)</code></pre>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
 <p>G. Pueden dividirse las variables en subgrupos, de modo que las variables dentro de un mismo subgrupo tengan elevadas correlaciones entre sí y que las que se encuentren en subgrupos diferentes tengan bajas correlaciones ? Si es así, cuáles variables quedan en cada uno de los subgrupos ?</p>
 <p>H. Encuentre la matriz que mide el grado de similaridad entre las variedades en función de la distancia euclídea calculada sobre los datos originales.</p>
 <p>OJO Q SOLO ESTÄ LA DE DISTANCIAS</p>

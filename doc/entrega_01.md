@@ -1,7 +1,7 @@
 ---
 title: "Entrega 1"
 author: "Grupo X"
-date: "15 abril, 2021"
+date: "20 abril, 2021"
 output: 
     html_document:
         keep_md: true
@@ -15,38 +15,7 @@ output:
 
 ```r
 library(tidyverse)
-```
-
-```
-## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──
-```
-
-```
-## ✓ ggplot2 3.3.3     ✓ purrr   0.3.4
-## ✓ tibble  3.1.0     ✓ dplyr   1.0.5
-## ✓ tidyr   1.1.3     ✓ stringr 1.4.0
-## ✓ readr   1.4.0     ✓ forcats 0.5.1
-```
-
-```
-## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-## x dplyr::filter() masks stats::filter()
-## x dplyr::lag()    masks stats::lag()
-```
-
-```r
 library(kableExtra)
-```
-
-```
-## 
-## Attaching package: 'kableExtra'
-```
-
-```
-## The following object is masked from 'package:dplyr':
-## 
-##     group_rows
 ```
 
 ## Datos
@@ -54,31 +23,6 @@ library(kableExtra)
 
 ```r
 datos <- read_csv2("../data/raw/DAMASCO.csv")
-```
-
-```
-## ℹ Using ',' as decimal and '.' as grouping mark. Use `read_delim()` for more control.
-```
-
-```
-## 
-## ── Column specification ────────────────────────────────────────────────────────
-## cols(
-##   VAR = col_character(),
-##   TAMFLOR = col_double(),
-##   LONGPET = col_double(),
-##   ANCHOPET = col_double(),
-##   SUPHOJA = col_double(),
-##   LONANCHO = col_double(),
-##   PECLIMBO = col_double(),
-##   PESOF = col_double(),
-##   LONGF = col_double(),
-##   ANCHOF = col_double(),
-##   ESPESORF = col_double(),
-##   PESOEND = col_double(),
-##   LONGEND = col_double(),
-##   ANCHOEND = col_double()
-## )
 ```
 
 Inspeccionamos con `str(datos)`
@@ -89,7 +33,7 @@ str(datos)
 ```
 
 ```
-## spec_tbl_df[,14] [18 × 14] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
+## spec_tbl_df[,14] [18 x 14] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
 ##  $ VAR     : chr [1:18] "BLANCO" "BULIDA" "CURROT.T" "CANINO" ...
 ##  $ TAMFLOR : num [1:18] 33.3 26.8 28.8 27.5 33.9 ...
 ##  $ LONGPET : num [1:18] 13.9 13.4 12.7 12.3 14.4 ...
@@ -128,7 +72,7 @@ A. Cuáles son los valores de n y p ? Cuanto vale y que indica el valor $x_{32}$
 
 
 El valor de $n$ es 18 y el valor de $p$ es 14. El
-valor de $x_{32}$ es 28.84 e indica el tamano de la flor de la 
+valor de $x_{32}$ es 28.84 e indica el tamaño de la flor de la 
 observacion 3. El vector $x_6$ indica la relacion entre el ancho y largo de la 
 hoja.
 
@@ -443,12 +387,9 @@ Utilizando el coeficiente de variación, podemos decir que las variables más di
 ```r
 datos %>% select(-VAR) %>%
     summarise_all(function(x) sd(x, na.rm=TRUE) /  mean(x, na.rm=TRUE)) %>% 
-    as_vector() %>% 
-    sort() %>% 
-    rev() %>% 
-    names() %>%
-    as_tibble() %>% 
-    mutate(orden = seq(ncol(datos)-1) ) %>% 
+    pivot_longer(cols= everything(), names_to = "VAR", values_to="CV") %>% 
+    arrange(desc(CV)) %>% 
+    mutate(CV= round(CV, 2))%>%
     kableExtra::kable() %>% 
     kableExtra::kable_styling(font_size = 10)%>% 
     kableExtra::kable_classic_2()
@@ -457,62 +398,62 @@ datos %>% select(-VAR) %>%
 <table class="table lightable-classic-2" style='font-size: 10px; margin-left: auto; margin-right: auto; font-family: "Arial Narrow", "Source Sans Pro", sans-serif; margin-left: auto; margin-right: auto;'>
  <thead>
   <tr>
-   <th style="text-align:left;"> value </th>
-   <th style="text-align:right;"> orden </th>
+   <th style="text-align:left;"> VAR </th>
+   <th style="text-align:right;"> CV </th>
   </tr>
  </thead>
 <tbody>
   <tr>
    <td style="text-align:left;"> PESOEND </td>
-   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0.42 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> PESOF </td>
-   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 0.26 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> LONGEND </td>
-   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 0.21 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> LONGF </td>
-   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 0.14 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> SUPHOJA </td>
-   <td style="text-align:right;"> 5 </td>
+   <td style="text-align:right;"> 0.14 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> ANCHOEND </td>
-   <td style="text-align:right;"> 6 </td>
+   <td style="text-align:right;"> 0.13 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> ANCHOPET </td>
-   <td style="text-align:right;"> 7 </td>
+   <td style="text-align:right;"> 0.11 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> ANCHOF </td>
-   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 0.11 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> TAMFLOR </td>
-   <td style="text-align:right;"> 9 </td>
+   <td style="text-align:right;"> 0.11 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> ESPESORF </td>
-   <td style="text-align:right;"> 10 </td>
+   <td style="text-align:right;"> 0.10 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> PECLIMBO </td>
-   <td style="text-align:right;"> 11 </td>
+   <td style="text-align:right;"> 0.09 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> LONGPET </td>
-   <td style="text-align:right;"> 12 </td>
+   <td style="text-align:right;"> 0.08 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> LONANCHO </td>
-   <td style="text-align:right;"> 13 </td>
+   <td style="text-align:right;"> 0.06 </td>
   </tr>
 </tbody>
 </table>
@@ -541,7 +482,7 @@ datos_std %>%
 ##   TAMFLOR  LONGPET ANCHOPET SUPHOJA LONANCHO PECLIMBO   PESOF   LONGF   ANCHOF
 ##     <dbl>    <dbl>    <dbl>   <dbl>    <dbl>    <dbl>   <dbl>   <dbl>    <dbl>
 ## 1 2.22e15 -1.30e15 -5.65e15 3.13e15 -3.61e15  1.41e15 5.53e16 4.25e15 -2.52e15
-## # … with 4 more variables: ESPESORF <dbl>, PESOEND <dbl>, LONGEND <dbl>,
+## # ... with 4 more variables: ESPESORF <dbl>, PESOEND <dbl>, LONGEND <dbl>,
 ## #   ANCHOEND <dbl>
 ```
 
@@ -795,94 +736,13 @@ A continuacion una tabla con las 10 correlaciones más grandes entre variables, 
 
 
 ```r
-ncol_datos = ncol(datos)-1
-datos %>% 
-    select(-VAR) %>%
-    cor() %>% 
-    as_tibble() %>% 
-    mutate(var0=colnames(.)) %>% 
-    pivot_longer(
-        "TAMFLOR":"ANCHOEND", 
-        names_to="var1", values_to="corr"
-    ) %>% 
-    filter(
-        rep(
-            1:ncol_datos,
-            each=ncol_datos
-        ) > 
-            rep(
-                1:ncol_datos,
-                times=ncol_datos
-            )
-    ) %>% 
-    arrange(-abs(corr)) %>% 
-    head(10) %>% 
-    kableExtra::kable() %>% 
-    kableExtra::kable_styling(font_size = 10)%>% 
-    kableExtra::kable_classic_2()
+datos%>%
+    select(-VAR)%>%
+    cor()%>%
+    corrplot::corrplot(method = c("color"), type = "lower")
 ```
 
-<table class="table lightable-classic-2" style='font-size: 10px; margin-left: auto; margin-right: auto; font-family: "Arial Narrow", "Source Sans Pro", sans-serif; margin-left: auto; margin-right: auto;'>
- <thead>
-  <tr>
-   <th style="text-align:left;"> var0 </th>
-   <th style="text-align:left;"> var1 </th>
-   <th style="text-align:right;"> corr </th>
-  </tr>
- </thead>
-<tbody>
-  <tr>
-   <td style="text-align:left;"> ANCHOF </td>
-   <td style="text-align:left;"> PESOF </td>
-   <td style="text-align:right;"> 0.9852213 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> LONGEND </td>
-   <td style="text-align:left;"> PESOEND </td>
-   <td style="text-align:right;"> 0.9447408 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> ESPESORF </td>
-   <td style="text-align:left;"> PESOF </td>
-   <td style="text-align:right;"> 0.9412822 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> LONGF </td>
-   <td style="text-align:left;"> PESOF </td>
-   <td style="text-align:right;"> 0.9381432 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> ESPESORF </td>
-   <td style="text-align:left;"> ANCHOF </td>
-   <td style="text-align:right;"> 0.9327883 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> ANCHOPET </td>
-   <td style="text-align:left;"> LONGPET </td>
-   <td style="text-align:right;"> 0.9175753 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> ANCHOEND </td>
-   <td style="text-align:left;"> PESOEND </td>
-   <td style="text-align:right;"> 0.9121184 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> ANCHOEND </td>
-   <td style="text-align:left;"> LONGEND </td>
-   <td style="text-align:right;"> 0.9088800 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> ANCHOF </td>
-   <td style="text-align:left;"> LONGF </td>
-   <td style="text-align:right;"> 0.9037702 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> ESPESORF </td>
-   <td style="text-align:left;"> LONGF </td>
-   <td style="text-align:right;"> 0.8662107 </td>
-  </tr>
-</tbody>
-</table>
+![](entrega_01_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
 
 
 G. Pueden dividirse las variables en subgrupos, de modo que las variables dentro de un mismo subgrupo tengan elevadas correlaciones entre sí y que las que se encuentren en subgrupos diferentes tengan bajas correlaciones ? Si es así, cuáles variables quedan en cada uno de los subgrupos ?

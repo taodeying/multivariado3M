@@ -9,7 +9,7 @@ output:
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
 ## Librerias
@@ -36,7 +36,7 @@ A. Cuáles son los valores de n y p ? Cuanto vale y que indica el valor $x_{32}$
 
 
 El valor de $n$ es `r nrow(datos)` y el valor de $p$ es `r ncol(datos)`. El
-valor de $x_{32}$ es `r datos[[3, 2]]` e indica el tamano de la flor de la 
+valor de $x_{32}$ es `r datos[[3, 2]]` e indica el tamaño de la flor de la 
 observacion 3. El vector $x_6$ indica la relacion entre el ancho y largo de la 
 hoja.
 
@@ -82,12 +82,9 @@ Utilizando el coeficiente de variación, podemos decir que las variables más di
 
 datos %>% select(-VAR) %>%
     summarise_all(function(x) sd(x, na.rm=TRUE) /  mean(x, na.rm=TRUE)) %>% 
-    as_vector() %>% 
-    sort() %>% 
-    rev() %>% 
-    names() %>%
-    as_tibble() %>% 
-    mutate(orden = seq(ncol(datos)-1) ) %>% 
+    pivot_longer(cols= everything(), names_to = "VAR", values_to="CV") %>% 
+    arrange(desc(CV)) %>% 
+    mutate(CV= round(CV, 2))%>%
     kableExtra::kable() %>% 
     kableExtra::kable_styling(font_size = 10)%>% 
     kableExtra::kable_classic_2()
@@ -127,31 +124,10 @@ datos %>%
 A continuacion una tabla con las 10 correlaciones más grandes entre variables, ordenadas de mayor a menor magnitud.
 
 ```{r}
-ncol_datos = ncol(datos)-1
-datos %>% 
-    select(-VAR) %>%
-    cor() %>% 
-    as_tibble() %>% 
-    mutate(var0=colnames(.)) %>% 
-    pivot_longer(
-        "TAMFLOR":"ANCHOEND", 
-        names_to="var1", values_to="corr"
-    ) %>% 
-    filter(
-        rep(
-            1:ncol_datos,
-            each=ncol_datos
-        ) > 
-            rep(
-                1:ncol_datos,
-                times=ncol_datos
-            )
-    ) %>% 
-    arrange(-abs(corr)) %>% 
-    head(10) %>% 
-    kableExtra::kable() %>% 
-    kableExtra::kable_styling(font_size = 10)%>% 
-    kableExtra::kable_classic_2()
+datos%>%
+    select(-VAR)%>%
+    cor()%>%
+    corrplot::corrplot(method = c("color"), type = "lower")
 ```
 
 
