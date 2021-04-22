@@ -32,7 +32,7 @@ str(datos)
 ```
 
 
-A. Cuáles son los valores de n y p ? Cuanto vale y que indica el valor $x_{32}$ ? Y el vector $x_6$ ?
+**A.** Cuáles son los valores de n y p ? Cuanto vale y que indica el valor $x_{32}$ ? Y el vector $x_6$ ?
 
 
 El valor de $n$ es `r nrow(datos)` y el valor de $p$ es `r ncol(datos)`. El
@@ -40,14 +40,14 @@ valor de $x_{32}$ es `r datos[[3, 2]]` e indica el tamaño de la flor de la
 observacion 3. El vector $x_6$ indica la relacion entre el ancho y largo de la 
 hoja.
 
-B. Cómo clasificaría las variables sobre las que se está trabajando ?
+**B.** Cómo clasificaría las variables sobre las que se está trabajando ?
 
 
 Las variables con las que se esta trabajando son de tipo continuo en todos los 
 casos. Mas aun, todas estan medidas en escala de intervalo.
 
 
-C. Encuentre el vector de medias y matriz de varianzas-covariancias asociados a la tabla de datos ?
+**C.** Encuentre el vector de medias y matriz de varianzas-covariancias asociados a la tabla de datos ?
 
 Las medias son:
 
@@ -74,7 +74,7 @@ datos %>%
     kableExtra::kable_classic_2() 
 ```
 
-D. Podría decir cuál y cuáles variables son las más dispersas ?
+**D.** Podría decir cuál y cuáles variables son las más dispersas ?
 
 Utilizando el coeficiente de variación, podemos decir que las variables más dispersas, en orden decreciente, son:
 
@@ -84,13 +84,13 @@ datos %>% select(-VAR) %>%
     summarise_all(function(x) sd(x, na.rm=TRUE) /  mean(x, na.rm=TRUE)) %>% 
     pivot_longer(cols= everything(), names_to = "VAR", values_to="CV") %>% 
     arrange(desc(CV)) %>% 
-    mutate(CV= round(CV, 2))%>%
+    mutate(CV= round(CV, 1))%>%
     kableExtra::kable() %>% 
     kableExtra::kable_styling(font_size = 10)%>% 
     kableExtra::kable_classic_2()
 ```
 
-E. Estandarice las variables por media y desvío. Ahora puede responder al inciso (d) ?
+**E.** Estandarice las variables por media y desvío. Ahora puede responder al inciso (d) ?
 
 ```{r}
 # No utilizamos la primer columna
@@ -107,7 +107,7 @@ datos_std %>%
     round(1)
 ```
 
-F. Halle la matriz de correlación. Que variables son las más relacionadas?
+**F.** Halle la matriz de correlación. Que variables son las más relacionadas?
 
 La matriz de correlación es:
 
@@ -121,32 +121,43 @@ datos %>%
     kableExtra::kable_classic_2()
 ```
 
-A continuacion una tabla con las 10 correlaciones más grandes entre variables, ordenadas de mayor a menor magnitud.
+A continuacion una representacion grafica de la matriz de correlacion:      
 
 ```{r}
 datos%>%
     select(-VAR)%>%
     cor()%>%
-    corrplot::corrplot(method = c("color"), type = "lower")
+    corrplot::corrplot(method = c("circle"), type = "lower", tl.srt = 15)
 ```
 
+**G.** Pueden dividirse las variables en subgrupos, de modo que las variables dentro de un mismo subgrupo tengan elevadas correlaciones entre sí y que las que se encuentren en subgrupos diferentes tengan bajas correlaciones ? Si es así, cuáles variables quedan en cada uno de los subgrupos ?
 
-G. Pueden dividirse las variables en subgrupos, de modo que las variables dentro de un mismo subgrupo tengan elevadas correlaciones entre sí y que las que se encuentren en subgrupos diferentes tengan bajas correlaciones ? Si es así, cuáles variables quedan en cada uno de los subgrupos ?
+*Los subgrupos de variables con altas correlaciones son los siguientes: 
+
+  1. Peso, longitud, ancho y espesor del fruto (caracteristicas del fruto)
+  2. Peso, longitud y ancho del endocarpio (caracteristicas del endocarpio)
+  3. Tamaño de la flor, longitu y ancho del petalo (caracteristicas de la flor)
+
+*El subgrupo de variables con bajas correlaciones son los siguientes: 
+
+  1. Superficie de la hoja, relacion entre peciolo-limbo y relacion entre longitud y ancho de la hoja (caracteristicas de la hoja); tamaño de la flor, longitud y ancho del petalo (caracteristicas de la flor)
+
+Cabe destacar que la superficie de la hoja y relacion peciolo-limbo estan muy poco correlacionadas con el resto de las variables.
 
 
-H. Encuentre la matriz que mide el grado de similaridad entre las variedades en función de la distancia euclídea calculada sobre los datos originales.
+**H.** Encuentre la matriz que mide el grado de similaridad entre las variedades en función de la distancia euclídea calculada sobre los datos originales.
 
-OJO Q SOLO ESTÄ LA DE DISTANCIAS
+
 
 ```{r}
-aux = datos %>% 
+dist = datos %>% 
     select(-VAR) %>% 
     data.frame()
 
-rownames(aux) <- datos$VAR
+rownames(dist) <- datos$VAR
 
-aux %>% 
-    dist(diag = T, upper=T) %>% 
+dist %>% 
+    dist(method= "euclidean", diag = T, upper=T) %>% 
     as.matrix() %>% 
     round(1)  %>% 
     kableExtra::kable() %>% 
@@ -155,8 +166,140 @@ aux %>%
 
 ```
 
-I. Podría decir cuales son los tres pares de variedades que presentan mayor semejanza ?
+**I.** Podría decir cuales son los tres pares de variedades que presentan mayor semejanza ?
 
+Los pares de variaedades que presentan mayor semejanza son:
 
-J. Repita lo realizado en el inciso (h) pero sobre las variables estandarizadas por media y desvío estándar.
+ 1.CORBATO y PALAU, con una distancia de 4.8
+ 2.GINESTA y MANRI, con una distancia de 5.7
+ 3.GANDIA y MANRI, con una distancia de 5.8
+
+**J.** Repita lo realizado en el inciso (h) pero sobre las variables estandarizadas por media y desvío estándar.
 Son las mimas las tres variedades más parecidas ? Comente al respecto
+
+```{r}
+dist_std = datos %>% 
+    select(-VAR) %>% 
+    scale()%>%
+    data.frame()
+
+rownames(dist_std) <- datos$VAR
+
+dist_std %>% 
+    dist(method= "euclidean", diag = T, upper=T) %>% 
+    as.matrix() %>% 
+    round(1)  %>% 
+    kableExtra::kable() %>% 
+    kableExtra::kable_styling(font_size = 8)%>% 
+    kableExtra::kable_classic_2()
+
+
+```
+Con los datos estandarizados, los pares de variedades mas parecidas son:
+  
+  1. CURROT y CURROT.T, con una distancia de 1.4
+  2. R.CARLET y CORBATO, con una distancia de 1.5
+  3. PALABRAS y GINESTA, con una distancia de 2.1
+
+
+
+**K.** Mida el grado de concordancia entre ambas matrices de distancia.
+
+
+
+```{r}
+
+
+dist_<-dist %>% 
+    dist(method= "euclidean", diag = T, upper=T) 
+
+dist_std_ <- dist_std %>% 
+    dist(method= "euclidean", diag = T, upper=T)
+
+
+conc<-cor(dist_, dist_std_)%>%
+      as_tibble()%>%
+      round(2)%>%
+  rename("CONCORDANCIA"="value")
+  
+
+
+```
+
+El grado de concordancia entre las matrices de distancias es: `r conc `
+
+
+A continuacion se realiza una representacion grafica:
+
+
+```{r}
+
+plot(dist_, dist_std_, ylab = "Distancias euclideas estandarizadas", 
+     xlab = "Distancis euclideas", main = "Concordancia entre las matrices de distancias euclideas")
+
+
+```
+
+**L.** Realice un Análisis de Componentes Principales utilizando de la matriz de correlaciones.
+
+
+Los autovalores obtenidos son los siguientes:
+
+```{r}
+library(FactoMineR)
+datos_std<-data.frame(datos_std)
+rownames(datos_std)<-datos$VAR
+
+pca<-datos_std%>%
+  PCA(ncp=2, graph = FALSE)
+
+pca$eig%>%
+  data.frame()%>%
+  rename("Autovalores"="eigenvalue", 
+         "% varianza"="percentage.of.variance", 
+         "% varianza acumulada"="cumulative.percentage.of.variance" )%>%
+  kable()%>%
+  kable_classic_2()
+
+```
+
+Tambien pueden observarse graficamente: 
+
+```{r}
+
+barplot(pca$eig[,1], main= "AUTOVALORES", names.arg = 1:nrow(pca$eig))
+
+```
+
+
+Y los autovectores (cargas asociadas a cada componente) son: 
+
+
+```{r}
+pca$var$coord%>%
+  kable()%>%
+  kable_classic_2()
+  
+
+```
+
+
+**M.** Analice los porcentaje de variabilidad explicada por los primeros ejes principales.
+
+Observando los autovalores y el porcentaje de varianza explicada de cada uno, podemos decir que la primer componente explica el `r round(pca$eig[1,2],2)`%, mientras que la segunda componente explica `r round(pca$eig[2,2],2)`%. Luego, la varianza total explicada por estas dos componentes es `r round(pca$eig[2,3],2)`%
+
+
+**N.** Establezca intuitivamente grupos de variedades similares según su cercanía en el plano principal.
+
+A continuacion se presenta la representacion grafica de las variedades en el plano principal:
+
+```{r}
+pc1<-pca$ind$coord[,1]
+pc2<-pca$ind$coord[,2]
+etiquetas<-rownames(pca$ind$coord)
+
+plot(pc1,pc2, ylab = "2° COMPONENTE PRINCIPAL", xlab = "1° COMPONENTE PRINCIPAL")
+abline(h=0, lty=3)
+abline(v=0, lty=3)
+text(pc1, pc2, etiquetas, pos = 3)
+```
