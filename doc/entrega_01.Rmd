@@ -298,8 +298,139 @@ pc1<-pca$ind$coord[,1]
 pc2<-pca$ind$coord[,2]
 etiquetas<-rownames(pca$ind$coord)
 
-plot(pc1,pc2, ylab = "2° COMPONENTE PRINCIPAL", xlab = "1° COMPONENTE PRINCIPAL")
+plot(pc1,pc2, ylab = "2° COMPONENTE PRINCIPAL", xlab = "1° COMPONENTE PRINCIPAL", xlim = c(-6,6), ylim = c(-3,3))
 abline(h=0, lty=3)
 abline(v=0, lty=3)
 text(pc1, pc2, etiquetas, pos = 3)
 ```
+
+
+
+Tras observar el grafico podemos decir que las variedades mas similares son MARTINET, CANINO.T y BLANCO.
+Otro grupo podria estar conformado por CANINO y TADEO
+La variedad GABACHET no tiene semejanza con ninguna de las otras variedades
+
+
+**O.** Encuentre e interprete gradientes de las variables originales en el plano principal en función de sus cargas
+sobre las dos primeras componentes.
+
+
+```{r}
+pc1_<-pca$var$coord[,1]
+pc2_<-pca$var$coord[,2]
+etiquetas<-rownames(pca$var$coord)
+
+plot(pc1_,pc2_, ylab = "2° COMPONENTE PRINCIPAL", xlab = "1° COMPONENTE PRINCIPAL", xlim = c(-6,6), ylim = c(-3,3))
+abline(h=0, lty=3)
+abline(v=0, lty=3)
+text(pc1, pc2, etiquetas, pos = 3)
+```
+
+
+
+**P.** Caracterice los grupos determinados en el inciso (N) según los gradientes descriptos en (O).
+
+
+**R.** Con el software R realice el ACP recurriendo a operaciones con matrices (decomposición espectral)
+
+Realizando la descomposicion espectral, los autovalores son los siguientes:
+```{r}
+x<-as.matrix(datos_std)
+cor<-cor(x)
+autovalores_<-eigen(cor)
+
+round(autovalores_$values, 1)%>%
+  kable(col.names = "AUTOVALORES")%>%
+  kable_styling(full_width = F)%>%
+  kable_classic_2()
+
+```
+
+
+Y los autovectores:
+
+
+```{r}
+round(autovalores_$vectors[, 1:2],1)%>%
+  kable(col.names = c("AUTOVECTOR 1", "AUTOVECTOR 2"))%>%
+  kable_styling(full_width = F)%>%
+  kable_classic_2()
+
+
+```
+
+
+Las nuevas coordenadas de las variaedades sobre las componentes halladas:
+```{r}
+p<-as.matrix(autovalores_$vectors)
+y<-x%*%p
+colnames(y)<-etiquetas
+rownames(y)<-datos$VAR
+
+round(y, 1)%>%
+  kable()%>%
+  kable_classic_2()
+```
+
+**S.**  Verifique que con el enfoque Biplot (DVS) llega a los mismos resultados
+
+
+Valores singulares (d):
+```{r}
+dvs<-svd(x)
+
+round(dvs$d,1)%>%
+  kable(col.names = "d")%>%
+  kable_classic_2()
+
+```
+
+
+Vectores singulares por izquierda (u):
+```{r}
+
+colnames(dvs$u)<-etiquetas
+
+dvs$u%>%
+  round(1)%>%
+  kable()%>%
+  kable_classic_2()
+
+```
+
+
+
+Vectores singulares por derecha (v):
+```{r}
+
+colnames(dvs$v)<-etiquetas
+
+
+dvs$v%>%
+  round(1)%>%
+  kable()%>%
+  
+  kable_classic_2()
+
+```
+
+
+Las nuevas cordenadas de las variedades halladas a traves de DVS:
+```{r}
+
+u<-dvs$u
+v<-dvs$v
+d<-diag(dvs$d, 13,13)
+ydvs<-u%*%d
+colnames(ydvs)<-etiquetas
+rownames(ydvs)<-datos$VAR
+  
+round(ydvs,1)%>%
+  kable()%>%
+  kable_classic_2()
+
+```
+
+
+
+**FALTA VERIFICAR QUE SE LLEGA AL MISMO RESULTADO**

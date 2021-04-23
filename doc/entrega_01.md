@@ -1,7 +1,7 @@
 ---
 title: "Entrega 1"
 author: "Grupo X"
-date: "22 abril, 2021"
+date: "23 abril, 2021"
 output: 
     html_document:
         keep_md: true
@@ -1888,10 +1888,1433 @@ pc1<-pca$ind$coord[,1]
 pc2<-pca$ind$coord[,2]
 etiquetas<-rownames(pca$ind$coord)
 
-plot(pc1,pc2, ylab = "2° COMPONENTE PRINCIPAL", xlab = "1° COMPONENTE PRINCIPAL")
+plot(pc1,pc2, ylab = "2° COMPONENTE PRINCIPAL", xlab = "1° COMPONENTE PRINCIPAL", xlim = c(-6,6), ylim = c(-3,3))
 abline(h=0, lty=3)
 abline(v=0, lty=3)
 text(pc1, pc2, etiquetas, pos = 3)
 ```
 
 ![](entrega_01_files/figure-html/unnamed-chunk-18-1.png)<!-- -->
+
+
+
+Tras observar el grafico podemos decir que las variedades mas similares son MARTINET, CANINO.T y BLANCO.
+Otro grupo podria estar conformado por CANINO y TADEO
+La variedad GABACHET no tiene semejanza con ninguna de las otras variedades
+
+
+**O.** Encuentre e interprete gradientes de las variables originales en el plano principal en función de sus cargas
+sobre las dos primeras componentes.
+
+
+
+```r
+pc1_<-pca$var$coord[,1]
+pc2_<-pca$var$coord[,2]
+etiquetas<-rownames(pca$var$coord)
+
+plot(pc1_,pc2_, ylab = "2° COMPONENTE PRINCIPAL", xlab = "1° COMPONENTE PRINCIPAL", xlim = c(-6,6), ylim = c(-3,3))
+abline(h=0, lty=3)
+abline(v=0, lty=3)
+text(pc1, pc2, etiquetas, pos = 3)
+```
+
+![](entrega_01_files/figure-html/unnamed-chunk-19-1.png)<!-- -->
+
+
+
+**P.** Caracterice los grupos determinados en el inciso (N) según los gradientes descriptos en (O).
+
+
+**R.** Con el software R realice el ACP recurriendo a operaciones con matrices (decomposición espectral)
+
+Realizando la descomposicion espectral, los autovalores son los siguientes:
+
+```r
+x<-as.matrix(datos_std)
+cor<-cor(x)
+autovalores_<-eigen(cor)
+
+round(autovalores_$values, 1)%>%
+  kable(col.names = "AUTOVALORES")%>%
+  kable_styling(full_width = F)%>%
+  kable_classic_2()
+```
+
+<table class="table lightable-classic-2" style='width: auto !important; margin-left: auto; margin-right: auto; font-family: "Arial Narrow", "Source Sans Pro", sans-serif; margin-left: auto; margin-right: auto;'>
+ <thead>
+  <tr>
+   <th style="text-align:right;"> AUTOVALORES </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> 7.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 2.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 1.2 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 1.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.6 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.5 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.2 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+</tbody>
+</table>
+
+
+Y los autovectores:
+
+
+
+```r
+round(autovalores_$vectors[, 1:2],1)%>%
+  kable(col.names = c("AUTOVECTOR 1", "AUTOVECTOR 2"))%>%
+  kable_styling(full_width = F)%>%
+  kable_classic_2()
+```
+
+<table class="table lightable-classic-2" style='width: auto !important; margin-left: auto; margin-right: auto; font-family: "Arial Narrow", "Source Sans Pro", sans-serif; margin-left: auto; margin-right: auto;'>
+ <thead>
+  <tr>
+   <th style="text-align:right;"> AUTOVECTOR 1 </th>
+   <th style="text-align:right;"> AUTOVECTOR 2 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.3 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> -0.4 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> -0.4 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.5 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.2 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.2 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.3 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.2 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.3 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.2 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> -0.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+</tbody>
+</table>
+
+
+Las nuevas coordenadas de las variaedades sobre las componentes halladas:
+
+```r
+p<-as.matrix(autovalores_$vectors)
+y<-x%*%p
+colnames(y)<-etiquetas
+rownames(y)<-datos$VAR
+
+round(y, 1)%>%
+  kable()%>%
+  kable_classic_2()
+```
+
+<table class=" lightable-classic-2" style='font-family: "Arial Narrow", "Source Sans Pro", sans-serif; margin-left: auto; margin-right: auto;'>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> TAMFLOR </th>
+   <th style="text-align:right;"> LONGPET </th>
+   <th style="text-align:right;"> ANCHOPET </th>
+   <th style="text-align:right;"> SUPHOJA </th>
+   <th style="text-align:right;"> LONANCHO </th>
+   <th style="text-align:right;"> PECLIMBO </th>
+   <th style="text-align:right;"> PESOF </th>
+   <th style="text-align:right;"> LONGF </th>
+   <th style="text-align:right;"> ANCHOF </th>
+   <th style="text-align:right;"> ESPESORF </th>
+   <th style="text-align:right;"> PESOEND </th>
+   <th style="text-align:right;"> LONGEND </th>
+   <th style="text-align:right;"> ANCHOEND </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> BLANCO </td>
+   <td style="text-align:right;"> -3.4 </td>
+   <td style="text-align:right;"> -1.5 </td>
+   <td style="text-align:right;"> -1.3 </td>
+   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> -0.5 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.8 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> BULIDA </td>
+   <td style="text-align:right;"> -1.0 </td>
+   <td style="text-align:right;"> 0.7 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 1.3 </td>
+   <td style="text-align:right;"> -0.5 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.8 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> CURROT.T </td>
+   <td style="text-align:right;"> 1.4 </td>
+   <td style="text-align:right;"> -1.3 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> -2.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> CANINO </td>
+   <td style="text-align:right;"> -2.0 </td>
+   <td style="text-align:right;"> 2.7 </td>
+   <td style="text-align:right;"> -1.3 </td>
+   <td style="text-align:right;"> -1.2 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> CANINO.T </td>
+   <td style="text-align:right;"> -3.9 </td>
+   <td style="text-align:right;"> -0.6 </td>
+   <td style="text-align:right;"> 1.7 </td>
+   <td style="text-align:right;"> 0.7 </td>
+   <td style="text-align:right;"> 0.9 </td>
+   <td style="text-align:right;"> 1.6 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> CHIRIVEL </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> -1.0 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> -1.3 </td>
+   <td style="text-align:right;"> 0.8 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> CORBATO </td>
+   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> -1.6 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.8 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> CRISTALI </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> -1.7 </td>
+   <td style="text-align:right;"> 2.1 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> -1.5 </td>
+   <td style="text-align:right;"> -0.5 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> CURROT </td>
+   <td style="text-align:right;"> 2.1 </td>
+   <td style="text-align:right;"> -1.1 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> -2.1 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GABACHET </td>
+   <td style="text-align:right;"> 4.8 </td>
+   <td style="text-align:right;"> -1.3 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 1.3 </td>
+   <td style="text-align:right;"> 1.1 </td>
+   <td style="text-align:right;"> -0.8 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GANDIA </td>
+   <td style="text-align:right;"> 3.4 </td>
+   <td style="text-align:right;"> 1.9 </td>
+   <td style="text-align:right;"> -0.8 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.8 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GINESTA </td>
+   <td style="text-align:right;"> 2.1 </td>
+   <td style="text-align:right;"> 2.0 </td>
+   <td style="text-align:right;"> 0.8 </td>
+   <td style="text-align:right;"> 1.1 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 1.0 </td>
+   <td style="text-align:right;"> -0.5 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> MANRI </td>
+   <td style="text-align:right;"> 1.5 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> -0.5 </td>
+   <td style="text-align:right;"> 0.9 </td>
+   <td style="text-align:right;"> -0.9 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 1.0 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> MARTINET </td>
+   <td style="text-align:right;"> -4.1 </td>
+   <td style="text-align:right;"> -0.8 </td>
+   <td style="text-align:right;"> -2.0 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> 0.7 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> PALABRAS </td>
+   <td style="text-align:right;"> 1.8 </td>
+   <td style="text-align:right;"> 1.3 </td>
+   <td style="text-align:right;"> 0.8 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.8 </td>
+   <td style="text-align:right;"> 0.6 </td>
+   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.6 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> PALAU </td>
+   <td style="text-align:right;"> 1.8 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> -0.5 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> R.CARLET </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> -0.6 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> TADEO </td>
+   <td style="text-align:right;"> -4.1 </td>
+   <td style="text-align:right;"> 1.9 </td>
+   <td style="text-align:right;"> 1.5 </td>
+   <td style="text-align:right;"> -0.7 </td>
+   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> -1.6 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+</tbody>
+</table>
+
+**S.**  Verifique que con el enfoque Biplot (DVS) llega a los mismos resultados
+
+
+Valores singulares (d):
+
+```r
+dvs<-svd(x)
+
+round(dvs$d,1)%>%
+  kable(col.names = "d")%>%
+  kable_classic_2()
+```
+
+<table class=" lightable-classic-2" style='font-family: "Arial Narrow", "Source Sans Pro", sans-serif; margin-left: auto; margin-right: auto;'>
+ <thead>
+  <tr>
+   <th style="text-align:right;"> d </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> 11.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 5.9 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 4.6 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 4.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 3.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 3.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 2.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 1.2 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 1.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.9 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.7 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.4 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.2 </td>
+  </tr>
+</tbody>
+</table>
+
+
+Vectores singulares por izquierda (u):
+
+```r
+colnames(dvs$u)<-etiquetas
+
+dvs$u%>%
+  round(1)%>%
+  kable()%>%
+  kable_classic_2()
+```
+
+<table class=" lightable-classic-2" style='font-family: "Arial Narrow", "Source Sans Pro", sans-serif; margin-left: auto; margin-right: auto;'>
+ <thead>
+  <tr>
+   <th style="text-align:right;"> TAMFLOR </th>
+   <th style="text-align:right;"> LONGPET </th>
+   <th style="text-align:right;"> ANCHOPET </th>
+   <th style="text-align:right;"> SUPHOJA </th>
+   <th style="text-align:right;"> LONANCHO </th>
+   <th style="text-align:right;"> PECLIMBO </th>
+   <th style="text-align:right;"> PESOF </th>
+   <th style="text-align:right;"> LONGF </th>
+   <th style="text-align:right;"> ANCHOF </th>
+   <th style="text-align:right;"> ESPESORF </th>
+   <th style="text-align:right;"> PESOEND </th>
+   <th style="text-align:right;"> LONGEND </th>
+   <th style="text-align:right;"> ANCHOEND </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.5 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.2 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.7 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> -0.5 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.3 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.5 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> -0.5 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.3 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> -0.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.5 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> -0.5 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.5 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.3 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.5 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.2 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.2 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.5 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.2 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -0.6 </td>
+   <td style="text-align:right;"> 0.2 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.4 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> -0.1 </td>
+  </tr>
+</tbody>
+</table>
+
+
+
+Vectores singulares por derecha (v):
+
+```r
+colnames(dvs$v)<-etiquetas
+
+
+dvs$v%>%
+  round(1)%>%
+  kable()%>%
+  
+  kable_classic_2()
+```
+
+<table class=" lightable-classic-2" style='font-family: "Arial Narrow", "Source Sans Pro", sans-serif; margin-left: auto; margin-right: auto;'>
+ <thead>
+  <tr>
+   <th style="text-align:right;"> TAMFLOR </th>
+   <th style="text-align:right;"> LONGPET </th>
+   <th style="text-align:right;"> ANCHOPET </th>
+   <th style="text-align:right;"> SUPHOJA </th>
+   <th style="text-align:right;"> LONANCHO </th>
+   <th style="text-align:right;"> PECLIMBO </th>
+   <th style="text-align:right;"> PESOF </th>
+   <th style="text-align:right;"> LONGF </th>
+   <th style="text-align:right;"> ANCHOF </th>
+   <th style="text-align:right;"> ESPESORF </th>
+   <th style="text-align:right;"> PESOEND </th>
+   <th style="text-align:right;"> LONGEND </th>
+   <th style="text-align:right;"> ANCHOEND </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.7 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.5 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> -0.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.6 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.6 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.8 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> 0.6 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.5 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.2 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.6 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 0.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> -0.2 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.5 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.3 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> -0.5 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+</tbody>
+</table>
+
+
+Las nuevas cordenadas de las variedades halladas a traves de DVS:
+
+```r
+u<-dvs$u
+v<-dvs$v
+d<-diag(dvs$d, 13,13)
+ydvs<-u%*%d
+colnames(ydvs)<-etiquetas
+rownames(ydvs)<-datos$VAR
+  
+round(ydvs,1)%>%
+  kable()%>%
+  kable_classic_2()
+```
+
+<table class=" lightable-classic-2" style='font-family: "Arial Narrow", "Source Sans Pro", sans-serif; margin-left: auto; margin-right: auto;'>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> TAMFLOR </th>
+   <th style="text-align:right;"> LONGPET </th>
+   <th style="text-align:right;"> ANCHOPET </th>
+   <th style="text-align:right;"> SUPHOJA </th>
+   <th style="text-align:right;"> LONANCHO </th>
+   <th style="text-align:right;"> PECLIMBO </th>
+   <th style="text-align:right;"> PESOF </th>
+   <th style="text-align:right;"> LONGF </th>
+   <th style="text-align:right;"> ANCHOF </th>
+   <th style="text-align:right;"> ESPESORF </th>
+   <th style="text-align:right;"> PESOEND </th>
+   <th style="text-align:right;"> LONGEND </th>
+   <th style="text-align:right;"> ANCHOEND </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> BLANCO </td>
+   <td style="text-align:right;"> -3.4 </td>
+   <td style="text-align:right;"> 1.5 </td>
+   <td style="text-align:right;"> 1.3 </td>
+   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.8 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> BULIDA </td>
+   <td style="text-align:right;"> -1.0 </td>
+   <td style="text-align:right;"> -0.7 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 1.3 </td>
+   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> -0.8 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> CURROT.T </td>
+   <td style="text-align:right;"> 1.4 </td>
+   <td style="text-align:right;"> 1.3 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> -2.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> CANINO </td>
+   <td style="text-align:right;"> -2.0 </td>
+   <td style="text-align:right;"> -2.7 </td>
+   <td style="text-align:right;"> 1.3 </td>
+   <td style="text-align:right;"> -1.2 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> CANINO.T </td>
+   <td style="text-align:right;"> -3.9 </td>
+   <td style="text-align:right;"> 0.6 </td>
+   <td style="text-align:right;"> -1.7 </td>
+   <td style="text-align:right;"> 0.7 </td>
+   <td style="text-align:right;"> -0.9 </td>
+   <td style="text-align:right;"> -1.6 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> CHIRIVEL </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 1.0 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 1.3 </td>
+   <td style="text-align:right;"> -0.8 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> CORBATO </td>
+   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> 1.6 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.8 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> CRISTALI </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 1.7 </td>
+   <td style="text-align:right;"> -2.1 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 1.5 </td>
+   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> CURROT </td>
+   <td style="text-align:right;"> 2.1 </td>
+   <td style="text-align:right;"> 1.1 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> -2.1 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> -0.5 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GABACHET </td>
+   <td style="text-align:right;"> 4.8 </td>
+   <td style="text-align:right;"> 1.3 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 1.3 </td>
+   <td style="text-align:right;"> -1.1 </td>
+   <td style="text-align:right;"> 0.8 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GANDIA </td>
+   <td style="text-align:right;"> 3.4 </td>
+   <td style="text-align:right;"> -1.9 </td>
+   <td style="text-align:right;"> 0.8 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.8 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GINESTA </td>
+   <td style="text-align:right;"> 2.1 </td>
+   <td style="text-align:right;"> -2.0 </td>
+   <td style="text-align:right;"> -0.8 </td>
+   <td style="text-align:right;"> 1.1 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -1.0 </td>
+   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> MANRI </td>
+   <td style="text-align:right;"> 1.5 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> 0.9 </td>
+   <td style="text-align:right;"> 0.9 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> -1.0 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> MARTINET </td>
+   <td style="text-align:right;"> -4.1 </td>
+   <td style="text-align:right;"> 0.8 </td>
+   <td style="text-align:right;"> 2.0 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> -0.7 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> PALABRAS </td>
+   <td style="text-align:right;"> 1.8 </td>
+   <td style="text-align:right;"> -1.3 </td>
+   <td style="text-align:right;"> -0.8 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.8 </td>
+   <td style="text-align:right;"> -0.6 </td>
+   <td style="text-align:right;"> -0.5 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> -0.6 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> PALAU </td>
+   <td style="text-align:right;"> 1.8 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 0.5 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> R.CARLET </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.6 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> -0.2 </td>
+   <td style="text-align:right;"> -0.3 </td>
+   <td style="text-align:right;"> 0.3 </td>
+   <td style="text-align:right;"> -0.4 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> -0.1 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> TADEO </td>
+   <td style="text-align:right;"> -4.1 </td>
+   <td style="text-align:right;"> -1.9 </td>
+   <td style="text-align:right;"> -1.5 </td>
+   <td style="text-align:right;"> -0.7 </td>
+   <td style="text-align:right;"> -0.5 </td>
+   <td style="text-align:right;"> 1.6 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.2 </td>
+   <td style="text-align:right;"> 0.1 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+   <td style="text-align:right;"> 0.0 </td>
+  </tr>
+</tbody>
+</table>
+
+
+
+**FALTA VERIFICAR QUE SE LLEGA AL MISMO RESULTADO**
