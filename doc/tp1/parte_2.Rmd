@@ -1,0 +1,149 @@
+---
+title: "Trabajo practico 1"
+subtitle: "Parte 2"
+author: "Grupo ....."
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+    html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+## Librerias
+
+```{r}
+library(cluster)
+library(ggrepel)
+library(kableExtra)
+library(tidyverse)
+```
+
+## Datos
+
+```{r}
+datos <- read_csv2(here::here("data", "raw", "CUALITATIVAS.csv"))
+```
+
+```{r}
+glimpse(datos)
+```
+
+Vemos que todas las variables fueron importadas como de tipo `"character"`, lo
+que es correcto en este caso. Ahora pasamos a ver que variables tienen datos
+desconocidos (marcados con "-1"). Los reemplazaremos por valores `NA`.
+
+```{r}
+sapply(datos, function(x) mean(x == "-1")) %>%
+  round(2)
+```
+
+Por lo que vemos que en las variables `CLADOSP` y `CMV` se tiene un 32% y un 27%
+de valores perdidos respectivamente.
+
+```{r}
+datos <- datos %>%
+  mutate(
+    CLADOSP = ifelse(CLADOSP == "-1", NA, CLADOSP),
+    CMV = ifelse(CMV == "-1", NA, CMV)
+  )
+```
+
+
+**A.** Cuantifique (en forma manual) la similaridad entre las variedades 
+correspondientes a la primera y segunda fila en función del porcentaje de 
+caracteres comunes respecto al número de caracteres totales. Idem las variedades
+asociadas a las filas 12 y 13 (incluir la variable TIPO)
+
+Para el primer par de variedades hacemos
+
+```{r}
+variedad1 <- datos[1, -1] %>% unlist() %>% unname()
+variedad2 <- datos[2, -1] %>% unlist() %>% unname()
+similaridad_1_2 <- mean(variedad1 == variedad2, na.rm = TRUE) * 100
+```
+
+La similaridad entre las variedades de la fila 1 y 2 es del
+`r paste0(round(similaridad_1_2, 2), "%")`. Luego, de manera analoga para el 
+segundo par de variedades 
+
+```{r}
+variedad12 <- datos[12, -1] %>% unlist() %>% unname()
+variedad13 <- datos[13, -1] %>% unlist() %>% unname()
+similaridad_12_13 <- mean(variedad12 == variedad13, na.rm = TRUE) * 100
+```
+
+La similaridad entre las variedades de la fila 12 y 13 es del
+`r paste0(round(similaridad_12_13, 2), "%")`.
+
+**B.** Halle una matriz de similaridad entre variedades en función del 
+coeficiente SM generalizado.
+
+<!-- Extensión Coeficiente Similaridad S.M. p.26 teoria -->
+
+La funcion `daisy()` del paquete `cluster` requiere que las variables 
+cualitativas sean de tipo `"factor"`. En nuestro caso, son de tipo 
+`"character"`, por lo que necesitamos una nueva versio de nuestros datos
+donde las columnas son factores. 
+
+```{r}
+datos_fct <- datos %>%
+  mutate_all(as.factor)
+```
+
+```{r}
+matriz_distancia <- daisy(datos_fct[-1], "gower")
+matriz_similaridad <- 1 - matriz_distancia
+```
+
+Comprobemos, por ejemplo, si las similaridad entre las unidades 1 y 2 computada
+mediante `daisy()` es igual a la que computamos a mano.
+
+```{r}
+matriz_similaridad[1] == (similaridad_1_2 / 100)
+```
+
+**C.** Aplique Análisis de Coordenadas principales para representar en un 
+espacio bidimensional la semejanza entre las variedades.
+
+```{r}
+coordenadas_principales <- cmdscale(sqrt(matriz_distancia), eig = TRUE)
+```
+
+Vamos a hacer el grafico
+
+```{r}
+datos_cp <- as.data.frame(coordenadas_principales$points)
+colnames(datos_cp) <- c("c1", "c2")
+datos_cp$etiqueta <- datos$VARIEDAD
+datos_cp$variedad <- substr(datos_cp$etiqueta, 1, 1)
+```
+
+```{r}
+ggplot(datos_cp) + 
+  geom_point(aes(c1, c2, color = variedad), size = 4) + 
+  geom_label_repel(aes(c1, c2, label = etiqueta), max.overlaps = 30) + 
+  geom_vline(xintercept = 0, linetype = "dashed") + 
+  geom_hline(yintercept = 0, linetype = "dashed") + 
+  labs(
+    x = "Coordenada 1",
+    y = "Coordenada 2",
+    color = "Variedad"
+  )
+```
+
+
+
+
+**D.** Conforme grupos de variedades según su homogeneidad en la caracterización
+agronómica cualitativa.
+
+**E.** Encuentre el dendograma ultramétrico con ligamiento UPGMA correspondiente
+
+**F.** Mida a través de su matriz cofenética la concordancia con la matriz de 
+distancias que le dio origen
+
+**G.** Cuantifique concordancia entre plano principal de ACoordP y Cluster

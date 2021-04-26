@@ -24,13 +24,13 @@ library(tidyverse)
 ## Datos
 
 ```{r}
-datos <- readr::read_csv2(here::here("data", "raw", "DAMASCO.csv"))
+datos <- read_csv2(here::here("data", "raw", "DAMASCO.csv"))
 ```
 
-Inspeccionamos con `str(datos)`
+Inspeccionamos con `glimpse(datos)`
 
 ```{r}
-str(datos)
+glimpse(datos)
 ```
 
 **A.** Cuáles son los valores de $n$ y $p$? Cuanto vale y que indica el valor 
