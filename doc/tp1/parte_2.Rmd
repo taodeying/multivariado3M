@@ -10,7 +10,9 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+knitr::opts_chunk$set(
+  echo = TRUE, message = FALSE, warning = FALSE, fig.align = "center"
+)
 ```
 
 ## Librerias
@@ -36,9 +38,13 @@ Vemos que todas las variables fueron importadas como de tipo `"character"`, lo
 que es correcto en este caso. Ahora pasamos a ver que variables tienen datos
 desconocidos (marcados con "-1"). Los reemplazaremos por valores `NA`.
 
-```{r}
-sapply(datos, function(x) mean(x == "-1")) %>%
-  round(2)
+```{r, cap}
+sapply(datos, function(x) paste(round(mean(x == "-1") * 100, 2), "%")) %>%
+  t() %>%
+  as.data.frame() %>%
+  kable(caption = "Tabla 1: Porcentaje de datos perdidos por variable") %>%
+  kable_styling(font_size = 12) %>% 
+  kable_classic_2() 
 ```
 
 Por lo que vemos que en las variables `CLADOSP` y `CMV` se tiene un 32% y un 27%
@@ -68,7 +74,7 @@ similaridad_1_2 <- mean(variedad1 == variedad2, na.rm = TRUE) * 100
 
 La similaridad entre las variedades de la fila 1 y 2 es del
 `r paste0(round(similaridad_1_2, 2), "%")`. Luego, de manera analoga para el 
-segundo par de variedades 
+segundo par de variedadefig.align='centers 
 
 ```{r}
 variedad12 <- datos[12, -1] %>% unlist() %>% unname()
@@ -122,7 +128,8 @@ datos_cp$etiqueta <- datos$VARIEDAD
 datos_cp$variedad <- substr(datos_cp$etiqueta, 1, 1)
 ```
 
-```{r}
+
+```{r, fig.cap="Figura 1: Caracterizacion cualitativa de las variedades de pepino."}
 ggplot(datos_cp) + 
   geom_point(aes(c1, c2, color = variedad), size = 4) + 
   geom_label_repel(aes(c1, c2, label = etiqueta), max.overlaps = 30) + 
@@ -131,15 +138,38 @@ ggplot(datos_cp) +
   labs(
     x = "Coordenada 1",
     y = "Coordenada 2",
-    color = "Variedad"
+    color = "Tipo de fruto"
   )
 ```
 
+En aquellos casos que mas de una etiqueta apunta hacia el mismo punto sucede que 
+las variedades coinciden en terminos de las variables analizadas y en 
+consecuencia los puntos que los representan estan encimados. Por ejemplo,
+las variedades `A5`, `A6` y `A7`, tienen identicos valores para todas las 
+variables.
 
-
+```{r}
+datos %>%
+  filter(VARIEDAD %in% c("A5", "A6", "A7")) %>%
+  kable() %>% 
+  kable_styling(font_size = 12) %>% 
+  kable_classic_2() 
+```
 
 **D.** Conforme grupos de variedades según su homogeneidad en la caracterización
 agronómica cualitativa.
+
+En la Figura 1 se puede ver que las variedades presentes en el conjunto de datos
+se agrupan segun el tipo de fruto. Curiosamente, cada uno de los cuatro tipos 
+de fruto se posiciona en un cuadrante distinto.
+
+Podemos ver que la variabilidad de las variedades intra tipo de fruto difiere.
+Por ejemplo, para el tipo de fruto **H**, se tiene que casi todas las variedades
+se corresponden con dos categorizaciones particulares (por eso vemos tantos 
+puntos encimados). Por otro lado, todas las variedades del tipo de fruto **P**
+se corresponden con una configuracion unica de las variables cualitativas.
+
+---
 
 **E.** Encuentre el dendograma ultramétrico con ligamiento UPGMA correspondiente
 
