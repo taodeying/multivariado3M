@@ -57,7 +57,7 @@ datos %>%
     summarise_all(mean) %>% 
     round(1) %>% 
     kable() %>% 
-    kable_styling(font_size = 10) %>% 
+    kable_styling(font_size = 12) %>% 
     kable_classic_2()
 ```
 
@@ -69,7 +69,7 @@ datos %>%
     cov() %>%  
     round(1) %>% 
     kable() %>% 
-    kable_styling(font_size = 10) %>% 
+    kable_styling(font_size = 12) %>% 
     kable_classic_2() 
 ```
 
@@ -84,9 +84,9 @@ datos %>% select(-VAR) %>%
     summarise_all(function(x) sd(x) / mean(x)) %>% 
     pivot_longer(cols = everything(), names_to = "VAR", values_to = "CV") %>% 
     arrange(desc(CV)) %>% 
-    mutate(CV= round(CV, 1)) %>%
+    mutate(CV = round(CV, 1)) %>%
     kable() %>% 
-    kable_styling(font_size = 10) %>% 
+    kable_styling(font_size = 12) %>% 
     kable_classic_2()
 ```
 
@@ -118,7 +118,7 @@ datos %>%
     cor() %>% 
     round(1)  %>% 
     kable() %>% 
-    kable_styling(font_size = 10)%>% 
+    kable_styling(font_size = 12)%>% 
     kable_classic_2()
 ```
 

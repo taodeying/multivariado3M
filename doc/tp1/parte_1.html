@@ -602,40 +602,24 @@ library(tidyverse)</code></pre>
 <div id="datos" class="section level2">
 <h2>Datos</h2>
 <pre class="r"><code>datos &lt;- read_csv2(here::here(&quot;data&quot;, &quot;raw&quot;, &quot;DAMASCO.csv&quot;))</code></pre>
-<p>Inspeccionamos con <code>str(datos)</code></p>
-<pre class="r"><code>str(datos)</code></pre>
-<pre><code>## spec_tbl_df[,14] [18 × 14] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
-##  $ VAR     : chr [1:18] &quot;BLANCO&quot; &quot;BULIDA&quot; &quot;CURROT.T&quot; &quot;CANINO&quot; ...
-##  $ TAMFLOR : num [1:18] 33.3 26.8 28.8 27.5 33.9 ...
-##  $ LONGPET : num [1:18] 13.9 13.4 12.7 12.3 14.4 ...
-##  $ ANCHOPET: num [1:18] 18.3 15.9 15.4 14.3 16.4 ...
-##  $ SUPHOJA : num [1:18] 44.1 36.7 51.7 36 39 ...
-##  $ LONANCHO: num [1:18] 1.053 1.112 0.912 1.005 1.058 ...
-##  $ PECLIMBO: num [1:18] 0.415 0.395 0.389 0.452 0.311 0.411 0.385 0.344 0.412 0.41 ...
-##  $ PESOF   : num [1:18] 49.3 49 43 66.8 63.1 ...
-##  $ LONGF   : num [1:18] 46.3 44.6 40.1 51.3 50.7 ...
-##  $ ANCHOF  : num [1:18] 44.9 45.1 43.5 50.8 49.2 ...
-##  $ ESPESORF: num [1:18] 45.4 43.4 43 49.1 46.8 ...
-##  $ PESOEND : num [1:18] 4.31 2.57 1.62 3.42 3.34 3.46 1.88 2.58 1.52 1.2 ...
-##  $ LONGEND : num [1:18] 31.1 25.3 20.1 23.8 29.1 ...
-##  $ ANCHOEND: num [1:18] 24.2 20.3 17.6 21.2 22.9 ...
-##  - attr(*, &quot;spec&quot;)=
-##   .. cols(
-##   ..   VAR = col_character(),
-##   ..   TAMFLOR = col_double(),
-##   ..   LONGPET = col_double(),
-##   ..   ANCHOPET = col_double(),
-##   ..   SUPHOJA = col_double(),
-##   ..   LONANCHO = col_double(),
-##   ..   PECLIMBO = col_double(),
-##   ..   PESOF = col_double(),
-##   ..   LONGF = col_double(),
-##   ..   ANCHOF = col_double(),
-##   ..   ESPESORF = col_double(),
-##   ..   PESOEND = col_double(),
-##   ..   LONGEND = col_double(),
-##   ..   ANCHOEND = col_double()
-##   .. )</code></pre>
+<p>Inspeccionamos con <code>glimpse(datos)</code></p>
+<pre class="r"><code>glimpse(datos)</code></pre>
+<pre><code>## Rows: 18
+## Columns: 14
+## $ VAR      &lt;chr&gt; &quot;BLANCO&quot;, &quot;BULIDA&quot;, &quot;CURROT.T&quot;, &quot;CANINO&quot;, &quot;CANINO.T&quot;, &quot;CHIRIV…
+## $ TAMFLOR  &lt;dbl&gt; 33.26, 26.84, 28.84, 27.52, 33.88, 26.32, 30.63, 27.60, 28.80…
+## $ LONGPET  &lt;dbl&gt; 13.90, 13.44, 12.68, 12.32, 14.40, 13.36, 13.79, 13.68, 12.32…
+## $ ANCHOPET &lt;dbl&gt; 18.32, 15.88, 15.44, 14.28, 16.40, 15.04, 17.04, 17.40, 15.24…
+## $ SUPHOJA  &lt;dbl&gt; 44.09, 36.67, 51.72, 36.04, 38.97, 41.28, 42.06, 53.33, 50.01…
+## $ LONANCHO &lt;dbl&gt; 1.053, 1.112, 0.912, 1.005, 1.058, 0.988, 0.991, 1.078, 0.880…
+## $ PECLIMBO &lt;dbl&gt; 0.415, 0.395, 0.389, 0.452, 0.311, 0.411, 0.385, 0.344, 0.412…
+## $ PESOF    &lt;dbl&gt; 49.29, 49.00, 43.04, 66.79, 63.11, 43.80, 39.63, 44.98, 40.77…
+## $ LONGF    &lt;dbl&gt; 46.34, 44.58, 40.06, 51.30, 50.70, 40.29, 39.71, 40.10, 42.54…
+## $ ANCHOF   &lt;dbl&gt; 44.93, 45.09, 43.54, 50.80, 49.22, 42.51, 41.06, 42.25, 39.94…
+## $ ESPESORF &lt;dbl&gt; 45.40, 43.38, 42.97, 49.10, 46.82, 44.55, 40.79, 46.89, 41.77…
+## $ PESOEND  &lt;dbl&gt; 4.31, 2.57, 1.62, 3.42, 3.34, 3.46, 1.88, 2.58, 1.52, 1.20, 1…
+## $ LONGEND  &lt;dbl&gt; 31.07, 25.26, 20.13, 23.77, 29.09, 23.90, 19.66, 20.76, 17.97…
+## $ ANCHOEND &lt;dbl&gt; 24.18, 20.34, 17.62, 21.21, 22.86, 22.52, 20.31, 19.13, 17.57…</code></pre>
 <p><strong>A.</strong> Cuáles son los valores de <span class="math inline">\(n\)</span> y <span class="math inline">\(p\)</span>? Cuanto vale y que indica el valor <span class="math inline">\(x_{32}\)</span> ? Y el vector <span class="math inline">\(x_6\)</span> ?</p>
 <p>El valor de <span class="math inline">\(n\)</span> es 18 y el valor de <span class="math inline">\(p\)</span> es 14. El valor de <span class="math inline">\(x_{32}\)</span> es 28.84 e indica el tamaño de la flor de la observacion 3. El vector <span class="math inline">\(x_6\)</span> indica la relacion entre el ancho y largo de la hoja.</p>
 <p><strong>B.</strong> Cómo clasificaría las variables sobre las que se está trabajando ?</p>
@@ -647,9 +631,9 @@ library(tidyverse)</code></pre>
     summarise_all(mean) %&gt;% 
     round(1) %&gt;% 
     kable() %&gt;% 
-    kable_styling(font_size = 10) %&gt;% 
+    kable_styling(font_size = 12) %&gt;% 
     kable_classic_2()</code></pre>
-<table class="table lightable-classic-2" style="font-size: 10px; margin-left: auto; margin-right: auto; font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; margin-left: auto; margin-right: auto;">
+<table class="table lightable-classic-2" style="font-size: 12px; margin-left: auto; margin-right: auto; font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:right;">
@@ -743,9 +727,9 @@ ANCHOEND
     cov() %&gt;%  
     round(1) %&gt;% 
     kable() %&gt;% 
-    kable_styling(font_size = 10) %&gt;% 
+    kable_styling(font_size = 12) %&gt;% 
     kable_classic_2() </code></pre>
-<table class="table lightable-classic-2" style="font-size: 10px; margin-left: auto; margin-right: auto; font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; margin-left: auto; margin-right: auto;">
+<table class="table lightable-classic-2" style="font-size: 12px; margin-left: auto; margin-right: auto; font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -1372,11 +1356,11 @@ ANCHOEND
     summarise_all(function(x) sd(x) / mean(x)) %&gt;% 
     pivot_longer(cols = everything(), names_to = &quot;VAR&quot;, values_to = &quot;CV&quot;) %&gt;% 
     arrange(desc(CV)) %&gt;% 
-    mutate(CV= round(CV, 1)) %&gt;%
+    mutate(CV = round(CV, 1)) %&gt;%
     kable() %&gt;% 
-    kable_styling(font_size = 10) %&gt;% 
+    kable_styling(font_size = 12) %&gt;% 
     kable_classic_2()</code></pre>
-<table class="table lightable-classic-2" style="font-size: 10px; margin-left: auto; margin-right: auto; font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; margin-left: auto; margin-right: auto;">
+<table class="table lightable-classic-2" style="font-size: 12px; margin-left: auto; margin-right: auto; font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -1515,9 +1499,9 @@ datos_std = scale(datos[-1])</code></pre>
     cor() %&gt;% 
     round(1)  %&gt;% 
     kable() %&gt;% 
-    kable_styling(font_size = 10)%&gt;% 
+    kable_styling(font_size = 12)%&gt;% 
     kable_classic_2()</code></pre>
-<table class="table lightable-classic-2" style="font-size: 10px; margin-left: auto; margin-right: auto; font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; margin-left: auto; margin-right: auto;">
+<table class="table lightable-classic-2" style="font-size: 12px; margin-left: auto; margin-right: auto; font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:left;">
