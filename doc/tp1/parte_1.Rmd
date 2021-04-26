@@ -79,7 +79,6 @@ Utilizando el coeficiente de variación, podemos decir que las variables más
 dispersas, en orden decreciente, son:
 
 ```{r}
-
 datos %>% select(-VAR) %>%
     summarise_all(function(x) sd(x) / mean(x)) %>% 
     pivot_longer(cols = everything(), names_to = "VAR", values_to = "CV") %>% 
@@ -166,27 +165,50 @@ dist = datos %>%
 
 rownames(dist) <- datos$VAR
 
-dist %>% 
+matriz_distancia <- dist %>% 
     dist(method = "euclidean", diag = TRUE, upper = TRUE) %>% 
-    as.matrix() %>% 
+    as.matrix()
+
+ matriz_distancia %>% 
     round(1) %>% 
     kable() %>% 
     kable_styling(font_size = 8) %>% 
     kable_classic_2()
-
 ```
 
 **I.** Podría decir cuales son los tres pares de variedades que presentan mayor 
 semejanza?
 
-Los pares de variaedades que presentan mayor semejanza son:
+Los pares de variedades que presentan mayor semejanza son:
 
- 1. CORBATO y PALAU, con una distancia de 4.8
- 1. GINESTA y MANRI, con una distancia de 5.7
- 1. GANDIA y MANRI, con una distancia de 5.8
+```{r}
+matriz_distancia_df <- data.frame(
+  "var1" = rep(colnames(matriz_distancia), each = ncol(matriz_distancia)), 
+  "var2" = rep(colnames(matriz_distancia), ncol(matriz_distancia)),
+  "distancia" = c(matriz_distancia)
+)
+
+matriz_distancia_df %>%
+    filter(
+      rep(
+          1:ncol(matriz_distancia),
+          each = ncol(matriz_distancia)
+      ) > 
+      rep(
+          1:ncol(matriz_distancia),
+          times = ncol(matriz_distancia)
+      )
+  ) %>%
+  arrange(distancia) %>%
+  head(3) %>%
+  kable(col.names = c("Variedad 1", "Variedad 2", "Distancia")) %>% 
+  kable_styling(font_size = 12, full_width = FALSE) %>% 
+  kable_classic_2()
+```
+
 
 **J.** Repita lo realizado en el inciso (h) pero sobre las variables 
-estandarizadas por media y desvío estándar. Son las mimas las tres variedades 
+estandarizadas por media y desvío estándar. Son las mismas las tres variedades 
 más parecidas? Comente al respecto
 
 ```{r}
@@ -197,34 +219,58 @@ dist_std <- datos %>%
 
 rownames(dist_std) <- datos$VAR
 
-dist_std %>% 
+matriz_distancia_std <- dist_std %>% 
     dist(method = "euclidean", diag = TRUE, upper = TRUE) %>% 
-    as.matrix() %>% 
+    as.matrix()
+
+matriz_distancia_std %>%
     round(1) %>% 
     kable() %>% 
     kable_styling(font_size = 8) %>% 
     kable_classic_2()
+
 ```
 
 Con los datos estandarizados, los pares de variedades mas parecidas son:
-  
-1. CURROT y CURROT.T, con una distancia de 1.4
-1. R.CARLET y CORBATO, con una distancia de 1.5
-1. PALABRAS y GINESTA, con una distancia de 2.1
+
+```{r}
+matriz_distancia_std_df <- data.frame(
+  "var1" = rep(colnames(matriz_distancia_std), each = ncol(matriz_distancia_std)), 
+  "var2" = rep(colnames(matriz_distancia_std), ncol(matriz_distancia_std)),
+  "distancia" = c(matriz_distancia_std)
+)
+
+
+matriz_distancia_std_df %>%
+    filter(
+      rep(
+          1:ncol(matriz_distancia_std),
+          each = ncol(matriz_distancia_std)
+      ) > 
+      rep(
+          1:ncol(matriz_distancia_std),
+          times = ncol(matriz_distancia_std)
+      )
+  ) %>%
+  arrange(distancia) %>%
+  head(3) %>%
+  kable(col.names = c("Variedad 1", "Variedad 2", "Distancia")) %>% 
+  kable_styling(font_size = 12, full_width = FALSE) %>% 
+  kable_classic_2()
+
+```
+
+Podemos ver que los tres pares de variedades mas parecidas son distintos a los
+que vimos en el inciso anterior donde utilizamos los datos sin estandarizar. 
+Esto esta relacionado con que las variables estan medidas en diferentes unidades
+de medicion.
 
 **K.** Mida el grado de concordancia entre ambas matrices de distancia.
 
 ```{r}
-
-
-dist_ <- dist %>% 
-    dist(method = "euclidean", diag = TRUE, upper = TRUE) 
-
-dist_std_ <- dist_std %>% 
-    dist(method = "euclidean", diag = TRUE, upper = TRUE)
-
-
-conc <- cor(dist_, dist_std_) %>%
+matriz_distancia_dist <- as.dist(matriz_distancia)
+matriz_distancia_std_dist <- as.dist(matriz_distancia_std)
+conc <- cor(matriz_distancia_dist, matriz_distancia_std_dist) %>%
       as_tibble() %>%
       round(2) %>%
       rename(CONCORDANCIA = value)
@@ -235,10 +281,9 @@ El grado de concordancia entre las matrices de distancias es: `r conc `.
 A continuacion se realiza una representacion grafica:
 
 ```{r}
-
 plot(
-  dist_, 
-  dist_std_, 
+  matriz_distancia_dist, 
+  matriz_distancia_std_dist, 
   ylab = "Distancias euclideas estandarizadas", 
   xlab = "Distancis euclideas", 
   main = "Concordancia entre las matrices de distancias euclideas"
@@ -264,13 +309,17 @@ pca$eig %>%
     "% varianza acumulada" = "cumulative.percentage.of.variance" 
   ) %>%
   kable() %>%
+  kable_styling(full_width = FALSE) %>%
   kable_classic_2()
 ```
 
 Tambien pueden observarse graficamente: 
 
 ```{r}
-barplot(pca$eig[, 1], main = "AUTOVALORES", names.arg = 1:nrow(pca$eig))
+# Agregar linea que acumula.
+prop_table = prop.table(pca$eig[, 1])
+barplot(prop_table, main = "AUTOVALORES", names.arg = 1:nrow(pca$eig))
+#lines(c(1, 13), c(0, 0.5))
 ```
 
 Y los autovectores (cargas asociadas a cada componente) son: 
@@ -278,9 +327,9 @@ Y los autovectores (cargas asociadas a cada componente) son:
 ```{r}
 pca$var$coord %>%
   kable() %>%
+  kable_styling(full_width = FALSE) %>%
   kable_classic_2()
 ```
-
 
 **M.** Analice los porcentaje de variabilidad explicada por los primeros ejes 
 principales.
@@ -301,48 +350,38 @@ plano principal:
 pc1 <- pca$ind$coord[, 1]
 pc2 <- pca$ind$coord[, 2]
 etiquetas <- rownames(pca$ind$coord)
-
 plot(
   pc1,
   pc2, 
   ylab = "2° COMPONENTE PRINCIPAL", 
   xlab = "1° COMPONENTE PRINCIPAL", 
-  xlim = c(-6,6), 
-  ylim = c(-3,3)
+  xlim = c(-6, 6), 
+  ylim = c(-6, 6),
+  pch = 19
 )
 abline(h = 0, lty = 3)
 abline(v = 0, lty = 3)
-text(pc1, pc2, etiquetas, pos = 3)
+text(pc1, pc2, etiquetas, pos = 3, cex = 0.7)
 ```
 
-Tras observar el grafico podemos decir que las variedades mas similares son 
-MARTINET, CANINO.T y BLANCO. Otro grupo podria estar conformado por CANINO y 
-TADEO. La variedad GABACHET no tiene semejanza con ninguna de las otras 
-variedades.
+Tras observar el grafico podemos decir que encontramos cuatro grupos. 
+El primer grupo contiene a MARTINET, CANINO.T y BLANCO. El segundo esta 
+conformado por CANINO y TADEO. El tercer grupo esta conformado solamente por 
+GABACHET, que se diferencia de todas las variedades. Y el cuarto grupo que se 
+compone por el resto de las variedades, que estan ubicadas alrededor del 
+comportamiento promedio, es decir, el origen del plano.
 
 **O.** Encuentre e interprete gradientes de las variables originales en el plano
 principal en función de sus cargas sobre las dos primeras componentes.
 
 ```{r}
-pc1_ <- pca$var$coord[, 1]
-pc2_ <- pca$var$coord[, 2]
-etiquetas <- rownames(pca$var$coord)
-
-plot(
-  pc1_,
-  pc2_, 
-  ylab = "2° COMPONENTE PRINCIPAL", 
-  xlab = "1° COMPONENTE PRINCIPAL", 
-  xlim = c(-6,6), 
-  ylim = c(-3,3)
-)
-abline(h = 0, lty = 3)
-abline(v = 0, lty = 3)
-text(pc1, pc2, etiquetas, pos = 3)
+plot(pca, choix = "var", title = "Grafico de cargas")
 ```
 
 **P.** Caracterice los grupos determinados en el inciso (N) según los gradientes
 descriptos en (O).
+
+Maria susana.
 
 **R.** Con el software `R` realice el ACP recurriendo a operaciones con 
 matrices (decomposición espectral)
@@ -372,6 +411,7 @@ round(autovalores_$vectors[, 1:2], 1) %>%
 Las nuevas coordenadas de las variaedades sobre las componentes halladas:
 
 ```{r}
+etiquetas <- rownames(pca$var$coord)
 p <- as.matrix(autovalores_$vectors)
 y <- x %*% p
 colnames(y) <- etiquetas
@@ -414,9 +454,9 @@ colnames(dvs$v) <- etiquetas
 dvs$v %>%
   round(1) %>%
   kable() %>%
+  kable_styling(full_width = FALSE) %>%
   kable_classic_2()
 ```
-
 
 Las nuevas cordenadas de las variedades halladas a traves de DVS:
 
@@ -427,7 +467,7 @@ d <- diag(dvs$d, 13, 13)
 ydvs <- u %*% d
 colnames(ydvs) <- etiquetas
 rownames(ydvs) <- datos$VAR
-  
+
 round(ydvs, 1) %>%
   kable() %>%
   kable_classic_2()
@@ -435,3 +475,6 @@ round(ydvs, 1) %>%
 
 
 **FALTA VERIFICAR QUE SE LLEGA AL MISMO RESULTADO**
+
+1. Autovalores y autovectores coinciden.
+2. Graficos de variedades en plano de 2 componentes encimados.

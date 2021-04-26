@@ -74,7 +74,7 @@ similaridad_1_2 <- mean(variedad1 == variedad2, na.rm = TRUE) * 100
 
 La similaridad entre las variedades de la fila 1 y 2 es del
 `r paste0(round(similaridad_1_2, 2), "%")`. Luego, de manera analoga para el 
-segundo par de variedadefig.align='centers 
+segundo par de variedades 
 
 ```{r}
 variedad12 <- datos[12, -1] %>% unlist() %>% unname()
@@ -145,12 +145,12 @@ ggplot(datos_cp) +
 En aquellos casos que mas de una etiqueta apunta hacia el mismo punto sucede que 
 las variedades coinciden en terminos de las variables analizadas y en 
 consecuencia los puntos que los representan estan encimados. Por ejemplo,
-las variedades `A5`, `A6` y `A7`, tienen identicos valores para todas las 
+las variedades `A5`, `A6`, `A7`, `A8` tienen identicos valores para todas las 
 variables.
 
 ```{r}
 datos %>%
-  filter(VARIEDAD %in% c("A5", "A6", "A7")) %>%
+  filter(VARIEDAD %in% c("A5", "A6", "A7", "A8")) %>%
   kable() %>% 
   kable_styling(font_size = 12) %>% 
   kable_classic_2() 
