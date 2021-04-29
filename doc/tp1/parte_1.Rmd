@@ -383,6 +383,21 @@ descriptos en (O).
 
 Maria susana.
 
+**Q.** Superponga en la representación del plano principal un MST. Comente al 
+respecto, haría algún reagrupamiento ?
+
+```{r}
+library(vegan)
+```
+
+
+```{r}
+mst <- spantree(matriz_distancia_std_dist)
+plot(mst, pca$ind$coord)
+# faltan las cp!
+```
+
+
 **R.** Con el software `R` realice el ACP recurriendo a operaciones con 
 matrices (decomposición espectral)
 
@@ -478,3 +493,51 @@ round(ydvs, 1) %>%
 
 1. Autovalores y autovectores coinciden.
 2. Graficos de variedades en plano de 2 componentes encimados.
+
+**T.** Obtenga 4 dendogramas ultramétricos según diferentes criterios de 
+encadenamiento (SIMPLE, COMPUESTO, UPGMA y WARD).
+
+```{r}
+cluster_min <- hclust(matriz_distancia_std_dist, method = "single")
+plot(cluster_min)
+```
+ 
+Hacer usando los otros metodos... average, ward.D ward.D2
+
+Si siempre se me forman los mismos grupos, estos grupos son muy robustos 
+(en cuanto a cuan evidentes son los grupos, no a una propiedad estadistica)
+
+**U.** Asocie a cada uno de los árboles obtenidos en el inciso anterior la 
+matriz cofenética correspondiente. Que miden los elementos de estas matrices ?
+
+```{r}
+cophenetic_min = cophenetic(cluster_min)
+plot(cophenetic_min, matriz_distancia_std_dist)
+```
+
+**V.** Cuantifique la concordancia entre la matriz de distancia que dio origen 
+a los dendogramas y las 4 matrices cofenéticas. A que conclusión llega ?
+
+```{r}
+cor(cophenetic_min, matriz_distancia_std_dist)
+```
+
+
+**W.** Existe algún punto de corte sobre el índice de jerarquización del 
+dendograma UPGMA que origine los mismos agrupamiento de variedades obtenidos en 
+Análisis de Componentes Principales ?
+
+```{r}
+cutree(cluster_min, k=6)
+```
+
+**X.** Mida el grado de concordancia entre los resultados obtenidos por 
+Componentes y por Cluster UPGMA
+
+```{r}
+library(ape)
+# usar funcion 'nj'
+```
+
+**Y.** Halle el dendograma aditivo Neighbor Joining, representa mejor la 
+configuración de variedades que el Cluster UPGMA ?
