@@ -1,0 +1,113 @@
+---
+title: "Trabajo practico 1"
+subtitle: "Parte 5"
+author: "Grupo ....."
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+    html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE, message = FALSE, warning = FALSE, fig.align = "center"
+)
+```
+
+## Librerias
+
+```{r}
+library(ggrepel)
+library(kableExtra)
+library(tidyverse)
+```
+
+## Datos
+
+```{r}
+datos <- read_csv2(here::here("data", "raw", "RAPDS.csv"))
+```
+
+```{r}
+glimpse(datos)
+```
+
+**A.** Halle la distancia genética de Prevosti entre variedades
+
+```{r}
+# Dist computa distancia entre filas, y las filas de datos son las variedades.
+# 33 es la cantidad de variables
+matriz_distancia <- dist(datos[-1], method = "manhattan") / 33
+```
+
+**B.** Podría aplicar el coeficiente de similaridad SM ? Porque ?
+
+Si, pero no lo tenemos que hacer porque perderiamos informacion, ya que las 
+bandas presentan mas de 2 valores posibles y categorizar los valores observados
+en solamente dos categorias implicaria una perdida de informacion.
+
+**C.** Realice un Análisis de Coordenadas Principales para encontrar la 
+configuración de las variedades de pepino en función de esta caracterización
+molecular. Encuentra asociaciones en función del tipo de pepino?
+
+```{r}
+coordenadas_principales <- cmdscale(sqrt(matriz_distancia), eig = TRUE)
+```
+
+
+```{r}
+datos_cp <- as.data.frame(coordenadas_principales$points)
+colnames(datos_cp) <- c("c1", "c2")
+datos_cp$etiqueta <- datos$Var
+datos_cp$variedad <- substr(datos_cp$etiqueta, 1, 1)
+```
+
+
+```{r, fig.cap="Figura 1: ...."}
+ggplot(datos_cp) + 
+  geom_point(aes(c1, c2, color = variedad), size = 4) + 
+  geom_label_repel(aes(c1, c2, label = etiqueta), max.overlaps = 30) + 
+  geom_vline(xintercept = 0, linetype = "dashed") + 
+  geom_hline(yintercept = 0, linetype = "dashed") + 
+  labs(
+    x = "Coordenada 1",
+    y = "Coordenada 2",
+    color = "Tipo de fruto"
+  )
+```
+
+
+**D.**  Encuentre el dendograma ultramétrico con ligamiento UPGMA
+
+```{r}
+cluster_cualitativas <- hclust(matriz_distancia, method = "average")
+plot(cluster_cualitativas)
+```
+
+**E.** Mida a través de su matriz cofenética la concordancia con la matriz de 
+distancias que le dio origen
+
+```{r}
+matriz_cofenetica <- cophenetic(cluster_cualitativas)
+cor(matriz_distancia, matriz_cofenetica)
+```
+
+
+**F.** Halle el dendograma aditivo neighbor Joining
+
+```{r}
+library(ape)
+
+rapds_nj <- nj(matriz_distancia)
+plot(rapds_nj, "u")
+plot(rapds_nj)
+```
+
+**G.** Mida su concordancia con matriz de distancia original
+
+```{r}
+cor(matriz_distancia, rapds_nj)
+```
+
+**H.** Relacione ambos dendogramas y saque conclusiones

@@ -107,6 +107,13 @@
       "Repository": "CRAN",
       "Hash": "4f57884290cc75ab22f4af9e9d4ca862"
     },
+    "ape": {
+      "Package": "ape",
+      "Version": "5.5",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "8927e35d3da343034928548484e5eda7"
+    },
     "askpass": {
       "Package": "askpass",
       "Version": "1.1",
@@ -660,6 +667,13 @@
       "Repository": "CRAN",
       "Hash": "b304ff5955f37b48bd30518faf582929"
     },
+    "permute": {
+      "Package": "permute",
+      "Version": "0.9-5",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "e367efa1f0d52cb753bdb9163b63f528"
+    },
     "pillar": {
       "Package": "pillar",
       "Version": "1.6.0",
@@ -939,6 +953,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "5540dc30a203a43a1ce5dc6a89532b3b"
+    },
+    "vegan": {
+      "Package": "vegan",
+      "Version": "2.5-7",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "01771d8de354fa30c87c68e599e2429b"
     },
     "viridisLite": {
       "Package": "viridisLite",

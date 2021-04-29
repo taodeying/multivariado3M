@@ -173,7 +173,24 @@ se corresponden con una configuracion unica de las variables cualitativas.
 
 **E.** Encuentre el dendograma ultramétrico con ligamiento UPGMA correspondiente
 
+```{r}
+cualitativas_cp = hclust(matriz_distancia, method = "average")
+plot(cluster_cp)
+rect.hclust(cualitativas_cp, k = 4, border = "red")
+```
+
 **F.** Mida a través de su matriz cofenética la concordancia con la matriz de 
 distancias que le dio origen
 
+```{r}
+cophenetic_cp = cophenetic(cualitativas_cp)
+cor(cophenetic_cp, matriz_distancia)
+plot(cophenetic_cp, matriz_distancia)
+```
+
 **G.** Cuantifique concordancia entre plano principal de ACoordP y Cluster
+
+```{r}
+cor(cophenetic_cp, dist(coordenadas_principales$points))
+```
+
