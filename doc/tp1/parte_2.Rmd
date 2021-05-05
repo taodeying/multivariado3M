@@ -76,7 +76,7 @@ similaridad_1_2 <- mean(variedad1 == variedad2, na.rm = TRUE) * 100
 ```
 
 La similaridad entre las variedades de la fila 1 y 2 es del
-`r paste0(round(similaridad_1_2, 2), "%")`. Luego, de manera analoga para el 
+`r paste0(round(similaridad_1_2, 2), "%")`. Luego, de manera análoga para el 
 par de variedades 12 y 13
 
 ```{r}
@@ -90,8 +90,6 @@ La similaridad entre las variedades de la fila 12 y 13 es del
 
 **B.** Halle una matriz de similaridad entre variedades en función del 
 coeficiente SM generalizado.
-
-<!-- Extensión Coeficiente Similaridad S.M. p.26 teoria -->
 
 La funcion `daisy()` del paquete `cluster` requiere que las variables 
 cualitativas sean de tipo `"factor"`. En nuestro caso, son de tipo 
@@ -150,7 +148,7 @@ ggplot(datos_CP) +
 En aquellos casos que mas de una etiqueta apunta hacia el mismo punto sucede que 
 las variedades coinciden en terminos de las variables analizadas y en 
 consecuencia los puntos que los representan estan encimados. Por ejemplo,
-las variedades `A5`, `A6`, `A7`, `A8` tienen identicos valores para todas las 
+las variedades `A5`, `A6`, `A7`, `A8` tienen idénticos valores para todas las 
 variables.
 
 ```{r}
@@ -176,18 +174,22 @@ Tambien podemos ver que la variabilidad de las variedades dentro de cada tipo de
 fruto difiere. Por ejemplo, para el tipo de fruto **H**, se tiene que casi todas
 las variedades se corresponden con dos categorizaciones particulares (por eso 
 vemos tantos puntos encimados). Por otro lado, todas las variedades del tipo de 
-fruto **P** se corresponden con una configuracion unica de las variables cualitativas.
+fruto **P** se corresponden con una configuracion única de las variables 
+cualitativas.
 
 **E.** Encuentre el dendograma ultramétrico con ligamiento UPGMA correspondiente
 
+En el dendograma se muestran coloreados los 4 clusters obtenidos.
+
 ```{r}
 cualitativas_CP <- hclust(matriz_distancia, method = "average")
+plot(cualitativas_CP)
 ```
 
 ```{r}
-# fuente: https://atrebas.github.io/post/2019-06-08-lightweight-dendrograms/
+# Fuente: https://atrebas.github.io/post/2019-06-08-lightweight-dendrograms/
 dendro_data_k <- function(hc, k) {
-  
+    
   hcdata <- ggdendro::dendro_data(hc, type = "rectangle")
   seg <- hcdata$segments
   labclust <- cutree(hc, k)[hc$order]
@@ -215,7 +217,7 @@ dendro_data_k <- function(hc, k) {
 dendro_data <- dendro_data_k(cualitativas_CP, k=4)
 ```
 
-```{r, fig.height=6.5, fig.width=6}
+```{r, fig.height=6.5, fig.width=6, fig.cap="Figura 2: Dendograma Ultrametrico con ligamiento UPGMA."}
 ggplot(dendro_data$segments) + 
   geom_segment(
     aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(clust)),
@@ -228,7 +230,6 @@ ggplot(dendro_data$segments) +
   ) + 
   coord_flip() + 
   labs(
-    title = "Dendograma Ultrametrico con ligamiento UPGMA",
     y = "Distancia"
   ) + 
   scale_colour_manual(
@@ -249,8 +250,12 @@ ggplot(dendro_data$segments) +
   )
 ```
 
+
 **F.** Mida a través de su matriz cofenética la concordancia con la matriz de 
 distancias que le dio origen
+
+Primero vamos a calcular la concordancia y luego obtenemos un grafico de
+dispersion donde se muestra la distancia original y la distancia cofenética.
 
 ```{r}
 distancia_cofenetica_CP <- cophenetic(cualitativas_CP)
@@ -262,16 +267,15 @@ concordancia_df <- data.frame(
     x = as.vector(distancia_cofenetica_CP),
     y = as.vector(matriz_distancia)
 )
-
 ggplot(concordancia_df) + 
-    geom_point(aes(x, y), size = 3, alpha = 0.5) + 
+    geom_point(aes(x, y), size = 3, alpha = 0.4) + 
     labs(
-        x = "Distancia cofenetica",
+        x = "Distancia cofenética",
         y = "Distancia original"
     )
 ```
 
-La concordancia entre la matriz de distancias cofenetica y la matriz de 
+La concordancia entre la matriz de distancias cofenética y la matriz de 
 distancia original es igual  a `r round(concordancia, 3)`.
 
 **G.** Cuantifique concordancia entre plano principal de ACoordP y Cluster
