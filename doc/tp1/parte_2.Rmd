@@ -92,7 +92,7 @@ coeficiente SM generalizado.
 
 La funcion `daisy()` del paquete `cluster` requiere que las variables 
 cualitativas sean de tipo `"factor"`. En nuestro caso, son de tipo 
-`"character"`, por lo que necesitamos una nueva versio de nuestros datos
+`"character"`, por lo que necesitamos una nueva version de nuestros datos
 donde las columnas son factores. 
 
 ```{r}
@@ -175,7 +175,7 @@ se corresponden con una configuracion unica de las variables cualitativas.
 
 ```{r}
 cualitativas_cp = hclust(matriz_distancia, method = "average")
-plot(cluster_cp)
+plot(cualitativas_cp)
 rect.hclust(cualitativas_cp, k = 4, border = "red")
 ```
 

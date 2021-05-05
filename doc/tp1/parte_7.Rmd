@@ -1,0 +1,84 @@
+---
+title: "Trabajo practico 1"
+subtitle: "Parte 7"
+author: "Grupo ....."
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+    html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE, message = FALSE, warning = FALSE, fig.align = "center"
+)
+```
+
+## Librerias
+
+```{r}
+library(cluster)
+library(FactoMineR)
+library(ggrepel)
+library(kableExtra)
+library(tidyverse)
+```
+
+## Datos
+
+```{r}
+datos_m1 <- read_csv2(here::here("data", "raw", "MAIZ1.csv"))
+datos_m2 <- read_csv2(here::here("data", "raw", "MAIZ2.csv"))
+```
+
+
+```{r}
+class(datos_m1) <- "data.frame"
+class(datos_m2) <- "data.frame"
+
+rownames(datos_m1) <- datos_m1$Poblacion
+rownames(datos_m2) <- datos_m2$Poblacion
+```
+
+
+**A.** Cuantifique la concordancia de la configuración de poblaciones nativas 
+de maíz en ambos ambientes en el espacio original mediante el coeficiente de 
+correlación de Pearson entre matrices de distancias euclídeas estandarizadas 
+entre individuos, y utilizando el coeficiente Rv.
+
+
+```{r}
+dist_m1 <- dist(scale(datos_m1[-1]))
+dist_m2 <- dist(scale(datos_m2[-1]))
+cor(dist_m1, dist_m2)
+```
+
+```{r}
+coef_rv <- coeffRV(scale(datos_m1[-1]), scale(datos_m2[-1]))
+coef_rv$rv
+```
+
+**B.** Realice un ACP para cada ambiente, compare semejanzas y diferencias entre
+ambas caracterizaciones tanto para individuos como para variables.
+
+```{r}
+acp_m1 <- PCA(datos_m1[-1], ncp = 2, graph = TRUE)
+acp_m2 <- PCA(datos_m2[-1], ncp = 2, graph = TRUE)
+```
+
+
+**NO SE QUE PUNTO.**
+
+```{r}
+acp_m1 <- PCA(datos_m1[-1], ncp = 10, graph = FALSE)
+acp_m2 <- PCA(datos_m2[-1], ncp = 10, graph = FALSE)
+
+df = data.frame(cbind(acp_m1$ind$coord, acp_m2$ind$coord))
+```
+
+```{r}
+gpa <- GPA(df, group = c(10, 10), name.group = c("Per", "Fer"))
+```
+
+

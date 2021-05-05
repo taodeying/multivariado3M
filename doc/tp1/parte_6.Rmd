@@ -1,0 +1,121 @@
+---
+title: "Trabajo practico 1"
+subtitle: "Parte 6"
+author: "Grupo ....."
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+    html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE, message = FALSE, warning = FALSE, fig.align = "center"
+)
+```
+
+## Librerias
+
+```{r}
+library(cluster)
+library(FactoMineR)
+library(ggrepel)
+library(kableExtra)
+library(tidyverse)
+```
+
+## Datos
+
+```{r}
+datos_q <- read_csv2(here::here("data", "raw", "CUALITATIVAS.csv"))
+datos_c <- read_csv2(here::here("data", "raw", "CUANTITATIVAS.csv"))
+datos_m <- read_csv2(here::here("data", "raw", "RAPDS.csv"))
+```
+
+
+```{r}
+colnames(datos_c)[1] <- "VARIEDAD"
+```
+
+**A.** Mida la concordancia entre las configuraciones en el plano principal 
+obtenidas en los ejercicios 2, 3 y 5
+
+Primero tenemos que correr los analisis nuevamente.
+
+**Ejercicio 2**
+
+```{r}
+datos_q_fct <- datos_q %>%
+  mutate_all(as.factor)
+
+matriz_distancia_q <- daisy(datos_q_fct[-1], "gower")
+coordenadas_principales_q <- cmdscale(sqrt(1 - matriz_distancia_q), eig = TRUE)
+matriz_distancia_q_cp <- dist(coordenadas_principales_q$points)
+```
+
+**Ejercicio 3**
+
+```{r}
+componentes_pricipales_c <- prcomp(datos_c[-1], scale. = TRUE)
+matriz_distancia_c_cp <- dist(componentes_pricipales_c$rotation)
+```
+
+**Ejercicio 5**
+
+```{r}
+matriz_distancia_m <- dist(datos_m[-1], method = "manhattan") / 33
+coordenadas_principales_m <- cmdscale(sqrt(matriz_distancia_m), eig = TRUE)
+matriz_distancia_m_cp <- dist(coordenadas_principales_m$points)
+```
+
+Y ahora juntamos todo... un desastre, esta mal
+
+```{r}
+cor(matriz_distancia_m_cp, matriz_distancia_c_cp)
+```
+
+```{r}
+cor(matriz_distancia_q_cp, matriz_distancia_m_cp)
+```
+
+```{r}
+cor(matriz_distancia_q_cp, matriz_distancia_c_cp)
+```
+
+**B.** Mida la concordancia entre la caracterización agronómica 
+(cualitativa + cuantitativa) y molecular (planos principales)
+
+**C.** Con APG halle el consenso entre las configuraciones (plano principal) 
+obtenidas en base a datos cualitativos, cuantitativos y moleculares.
+
+```{r}
+df = cbind(
+  componentes_pricipales_c$x[,1:2],
+  coordenadas_principales_q$points,
+  coordenadas_principales_m$points
+) %>%
+  as.data.frame() 
+
+colnames(df) = c("C1", "C2", "Q1", "Q2", "M1", "M2")
+
+gpa <- GPA(
+  df, 
+  group = c(2, 2, 2), 
+  name.group = c("Cuantiativa", "Cualitativa", "Molecular"),
+  graph = TRUE, 
+  axes = 1:2
+)
+```
+
+**D.** Identifique si hay algún tipo de pepino para el cual hay más discrepancia
+entre estas tres caracterizaciones
+
+
+**E.** Finalice el análisis con un cluster UPGMA obtenido a partir de la 
+configuración de consenso
+
+```{r}
+
+```
+

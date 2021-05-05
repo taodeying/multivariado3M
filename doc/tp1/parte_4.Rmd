@@ -1,0 +1,61 @@
+---
+title: "Trabajo practico 1"
+subtitle: "Parte 4"
+author: "Grupo ....."
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+    html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE, message = FALSE, warning = FALSE, fig.align = "center"
+)
+```
+
+Con los resultados del Análisis de Coordenadas Principales y Análisis de 
+Componentes Principales obtenidos en los dos ejercicios anteriores
+
+## Librerias
+
+```{r}
+library(FactoMineR)
+library(ggrepel)
+library(kableExtra)
+library(tidyverse)
+```
+
+## Datos
+
+```{r}
+datos <- read_csv2(here::here("data", "raw", "RAPDS.csv"))
+```
+
+```{r}
+glimpse(datos)
+```
+
+
+**A.** Halle la configuración de consenso recurriendo a Análisis de Procrustes 
+Generalizados
+
+```{r}
+morfologica_gpa <- GPA(
+  morfologica, 
+  group = c(2, 2), 
+  name.group = c("Cualitativa", "Cuantiativa"),
+)
+```
+
+
+**B.** Podría decir para cual o cuales variedades existe mayor concordancia 
+entre la caracterización cuantitativa y cualitativa ?
+
+**C.** Idem para las variedades con mayor discrepancia entre ambas 
+configuraciones.
+
+**D.** Grafique sólo los puntos de consenso y diga si pudo conformar grupos 
+asociados a los tipos de frutos. Compare con los resultados de los ejercicios 2 
+y 3.
