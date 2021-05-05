@@ -8,6 +8,9 @@
       }
     ]
   },
+  "Bioconductor": {
+    "Version": "3.10"
+  },
   "Packages": {
     "BH": {
       "Package": "BH",
@@ -15,6 +18,19 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "e4c04affc2cac20c8fec18385cd14691"
+    },
+    "BiocManager": {
+      "Package": "BiocManager",
+      "Version": "1.30.12",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "462dbb15753eb52fb62e28507f382d2d"
+    },
+    "BiocVersion": {
+      "Package": "BiocVersion",
+      "Version": "3.10.1",
+      "Source": "Bioconductor",
+      "Hash": "b69e4e634db423b8e6c58103d579ec95"
     },
     "DBI": {
       "Package": "DBI",
@@ -393,6 +409,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "08ab869f37e6a7741a64ab9069bcb67d"
+    },
+    "ggtree": {
+      "Package": "ggtree",
+      "Version": "2.0.4",
+      "Source": "Bioconductor",
+      "Remotes": "GuangchuangYu/treeio",
+      "Hash": "e143c2b6014507d80a4fe86b1edab8da"
     },
     "glue": {
       "Package": "glue",
@@ -828,6 +851,13 @@
       "Repository": "CRAN",
       "Hash": "06c85365a03fdaf699966cc1d3cf53ea"
     },
+    "rvcheck": {
+      "Package": "rvcheck",
+      "Version": "0.1.8",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "11ebf2d3d4990e8bb9f28d5ab0c204fc"
+    },
     "rvest": {
       "Package": "rvest",
       "Version": "1.0.0",
@@ -926,6 +956,13 @@
       "Repository": "CRAN",
       "Hash": "6ea435c354e8448819627cf686f66e0a"
     },
+    "tidytree": {
+      "Package": "tidytree",
+      "Version": "0.3.3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "ae1850264b8f021c02f181bd28b24f96"
+    },
     "tidyverse": {
       "Package": "tidyverse",
       "Version": "1.3.1",
@@ -939,6 +976,12 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "25b572f764f3c19fef9aac33b5724f3d"
+    },
+    "treeio": {
+      "Package": "treeio",
+      "Version": "1.10.0",
+      "Source": "Bioconductor",
+      "Hash": "66afb5fa0f32d80973e4e3fd6705fceb"
     },
     "utf8": {
       "Package": "utf8",
