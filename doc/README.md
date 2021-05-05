@@ -36,18 +36,6 @@ los mismos grupos o no.
 
 * ...
 
-#### Ejercicio 2
-
-* Punto **D**: Mejorar respuesta. Los puntos no estan perfectamente divididos
-segun los cuadrantes.
-* Punto **E**: Revisar, comparando con lo hecho en clase. 
-* Punto **F**: Hay solo codigo y graficos. Verificar e interpretar resultados.
-* Punto **G**: Idem punto **F**.
-
-##### Persona asignada
-
-* Tomas Capretto
-
 #### Ejercicio 3
 
 * Segun entiendo, falta hacerlo completamente.
@@ -66,12 +54,8 @@ segun los cuadrantes.
 
 #### Ejercicio 5
 
-* Punto **C**: Falta interpretar/comentar el grafico.
-* Punto **D**: Reproducir grafico con ggplot2. Interpretar/comentar.
-* Punto **E**: Interpretar/comentar.
-* Punto **F**: Limpiar graficos. Comentar.
-* Punto **G**: Arreglar codigo (no corre). Comentar.
-* Punto **H**: Hacer.
+* Punto **G**: Resultado difiere del de clase, pero solo para la correlacion
+con la matriz de distancia original.
 
 ##### Persona asignada
 

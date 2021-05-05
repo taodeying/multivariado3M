@@ -1,10 +1,11 @@
 ---
 title: "Trabajo practico 1"
-subtitle: "Parte 5"
+subtitle: "Ejercicio 5"
 author: "Grupo ....."
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: 
-    html_document
+    html_document:
+        code_folding: show
 editor_options: 
   chunk_output_type: console
 ---
@@ -15,22 +16,20 @@ knitr::opts_chunk$set(
 )
 ```
 
-## Librerias
+## Librerias y utilidades
 
 ```{r}
 library(ape)
 library(ggrepel)
 library(kableExtra)
 library(tidyverse)
+source(here::here("src", "utils.R"))
 ```
 
 ## Datos
 
 ```{r}
 datos <- read_csv2(here::here("data", "raw", "RAPDS.csv"))
-```
-
-```{r}
 glimpse(datos)
 ```
 
@@ -39,7 +38,19 @@ glimpse(datos)
 ```{r}
 # Dist computa distancia entre filas, y las filas de datos son las variedades.
 # 33 es la cantidad de variables
-matriz_distancia <- dist(datos[-1], method = "manhattan") / 33
+datos_df <- data.frame(datos[-1])
+rownames(datos_df) <- datos$Var
+matriz_distancia <- dist(datos_df, method = "manhattan", diag = TRUE) / 33
+```
+
+```{r}
+matriz_distancia %>% 
+    as.matrix() %>%
+    round(2) %>% 
+    kable() %>% 
+    kable_styling(font_size = 12) %>% 
+    kable_classic_2() %>%
+    scroll_box(height = "300px", width = "100%")
 ```
 
 **B.** Podría aplicar el coeficiente de similaridad SM ? Porque ?
@@ -54,19 +65,15 @@ molecular. Encuentra asociaciones en función del tipo de pepino?
 
 ```{r}
 coordenadas_principales <- cmdscale(sqrt(matriz_distancia), eig = TRUE)
+
+datos_CP <- as.data.frame(coordenadas_principales$points)
+colnames(datos_CP) <- c("c1", "c2")
+datos_CP$etiqueta <- datos$Var
+datos_CP$variedad <- substr(datos_CP$etiqueta, 1, 1)
 ```
 
-
-```{r}
-datos_cp <- as.data.frame(coordenadas_principales$points)
-colnames(datos_cp) <- c("c1", "c2")
-datos_cp$etiqueta <- datos$Var
-datos_cp$variedad <- substr(datos_cp$etiqueta, 1, 1)
-```
-
-
-```{r, fig.cap="Figura 1: ...."}
-ggplot(datos_cp) + 
+```{r, fig.cap="Figura 1: Caracterizacion molecular de las variedades de pepino.", class.source = 'fold-hide'}
+ggplot(datos_CP) + 
   geom_point(aes(c1, c2, color = variedad), size = 4) + 
   geom_label_repel(aes(c1, c2, label = etiqueta), max.overlaps = 30) + 
   geom_vline(xintercept = 0, linetype = "dashed") + 
@@ -78,33 +85,123 @@ ggplot(datos_cp) +
   )
 ```
 
+Los pepinos del tipo F suelen encontrarse en el primer cuadrante, los del tipo
+P en el segundo cuadrdante, los de tipo A en el tercero, y los de tipo H en el
+cuarto. Sin embargo esta ordenacion es imprecisa, ya que por ejemplo, hay 
+pepinos de los tipof F y A en el segundo cuadrante. Sino estuvieran los colores
+que indican los tipos de pepinos, probablemente obtendriamos agrupamientos que 
+en estuvieran compuestos en su mayoria un unico tipo de pepino, pero que tambien
+incluirian pepinos de otros tipos.
+
 **D.**  Encuentre el dendograma ultramétrico con ligamiento UPGMA
 
 ```{r}
-cluster_cualitativas <- hclust(matriz_distancia, method = "average")
-plot(cluster_cualitativas)
+cluster_molecular <- hclust(matriz_distancia, method = "average")
+dendro_data <- dendro_data_k(cluster_molecular, k=4)
 ```
+
+```{r, fig.height=6.5, fig.width=6, fig.cap="Figura 2: Dendograma Ultrametrico con ligamiento UPGMA.", class.source = 'fold-hide'}
+ggplot(dendro_data$segments) + 
+  geom_segment(
+    aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(clust)),
+    size = 1.2,
+    lineend = "round"
+  ) + 
+  geom_text(
+    aes(x = x, y = y - 0.025, label = label, color = as.factor(clust)), 
+    data = dendro_data$labels
+  ) + 
+  coord_flip() + 
+  labs(
+    y = "Distancia"
+  ) + 
+  scale_colour_manual(
+    values = c("grey30", scales::hue_pal()(4))
+  ) + 
+  theme(
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    panel.background = element_blank(),
+    axis.title.x = element_text(size = 14), 
+    axis.title.y = element_blank(), 
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_blank(), 
+    axis.line = element_blank(), 
+    axis.ticks.y = element_blank(),
+    plot.title = element_text(hjust = 0.5),
+    legend.position = "none"
+  )
+```
+
 
 **E.** Mida a través de su matriz cofenética la concordancia con la matriz de 
 distancias que le dio origen
 
+Primero vamos a calcular la concordancia y luego obtenemos un grafico de
+dispersion donde se muestra la distancia original y la distancia cofenética.
+
 ```{r}
-matriz_cofenetica <- cophenetic(cluster_cualitativas)
-cor(matriz_distancia, matriz_cofenetica)
+distancia_cofenetica_upgma <- cophenetic(cluster_molecular)
+concordancia <- cor(matriz_distancia, distancia_cofenetica_upgma)
 ```
 
-**F.** Halle el dendograma aditivo neighbor Joining
+```{r, fig.cap="Figura 3: Grafico de dispersion entre distancia original y distancia cofenética.", class.source = 'fold-hide'}
+concordancia_df <- data.frame(
+    x = as.vector(distancia_cofenetica_upgma),
+    y = as.vector(matriz_distancia)
+)
+ggplot(concordancia_df) + 
+    geom_point(aes(x, y), size = 3, alpha = 0.4) + 
+    labs(
+        x = "Distancia cofenética",
+        y = "Distancia original"
+    )
+```
+
+La concordancia entre la matriz de distancias cofenética y la matriz de 
+distancia original es igual  a `r round(concordancia, 3)`.
+
+**F.** Halle el dendograma aditivo Neighbor Joining
 
 ```{r}
 rapds_nj <- nj(matriz_distancia)
-plot(rapds_nj, "u")
-plot(rapds_nj)
+ggtree::ggtree(rapds_nj, ladderize = FALSE) + ggtree::geom_tiplab()
 ```
 
 **G.** Mida su concordancia con matriz de distancia original
 
+Me da cualquier cosa!!
+
 ```{r}
-cor(matriz_distancia, rapds_nj)
+distancia_cofenetica_nj <- as.dist(cophenetic(rapds_nj), diag = TRUE, upper = FALSE)
+```
+
+
+```{r}
+cor(distancia_cofenetica_nj, matriz_distancia)
+plot(distancia_cofenetica_nj, matriz_distancia)
 ```
 
 **H.** Relacione ambos dendogramas y saque conclusiones
+
+Pero este me da bien!!
+
+```{r}
+cor(distancia_cofenetica_nj, distancia_cofenetica_upgma)
+```
+
+Replico lo que hace el profe... 
+
+```{r}
+RAPDS <- read.table(here::here("data", "raw", "RAPDS.csv"), row.names = 1, sep = ";", dec = ",", header = TRUE)
+RAPDS.MANHA <- dist(RAPDS, method = "manhattan", diag = TRUE) / 33
+library(ape)
+RAPDS.NJ <- nj(RAPDS.MANHA)
+RAPDS.NJ.COF <- cophenetic(RAPDS.NJ)
+RAPDS.NJ.COF2 <- as.dist(RAPDS.NJ.COF, diag=TRUE, upper=FALSE)
+cor(RAPDS.NJ.COF2, RAPDS.MANHA)
+```
+
+Y me da nada que ver (a el le da 0.9256675, hora 4:15:43 de clase del 27-04)
+
+
