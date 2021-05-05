@@ -1,6 +1,6 @@
 ---
 title: "Trabajo practico 1"
-subtitle: "Parte 2"
+subtitle: "Ejercicio 2"
 author: "Grupo ....."
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: 
@@ -20,6 +20,7 @@ knitr::opts_chunk$set(
 ```{r}
 library(cluster)
 library(ggrepel)
+library(ggdendro)
 library(kableExtra)
 library(tidyverse)
 ```
@@ -35,20 +36,21 @@ glimpse(datos)
 ```
 
 Vemos que todas las variables fueron importadas como de tipo `"character"`, lo
-que es correcto en este caso. Ahora pasamos a ver que variables tienen datos
-desconocidos (marcados con "-1"). Los reemplazaremos por valores `NA`.
+que es correcto en este caso, ya que todas representan variables cualitativas. 
+Ahora pasamos a ver que variables tienen datos desconocidos (marcados con "-1").
+Los reemplazaremos por valores `NA`.
 
 ```{r, cap}
 sapply(datos, function(x) paste(round(mean(x == "-1") * 100, 2), "%")) %>%
   t() %>%
   as.data.frame() %>%
   kable(caption = "Tabla 1: Porcentaje de datos perdidos por variable") %>%
-  kable_styling(font_size = 12) %>% 
+  kable_styling(font_size = 12, full_width = FALSE) %>% 
   kable_classic_2() 
 ```
 
 Por lo que vemos que en las variables `CLADOSP` y `CMV` se tiene un 32% y un 27%
-de valores perdidos respectivamente.
+de valores perdidos respectivamente. Procedemos a identificarlos como `NA`.
 
 ```{r}
 datos <- datos %>%
@@ -58,13 +60,14 @@ datos <- datos %>%
   )
 ```
 
-
 **A.** Cuantifique (en forma manual) la similaridad entre las variedades 
 correspondientes a la primera y segunda fila en función del porcentaje de 
 caracteres comunes respecto al número de caracteres totales. Idem las variedades
 asociadas a las filas 12 y 13 (incluir la variable TIPO)
 
-Para el primer par de variedades hacemos
+Obtenemos dos vectores que representan a cada una de las dos primeras variedades
+y luego calculamos el la proporcion de variables donde ambas variedades 
+coinciden. 
 
 ```{r}
 variedad1 <- datos[1, -1] %>% unlist() %>% unname()
@@ -74,7 +77,7 @@ similaridad_1_2 <- mean(variedad1 == variedad2, na.rm = TRUE) * 100
 
 La similaridad entre las variedades de la fila 1 y 2 es del
 `r paste0(round(similaridad_1_2, 2), "%")`. Luego, de manera analoga para el 
-segundo par de variedades 
+par de variedades 12 y 13
 
 ```{r}
 variedad12 <- datos[12, -1] %>% unlist() %>% unname()
@@ -112,6 +115,8 @@ mediante `daisy()` es igual a la que computamos a mano.
 matriz_similaridad[1] == (similaridad_1_2 / 100)
 ```
 
+Por lo que ambos resultados son iguales.
+
 **C.** Aplique Análisis de Coordenadas principales para representar en un 
 espacio bidimensional la semejanza entre las variedades.
 
@@ -122,15 +127,15 @@ coordenadas_principales <- cmdscale(sqrt(matriz_distancia), eig = TRUE)
 Vamos a hacer el grafico
 
 ```{r}
-datos_cp <- as.data.frame(coordenadas_principales$points)
-colnames(datos_cp) <- c("c1", "c2")
-datos_cp$etiqueta <- datos$VARIEDAD
-datos_cp$variedad <- substr(datos_cp$etiqueta, 1, 1)
+datos_CP <- as.data.frame(coordenadas_principales$points)
+colnames(datos_CP) <- c("c1", "c2")
+datos_CP$etiqueta <- datos$VARIEDAD
+datos_CP$variedad <- substr(datos_CP$etiqueta, 1, 1)
 ```
 
 
 ```{r, fig.cap="Figura 1: Caracterizacion cualitativa de las variedades de pepino."}
-ggplot(datos_cp) + 
+ggplot(datos_CP) + 
   geom_point(aes(c1, c2, color = variedad), size = 4) + 
   geom_label_repel(aes(c1, c2, label = etiqueta), max.overlaps = 30) + 
   geom_vline(xintercept = 0, linetype = "dashed") + 
@@ -152,38 +157,103 @@ variables.
 datos %>%
   filter(VARIEDAD %in% c("A5", "A6", "A7", "A8")) %>%
   kable() %>% 
-  kable_styling(font_size = 12) %>% 
+  kable_styling(font_size = 12, full_width = FALSE) %>% 
   kable_classic_2() 
 ```
 
 **D.** Conforme grupos de variedades según su homogeneidad en la caracterización
 agronómica cualitativa.
 
-En la Figura 1 se puede ver que las variedades presentes en el conjunto de datos
-se agrupan segun el tipo de fruto. Curiosamente, cada uno de los cuatro tipos 
-de fruto se posiciona en un cuadrante distinto.
+En la Figura 1 se puede ver que las variedades de los tipos de fruto A y H se 
+se agrupan de manera que respetan al tipo de fruto y se diferencian del resto. 
+Tambien existe una agrupacion, ya no tan clara, para las variedades de los 
+grupos F y P. En este caso, si no estuviera el color que diferencie a los tipos
+de frutos, no podriamos diferenciar a estos dos grupos claramente. 
+Por ejemplo, las variedades F2, F6 y P1 estan muy cercanas en el plano y las
+podriamos haber tomado como parte de un mismo grupo.
 
-Podemos ver que la variabilidad de las variedades intra tipo de fruto difiere.
-Por ejemplo, para el tipo de fruto **H**, se tiene que casi todas las variedades
-se corresponden con dos categorizaciones particulares (por eso vemos tantos 
-puntos encimados). Por otro lado, todas las variedades del tipo de fruto **P**
-se corresponden con una configuracion unica de las variables cualitativas.
-
----
+Tambien podemos ver que la variabilidad de las variedades dentro de cada tipo de 
+fruto difiere. Por ejemplo, para el tipo de fruto **H**, se tiene que casi todas
+las variedades se corresponden con dos categorizaciones particulares (por eso 
+vemos tantos puntos encimados). Por otro lado, todas las variedades del tipo de 
+fruto **P** se corresponden con una configuracion unica de las variables cualitativas.
 
 **E.** Encuentre el dendograma ultramétrico con ligamiento UPGMA correspondiente
 
 ```{r}
-cualitativas_cp = hclust(matriz_distancia, method = "average")
-plot(cualitativas_cp)
-rect.hclust(cualitativas_cp, k = 4, border = "red")
+cualitativas_CP <- hclust(matriz_distancia, method = "average")
+```
+
+```{r}
+# fuente: https://atrebas.github.io/post/2019-06-08-lightweight-dendrograms/
+dendro_data_k <- function(hc, k) {
+  
+  hcdata <- ggdendro::dendro_data(hc, type = "rectangle")
+  seg <- hcdata$segments
+  labclust <- cutree(hc, k)[hc$order]
+  segclust <- rep(0L, nrow(seg))
+  heights <- sort(hc$height, decreasing = TRUE)
+  height <- mean(c(heights[k], heights[k - 1L]), na.rm = TRUE)
+  
+  for (i in 1:k) {
+    xi <- hcdata$labels$x[labclust == i]
+    idx1 <- seg$x >= min(xi) & seg$x <= max(xi)
+    idx2 <- seg$xend >= min(xi) & seg$xend <= max(xi)
+    idx3 <- seg$yend < height
+    idx <- idx1 & idx2 & idx3
+    segclust[idx] <- i
+  }
+  
+  idx <- which(segclust == 0L)
+  segclust[idx] <- segclust[idx + 1L]
+  hcdata$segments$clust <- segclust
+  hcdata$segments$line <- as.integer(segclust < 1L)
+  hcdata$labels$clust <- labclust
+  hcdata
+}
+
+dendro_data <- dendro_data_k(cualitativas_CP, k=4)
+```
+
+```{r, fig.height=6.5, fig.width=6}
+ggplot(dendro_data$segments) + 
+  geom_segment(
+    aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(clust)),
+    size = 1.2,
+    lineend = "round"
+  ) + 
+  geom_text(
+    aes(x = x, y = y - 0.025, label = label, color = as.factor(clust)), 
+    data = dendro_data$labels
+  ) + 
+  coord_flip() + 
+  labs(
+    title = "Dendograma Ultrametrico con ligamiento UPGMA",
+    y = "Distancia"
+  ) + 
+  scale_colour_manual(
+    values = c("grey30", scales::hue_pal()(4))
+  ) + 
+  theme(
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    panel.background = element_blank(),
+    axis.title.x = element_text(size = 14), 
+    axis.title.y = element_blank(), 
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_blank(), 
+    axis.line = element_blank(), 
+    axis.ticks.y = element_blank(),
+    plot.title = element_text(hjust = 0.5),
+    legend.position = "none"
+  )
 ```
 
 **F.** Mida a través de su matriz cofenética la concordancia con la matriz de 
 distancias que le dio origen
 
 ```{r}
-cophenetic_cp = cophenetic(cualitativas_cp)
+cophenetic_cp = cophenetic(cualitativas_CP)
 cor(cophenetic_cp, matriz_distancia)
 plot(cophenetic_cp, matriz_distancia)
 ```
