@@ -2,15 +2,21 @@
 
 ## Entrega 1
 
-### TODO
+### General
+
+#### TODO
 
 * Corregir puntuacion, tildes, etc. 
 * Arreglar tablas cuyo ancho excede el ancho del documento. Se podria achicar
 letra y/o reducir espacio entre celdas.
 * Arreglar tablas cuyo ancho esta ajustado al ancho del documento, pero resulta
-excesivo (e.g. tabla en el punto **D**).
-* Centrar graficos (e.g. grafico en el punto **F**).
+excesivo (e.g. tabla en el punto **D** de parte 1).
+* Centrar graficos (e.g. grafico en el punto **F** de parte 1).
 * Reproducir los graficos con `ggplot2`?
+
+### Parte 1
+
+#### TODO
 * Punto **E**: La respuesta no esta bien redondeada.
 * Punto **F**: Computamos dos veces la matriz de correlacion. Solo computarla
 una vez y guardarla en un objeto.
@@ -29,6 +35,20 @@ los mismos grupos o no.
 * Punto **X**: Hacer.
 * Punto **Y**: Hacer.
 
-### Persona asignada
+#### Persona asignada
 
 * ACA PONEMOS EL NOMBRE DE QUIEN COMPLETA ESTO.
+
+### Parte 2
+
+#### TODO
+
+* Punto **D**: Mejorar respuesta. Los puntos no estan perfectamente divididos
+segun los cuadrantes.
+* Punto **E**: Revisar, comparando con lo hecho en clase. 
+* Punto **F**: Hay solo codigo y graficos. Verificar e interpretar resultados.
+* Punto **G**: Idem punto **F**.
+
+#### Persona asignada
+
+* Tomas Capretto
