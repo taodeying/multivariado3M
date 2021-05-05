@@ -34,11 +34,11 @@ glimpse(datos)
 ```
 
 **A.** Cuáles son los valores de $n$ y $p$? Cuanto vale y que indica el valor 
-$x_{32}$ ? Y el vector $x_6$ ?
+$x_{32}$ ? Y el vector $\mathbf{x}_6$ ?
 
 El valor de $n$ es `r nrow(datos)` y el valor de $p$ es `r ncol(datos)`. El
 valor de $x_{32}$ es `r datos[[3, 2]]` e indica el tamaño de la flor de la 
-observacion 3. El vector $x_6$ indica la relacion entre el ancho y largo de la 
+observacion 3. El vector $\mathbf{x}_6$ indica la relacion entre el ancho y largo de la 
 hoja.
 
 **B.** Cómo clasificaría las variables sobre las que se está trabajando ?
@@ -151,18 +151,15 @@ cuáles variables quedan en cada uno de los subgrupos?
 y ancho de la hoja (caracteristicas de la hoja); tamaño de la flor, longitud y 
 ancho del petalo (caracteristicas de la flor)
 
-Cabe destacar que la superficie de la hoja y relacion peciolo-limbo estan muy 
-poco correlacionadas con el resto de las variables.
+Cabe destacar que la superficie de la hoja y relacion peciolo-limbo presentan
+correlacion muy baja o nula con cualquiera de las otras variables.
 
 **H.** Encuentre la matriz que mide el grado de similaridad entre las variedades
 en función de la distancia euclídea calculada sobre los datos originales.
 
 
 ```{r}
-dist = datos %>% 
-    select(-VAR) %>% 
-    data.frame()
-
+dist <- data.frame(datos[-1])
 rownames(dist) <- datos$VAR
 
 matriz_distancia <- dist %>% 
@@ -212,11 +209,7 @@ estandarizadas por media y desvío estándar. Son las mismas las tres variedades
 más parecidas? Comente al respecto
 
 ```{r}
-dist_std <- datos %>% 
-    select(-VAR) %>% 
-    scale() %>%
-    data.frame()
-
+dist_std <- data.frame(scale(datos[-1]))
 rownames(dist_std) <- datos$VAR
 
 matriz_distancia_std <- dist_std %>% 
@@ -262,8 +255,9 @@ matriz_distancia_std_df %>%
 
 Podemos ver que los tres pares de variedades mas parecidas son distintos a los
 que vimos en el inciso anterior donde utilizamos los datos sin estandarizar. 
-Esto esta relacionado con que las variables estan medidas en diferentes unidades
-de medicion.
+Esto sucede porque las variables estan medidas en diferentes unidades de 
+medicion, y al utilizar las variables sin estandarizar se le da mayor peso a 
+las que tienen una variabilidad mayor valor en la escala de medida original.
 
 **K.** Mida el grado de concordancia entre ambas matrices de distancia.
 
@@ -305,8 +299,8 @@ pca$eig %>%
   data.frame() %>%
   rename(
     "Autovalores" = "eigenvalue", 
-    "% varianza" = "percentage.of.variance", 
-    "% varianza acumulada" = "cumulative.percentage.of.variance" 
+    "% Varianza" = "percentage.of.variance", 
+    "% Varianza acumulada" = "cumulative.percentage.of.variance" 
   ) %>%
   kable() %>%
   kable_styling(full_width = FALSE) %>%
@@ -423,7 +417,7 @@ round(autovalores_$vectors[, 1:2], 1) %>%
   kable_classic_2()
 ```
 
-Las nuevas coordenadas de las variaedades sobre las componentes halladas:
+Las nuevas coordenadas de las variedades sobre las componentes halladas:
 
 ```{r}
 etiquetas <- rownames(pca$var$coord)
