@@ -41,10 +41,9 @@ colnames(datos_c)[1] <- "VARIEDAD"
 **A.** Mida la concordancia entre las configuraciones en el plano principal 
 obtenidas en los ejercicios 2, 3 y 5
 
-Primero tenemos que correr los analisis nuevamente (despues vemos si lo 
-borramos o no, cuando metamos todo en el mismo archivo)
+Primero tenemos que correr los analisis nuevamente.
 
-**Parte 2**
+**Ejercicio 2**
 
 ```{r}
 datos_q_fct <- datos_q %>%
@@ -55,12 +54,14 @@ coordenadas_principales_q <- cmdscale(sqrt(1 - matriz_distancia_q), eig = TRUE)
 matriz_distancia_q_cp <- dist(coordenadas_principales_q$points)
 ```
 
-**Parte 3**
+**Ejercicio 3**
 
 ```{r}
 componentes_pricipales_c <- prcomp(datos_c[-1], scale. = TRUE)
 matriz_distancia_c_cp <- dist(componentes_pricipales_c$rotation)
 ```
+
+**Ejercicio 5**
 
 ```{r}
 matriz_distancia_m <- dist(datos_m[-1], method = "manhattan") / 33

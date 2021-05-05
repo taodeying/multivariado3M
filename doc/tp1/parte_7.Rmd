@@ -68,7 +68,6 @@ acp_m2 <- PCA(datos_m2[-1], ncp = 2, graph = TRUE)
 ```
 
 
-
 **NO SE QUE PUNTO.**
 
 ```{r}
