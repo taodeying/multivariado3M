@@ -253,14 +253,32 @@ ggplot(dendro_data$segments) +
 distancias que le dio origen
 
 ```{r}
-cophenetic_cp = cophenetic(cualitativas_CP)
-cor(cophenetic_cp, matriz_distancia)
-plot(cophenetic_cp, matriz_distancia)
+distancia_cofenetica_CP <- cophenetic(cualitativas_CP)
+concordancia <- cor(distancia_cofenetica_CP, matriz_distancia)
 ```
+
+```{r}
+concordancia_df <- data.frame(
+    x = as.vector(distancia_cofenetica_CP),
+    y = as.vector(matriz_distancia)
+)
+
+ggplot(concordancia_df) + 
+    geom_point(aes(x, y), size = 3, alpha = 0.5) + 
+    labs(
+        x = "Distancia cofenetica",
+        y = "Distancia original"
+    )
+```
+
+La concordancia entre la matriz de distancias cofenetica y la matriz de 
+distancia original es igual  a `r round(concordancia, 3)`.
 
 **G.** Cuantifique concordancia entre plano principal de ACoordP y Cluster
 
 ```{r}
-cor(cophenetic_cp, dist(coordenadas_principales$points))
+concordancia <- cor(distancia_cofenetica_CP, dist(coordenadas_principales$points))
 ```
 
+La concordancia concordancia entre plano principal de ACoordP y Cluster es 
+`r round(concordancia, 3)`.
