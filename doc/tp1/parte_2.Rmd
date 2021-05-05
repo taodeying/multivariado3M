@@ -4,7 +4,8 @@ subtitle: "Ejercicio 2"
 author: "Grupo ....."
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: 
-    html_document
+    html_document:
+        code_folding: show
 editor_options: 
   chunk_output_type: console
 ---
@@ -105,7 +106,9 @@ datos_fct <- datos %>%
 ```
 
 ```{r}
-matriz_distancia <- daisy(datos_fct[-1], "gower")
+datos_fct_df <- datos_fct[-1]
+rownames(datos_fct_df) <- datos_fct$VARIEDAD
+matriz_distancia <- daisy(datos_fct_df, "gower")
 matriz_similaridad <- 1 - matriz_distancia
 ```
 
@@ -135,7 +138,7 @@ datos_CP$variedad <- substr(datos_CP$etiqueta, 1, 1)
 ```
 
 
-```{r, fig.cap="Figura 1: Caracterizacion cualitativa de las variedades de pepino."}
+```{r, fig.cap="Figura 1: Caracterizacion cualitativa de las variedades de pepino.", class.source="fold-hide"}
 ggplot(datos_CP) + 
   geom_point(aes(c1, c2, color = variedad), size = 4) + 
   geom_label_repel(aes(c1, c2, label = etiqueta), max.overlaps = 30) + 
@@ -185,15 +188,15 @@ cualitativas.
 En el dendograma se muestran coloreados los 4 clusters obtenidos.
 
 ```{r}
-cualitativas_CP <- hclust(matriz_distancia, method = "average")
+cluster_cualitativas <- hclust(matriz_distancia, method = "average")
 ```
 
 ```{r}
 # funcion creada en src/utils.R
-dendro_data <- dendro_data_k(cualitativas_CP, k=4)
+dendro_data <- dendro_data_k(cluster_cualitativas, k=4)
 ```
 
-```{r, fig.height=6.5, fig.width=6, fig.cap="Figura 2: Dendograma Ultrametrico con ligamiento UPGMA."}
+```{r, fig.height=6.5, fig.width=6, fig.cap="Figura 2: Dendograma Ultrametrico con ligamiento UPGMA.", class.source="fold-hide"}
 ggplot(dendro_data$segments) + 
   geom_segment(
     aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(clust)),
@@ -234,13 +237,13 @@ Primero vamos a calcular la concordancia y luego obtenemos un grafico de
 dispersion donde se muestra la distancia original y la distancia cofenética.
 
 ```{r}
-distancia_cofenetica_CP <- cophenetic(cualitativas_CP)
-concordancia <- cor(distancia_cofenetica_CP, matriz_distancia)
+distancia_cofenetica <- cophenetic(cluster_cualitativas)
+concordancia <- cor(distancia_cofenetica, matriz_distancia)
 ```
 
-```{r}
+```{r, fig.cap="Figura 3: Grafico de dispersion entre distancia original y distancia cofenética.", class.source="fold-hide"}
 concordancia_df <- data.frame(
-    x = as.vector(distancia_cofenetica_CP),
+    x = as.vector(distancia_cofenetica),
     y = as.vector(matriz_distancia)
 )
 ggplot(concordancia_df) + 
@@ -257,7 +260,7 @@ distancia original es igual  a `r round(concordancia, 3)`.
 **G.** Cuantifique concordancia entre plano principal de ACoordP y Cluster
 
 ```{r}
-concordancia <- cor(distancia_cofenetica_CP, dist(coordenadas_principales$points))
+concordancia <- cor(distancia_cofenetica, dist(coordenadas_principales$points))
 ```
 
 La concordancia concordancia entre plano principal de ACoordP y Cluster es 

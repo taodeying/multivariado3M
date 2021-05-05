@@ -1,6 +1,5 @@
 # Fuente: https://atrebas.github.io/post/2019-06-08-lightweight-dendrograms/
 dendro_data_k <- function(hc, k) {
-  
   hcdata <- ggdendro::dendro_data(hc, type = "rectangle")
   seg <- hcdata$segments
   labclust <- cutree(hc, k)[hc$order]
