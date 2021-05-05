@@ -40,7 +40,7 @@ glimpse(datos)
 # 33 es la cantidad de variables
 datos_df <- data.frame(datos[-1])
 rownames(datos_df) <- datos$Var
-matriz_distancia <- dist(datos_df, method = "manhattan") / 33
+matriz_distancia <- dist(datos_df, method = "manhattan", diag = TRUE) / 33
 ```
 
 ```{r}
@@ -65,16 +65,12 @@ molecular. Encuentra asociaciones en función del tipo de pepino?
 
 ```{r}
 coordenadas_principales <- cmdscale(sqrt(matriz_distancia), eig = TRUE)
-```
 
-
-```{r}
 datos_CP <- as.data.frame(coordenadas_principales$points)
 colnames(datos_CP) <- c("c1", "c2")
 datos_CP$etiqueta <- datos$Var
 datos_CP$variedad <- substr(datos_CP$etiqueta, 1, 1)
 ```
-
 
 ```{r, fig.cap="Figura 1: Caracterizacion molecular de las variedades de pepino.", class.source = 'fold-hide'}
 ggplot(datos_CP) + 
@@ -88,6 +84,14 @@ ggplot(datos_CP) +
     color = "Tipo de fruto"
   )
 ```
+
+Los pepinos del tipo F suelen encontrarse en el primer cuadrante, los del tipo
+P en el segundo cuadrdante, los de tipo A en el tercero, y los de tipo H en el
+cuarto. Sin embargo esta ordenacion es imprecisa, ya que por ejemplo, hay 
+pepinos de los tipof F y A en el segundo cuadrante. Sino estuvieran los colores
+que indican los tipos de pepinos, probablemente obtendriamos agrupamientos que 
+en estuvieran compuestos en su mayoria un unico tipo de pepino, pero que tambien
+incluirian pepinos de otros tipos.
 
 **D.**  Encuentre el dendograma ultramétrico con ligamiento UPGMA
 
@@ -137,13 +141,13 @@ Primero vamos a calcular la concordancia y luego obtenemos un grafico de
 dispersion donde se muestra la distancia original y la distancia cofenética.
 
 ```{r}
-distancia_cofenetica <- cophenetic(cluster_molecular)
-concordancia <- cor(matriz_distancia, distancia_cofenetica)
+distancia_cofenetica_upgma <- cophenetic(cluster_molecular)
+concordancia <- cor(matriz_distancia, distancia_cofenetica_upgma)
 ```
 
 ```{r, fig.cap="Figura 3: Grafico de dispersion entre distancia original y distancia cofenética.", class.source = 'fold-hide'}
 concordancia_df <- data.frame(
-    x = as.vector(distancia_cofenetica),
+    x = as.vector(distancia_cofenetica_upgma),
     y = as.vector(matriz_distancia)
 )
 ggplot(concordancia_df) + 
@@ -157,18 +161,47 @@ ggplot(concordancia_df) +
 La concordancia entre la matriz de distancias cofenética y la matriz de 
 distancia original es igual  a `r round(concordancia, 3)`.
 
-**F.** Halle el dendograma aditivo neighbor Joining
+**F.** Halle el dendograma aditivo Neighbor Joining
 
 ```{r}
 rapds_nj <- nj(matriz_distancia)
-plot(rapds_nj, "u")
-plot(rapds_nj)
+ggtree::ggtree(rapds_nj, ladderize = FALSE) + ggtree::geom_tiplab()
 ```
 
 **G.** Mida su concordancia con matriz de distancia original
 
+Me da cualquier cosa!!
+
 ```{r}
-#cor(matriz_distancia, rapds_nj)
+distancia_cofenetica_nj <- as.dist(cophenetic(rapds_nj), diag = TRUE, upper = FALSE)
+```
+
+
+```{r}
+cor(distancia_cofenetica_nj, matriz_distancia)
+plot(distancia_cofenetica_nj, matriz_distancia)
 ```
 
 **H.** Relacione ambos dendogramas y saque conclusiones
+
+Pero este me da bien!!
+
+```{r}
+cor(distancia_cofenetica_nj, distancia_cofenetica_upgma)
+```
+
+Replico lo que hace el profe... 
+
+```{r}
+RAPDS <- read.table(here::here("data", "raw", "RAPDS.csv"), row.names = 1, sep = ";", dec = ",", header = TRUE)
+RAPDS.MANHA <- dist(RAPDS, method = "manhattan", diag = TRUE) / 33
+library(ape)
+RAPDS.NJ <- nj(RAPDS.MANHA)
+RAPDS.NJ.COF <- cophenetic(RAPDS.NJ)
+RAPDS.NJ.COF2 <- as.dist(RAPDS.NJ.COF, diag=TRUE, upper=FALSE)
+cor(RAPDS.NJ.COF2, RAPDS.MANHA)
+```
+
+Y me da nada que ver (a el le da 0.9256675, hora 4:15:43 de clase del 27-04)
+
+
