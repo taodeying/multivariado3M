@@ -85,7 +85,7 @@ datos %>% select(-VAR) %>%
     arrange(desc(CV)) %>% 
     mutate(CV = round(CV, 1)) %>%
     kable() %>% 
-    kable_styling(font_size = 12) %>% 
+    kable_styling(font_size = 12, full_width = FALSE) %>% 
     kable_classic_2()
 ```
 
@@ -121,7 +121,8 @@ datos %>%
     kable_classic_2()
 ```
 
-A continuación una representacion grafica de la matriz de correlacion:      
+A continuación una representacion grafica de la matriz de correlacion, la cual permite
+identificar de forma mas sencilla las variables mas relacionadas:      
 
 ```{r}
 datos%>%
@@ -169,8 +170,9 @@ matriz_distancia <- dist %>%
  matriz_distancia %>% 
     round(1) %>% 
     kable() %>% 
-    kable_styling(font_size = 8) %>% 
-    kable_classic_2()
+    kable_styling() %>% 
+    kable_classic_2()%>%
+    scroll_box(height = "300px", width = "100%")
 ```
 
 **I.** Podría decir cuales son los tres pares de variedades que presentan mayor 
@@ -208,7 +210,7 @@ matriz_distancia_df %>%
 estandarizadas por media y desvío estándar. Son las mismas las tres variedades 
 más parecidas? Comente al respecto
 
-```{r}
+```{r, class.source="fold-hide"}
 dist_std <- data.frame(scale(datos[-1]))
 rownames(dist_std) <- datos$VAR
 
@@ -219,8 +221,9 @@ matriz_distancia_std <- dist_std %>%
 matriz_distancia_std %>%
     round(1) %>% 
     kable() %>% 
-    kable_styling(font_size = 8) %>% 
-    kable_classic_2()
+    kable_styling() %>% 
+    kable_classic_2()%>%
+    scroll_box(height = "300px", width = "100%")
 
 ```
 
@@ -440,6 +443,7 @@ dvs <- svd(x)
 
 round(dvs$d, 1) %>%
   kable(col.names = "d")%>%
+  kable_styling(full_width = FALSE)%>%
   kable_classic_2()
 ```
 
@@ -491,31 +495,92 @@ round(ydvs, 1) %>%
 **T.** Obtenga 4 dendogramas ultramétricos según diferentes criterios de 
 encadenamiento (SIMPLE, COMPUESTO, UPGMA y WARD).
 
+Criterio de encadenamiento Simple:
 ```{r}
 cluster_min <- hclust(matriz_distancia_std_dist, method = "single")
 plot(cluster_min)
 ```
  
-Hacer usando los otros metodos... average, ward.D ward.D2
+Criterio de encadenamiento Compuesto:
+```{r}
+cluster_com <- hclust(matriz_distancia_std_dist, method = "complete")
+plot(cluster_com)
+```
 
-Si siempre se me forman los mismos grupos, estos grupos son muy robustos 
-(en cuanto a cuan evidentes son los grupos, no a una propiedad estadistica)
+Criterio de encadenamiento UPGMA
+```{r}
+cluster_upgma <- hclust(matriz_distancia_std_dist, method = "average")
+plot(cluster_upgma)
+```
+
+Criterio de encadenamiento WARD
+```{r}
+cluster_ward <- hclust(matriz_distancia_std_dist, method = "ward.D")
+plot(cluster_ward)
+```
+
 
 **U.** Asocie a cada uno de los árboles obtenidos en el inciso anterior la 
 matriz cofenética correspondiente. Que miden los elementos de estas matrices ?
 
+Encadenamiento Simple:
 ```{r}
 cophenetic_min = cophenetic(cluster_min)
 plot(cophenetic_min, matriz_distancia_std_dist)
 ```
 
+
+Encadenamiento Compuesto:
+```{r}
+cophenetic_com = cophenetic(cluster_com)
+plot(cophenetic_com, matriz_distancia_std_dist)
+```
+
+
+Encadenamiento UPGMA:
+```{r}
+cophenetic_upgma = cophenetic(cluster_upgma)
+plot(cophenetic_upgma, matriz_distancia_std_dist)
+```
+
+
+Encadenamiento WARD:
+```{r}
+cophenetic_ward = cophenetic(cluster_ward)
+plot(cophenetic_ward, matriz_distancia_std_dist)
+```
+
+Los elementos de las matrices anteriores permiten tener una medida de la 
+coherencia del criterio de agrupamiento jerarquico
+
 **V.** Cuantifique la concordancia entre la matriz de distancia que dio origen 
 a los dendogramas y las 4 matrices cofenéticas. A que conclusión llega ?
 
+
+Encadenamiento simple
 ```{r}
 cor(cophenetic_min, matriz_distancia_std_dist)
 ```
 
+
+Encadenamiento Compuesto
+```{r}
+cor(cophenetic_com, matriz_distancia_std_dist)
+```
+
+
+Encadenamiento UPGMA
+```{r}
+cor(cophenetic_upgma, matriz_distancia_std_dist)
+```
+
+
+Encadenamiento WARD
+```{r}
+cor(cophenetic_ward, matriz_distancia_std_dist)
+```
+
+FALTA CONCLUSION
 
 **W.** Existe algún punto de corte sobre el índice de jerarquización del 
 dendograma UPGMA que origine los mismos agrupamiento de variedades obtenidos en 
