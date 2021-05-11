@@ -83,4 +83,4 @@ pero falta el resto.
 
 ##### Persona asignada
 
-* ...
+* Tomas Capretto
