@@ -54,8 +54,7 @@ los mismos grupos o no.
 
 #### Ejercicio 5
 
-* Punto **G**: Resultado difiere del de clase, pero solo para la correlacion
-con la matriz de distancia original.
+* Falta interpretar resultados.
 
 ##### Persona asignada
 
