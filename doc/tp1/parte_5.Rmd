@@ -16,12 +16,9 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-  echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center"#,
-  , fig.pos = "H", out.extra = "",
-  fig.height=4, fig.width=6
+  echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center",
+  fig.pos = "H", out.extra = "", fig.height = 4, fig.width = 6
 )
-
-# Ver https://bookdown.org/yihui/rmarkdown-cookbook/figure-placement.html
 
 library(ape)
 library(ggrepel)
@@ -48,6 +45,15 @@ A) Halle la distancia genética de Prevosti entre variedades
     ```{r, echo=TRUE}
     matriz_distancia <- dist(datos_df, method = "manhattan", diag = TRUE) / 33
     ```
+    
+    ```{r}
+    # Guardamos matriz de distancia para ser utilizada en otras partes
+    saveRDS(
+      matriz_distancia, 
+      here::here("doc", "tp1", "shared", "parte_5", "matriz_distancia.rds")
+    )
+    ```
+    
     
     Mostramos la matriz resultante de manera parcial, ya que es muy grande como
     para mostrarla de manera completa en una pagina.
@@ -89,6 +95,14 @@ molecular. Encuentra asociaciones en función del tipo de pepino?
     datos_CP$variedad <- substr(datos_CP$etiqueta, 1, 1)
     ```
     
+    ```{r}
+    # Guardo coordenadas_principales
+    saveRDS(
+      coordenadas_principales, 
+      here::here("doc", "tp1", "shared", "parte_5", "coordenadas_principales.rds")
+    )
+    ```
+    
     ```{r, fig.cap="Caracterizacion molecular de las variedades de pepino."}
     ggplot(datos_CP) + 
       geom_point(aes(c1, c2, color = variedad), size = 4) + 
@@ -107,6 +121,13 @@ A)  Encuentre el dendograma ultramétrico con ligamiento UPGMA
     ```{r}
     cluster_molecular <- hclust(matriz_distancia, method = "average")
     dendro_data <- dendro_data_k(cluster_molecular, k=4)
+    ```
+    
+    ```{r}
+    saveRDS(
+      cluster_molecular, 
+      here::here("doc", "tp1", "shared", "parte_5", "cluster_molecular.rds")
+    )
     ```
     
     ```{r, fig.height=6.5, fig.width=6, fig.cap="Dendograma Ultrametrico con ligamiento UPGMA.", class.source = 'fold-hide'}
@@ -178,7 +199,14 @@ A) Halle el dendograma aditivo Neighbor Joining
     rapds_nj <- nj(matriz_distancia)
     ggtree::ggtree(rapds_nj, ladderize = FALSE) + ggtree::geom_tiplab()
     ```
-
+    
+    ```{r}
+    saveRDS(
+      rapds_nj, 
+      here::here("doc", "tp1", "shared", "parte_5", "rapds_nj.rds")
+    )
+    ```
+    
 A) Mida su concordancia con matriz de distancia original
 
     ```{r}
