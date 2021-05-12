@@ -25,7 +25,6 @@ library(tidyverse)
 source(here::here("src", "utils.R"))
 ```
 
-
 ```{r}
 datos <- read_csv2(here::here("data", "raw", "RAPDS.csv"))
 ```
@@ -106,8 +105,8 @@ molecular. Encuentra asociaciones en función del tipo de pepino?
     ggplot(datos_CP) + 
       geom_point(aes(c1, c2, color = variedad), size = 4) + 
       geom_label_repel(aes(c1, c2, label = etiqueta), max.overlaps = 30) + 
-      geom_vline(xintercept = 0, linetype = "dashed", color="grey30", alpha=0.5) + 
-      geom_hline(yintercept = 0, linetype = "dashed", color="grey30", alpha=0.5) + 
+      geom_vline(xintercept = 0, linetype = "dashed", color = "grey30", alpha = 0.5) + 
+      geom_hline(yintercept = 0, linetype = "dashed", color = "grey30", alpha = 0.5) + 
       labs(
         x = "Coordenada 1",
         y = "Coordenada 2",
@@ -178,12 +177,13 @@ distancias que le dio origen
     lo que significa que las dos medidas de distancia tienden a diferir mas 
     cuando la distancia entre los tipos de pepinos es mayor.
 
-    ```{r, fig.cap="Grafico de dispersion entre distancia original y distancia cofenética."}
+    ```{r, fig.cap="Grafico de dispersion entre distancia original y distancia cofenética a partir de d endograma Ultrametico con ligamiento UPGMA. La linea azul representa a la recta identidad."}
     concordancia_df <- data.frame(
         x = as.vector(distancia_cofenetica_upgma),
         y = as.vector(matriz_distancia)
     )
     ggplot(concordancia_df) + 
+        geom_abline(slope = 1, intercept = 0, size=1.1, color = "#2980b9", alpha = 0.7) + 
         geom_point(aes(x, y), size = 3, alpha = 0.4) + 
         labs(
             x = "Distancia cofenética",
@@ -217,9 +217,21 @@ A) Mida su concordancia con matriz de distancia original
     del dendograma aditivo Neighbor Joining y la matriz de distancia original es
     igual  a `r round(concordancia, 3)`.**falta interpretar**
     
-    ```{r}
-    plot(distancia_cofenetica_nj, matriz_distancia)
+    ```{r, fig.cap="Grafico de dispersion entre distancia original y distancia cofenética a partir del dendograma aditivo. La linea azul representa a la recta identidad."}
+    concordancia_df <- data.frame(
+        x = as.vector(distancia_cofenetica_nj),
+        y = as.vector(matriz_distancia)
+    )
+    ggplot(concordancia_df) + 
+        geom_abline(slope = 1, intercept = 0, size=1.1, color = "#2980b9", alpha = 0.7) + 
+        geom_point(aes(x, y), size = 3, alpha = 0.4) + 
+        labs(
+            x = "Distancia cofenética",
+            y = "Distancia original"
+        )
+      
     ```
+
 
 A) Relacione ambos dendogramas y saque conclusiones
 

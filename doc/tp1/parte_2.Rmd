@@ -15,6 +15,7 @@ knitr::opts_chunk$set(
   echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center",
   fig.pos = "H", out.extra = "", fig.height = 4, fig.width = 6
 )
+colores <- c("#003f5c", "#7a5195", "#ef5675", "#ffa600")
 ```
 
 ```{r}
@@ -38,235 +39,235 @@ datos <- datos %>%
   )
 ```
 
-**A.** Cuantifique (en forma manual) la similaridad entre las variedades 
+A) Cuantifique (en forma manual) la similaridad entre las variedades 
 correspondientes a la primera y segunda fila en función del porcentaje de 
 caracteres comunes respecto al número de caracteres totales. Idem las variedades
 asociadas a las filas 12 y 13 (incluir la variable TIPO)
 
-Obtenemos dos vectores que representan a cada una de las dos primeras variedades
-y luego calculamos el la proporcion de variables donde ambas variedades 
-coinciden. 
+    Obtenemos dos vectores que representan a cada una de las dos primeras variedades
+    y luego calculamos el la proporcion de variables donde ambas variedades 
+    coinciden. 
+    
+    ```{r, echo=TRUE}
+    variedad1 <- datos[1, -1] %>% unlist() %>% unname()
+    variedad2 <- datos[2, -1] %>% unlist() %>% unname()
+    similaridad_1_2 <- mean(variedad1 == variedad2, na.rm = TRUE) * 100
+    ```
+    
+    La similaridad entre las variedades de la fila 1 y 2 es del
+    `r paste0(round(similaridad_1_2, 2), "%")`. Luego, de manera analoga
+    par de variedades 12 y 13
+    
+    ```{r, echo=TRUE}
+    variedad12 <- datos[12, -1] %>% unlist() %>% unname()
+    variedad13 <- datos[13, -1] %>% unlist() %>% unname()
+    similaridad_12_13 <- mean(variedad12 == variedad13, na.rm = TRUE) * 100
+    ```
+    
+    La similaridad entre las variedades de la fila 12 y 13 es del
+    `r paste0(round(similaridad_12_13, 2), "%")`.
 
-```{r, echo=TRUE}
-variedad1 <- datos[1, -1] %>% unlist() %>% unname()
-variedad2 <- datos[2, -1] %>% unlist() %>% unname()
-similaridad_1_2 <- mean(variedad1 == variedad2, na.rm = TRUE) * 100
-```
-
-La similaridad entre las variedades de la fila 1 y 2 es del
-`r paste0(round(similaridad_1_2, 2), "%")`. Luego, de manera analoga
-par de variedades 12 y 13
-
-```{r, echo=TRUE}
-variedad12 <- datos[12, -1] %>% unlist() %>% unname()
-variedad13 <- datos[13, -1] %>% unlist() %>% unname()
-similaridad_12_13 <- mean(variedad12 == variedad13, na.rm = TRUE) * 100
-```
-
-La similaridad entre las variedades de la fila 12 y 13 es del
-`r paste0(round(similaridad_12_13, 2), "%")`.
-
-**B.** Halle una matriz de similaridad entre variedades en función del 
+A) Halle una matriz de similaridad entre variedades en función del 
 coeficiente SM generalizado.
 
-```{r}
-# La funcion `daisy()` del paquete `cluster` requiere que las variables 
-# cualitativas sean de tipo `"factor"`. En nuestro caso, son de tipo 
-# `"character"`, por lo que necesitamos una nueva version de nuestros datos
-# donde las columnas son factores. 
-datos_fct <- datos %>%
-  mutate_all(as.factor)
+    ```{r}
+    # La funcion `daisy()` del paquete `cluster` requiere que las variables 
+    # cualitativas sean de tipo `"factor"`. En nuestro caso, son de tipo 
+    # `"character"`, por lo que necesitamos una nueva version de nuestros datos
+    # donde las columnas son factores. 
+    datos_fct <- datos %>%
+      mutate_all(as.factor)
+    
+    datos_fct_df <- datos_fct[-1]
+    rownames(datos_fct_df) <- datos_fct$VARIEDAD
+    ```
+    
+    Para esta tarea utilizamos la funcion `daisy()` del paquete `cluster`, donde
+    especificamos que la metrica a utilizar es `"gower"`, y nos devuelve la matriz
+    de distancia entre las diferentes variedades. En la siguiente linea, convertimos
+    la matriz de distancia a martiz de similaridad.
+    
+    ```{r, echo=TRUE}
+    matriz_distancia <- daisy(datos_fct_df, metric = "gower")
+    matriz_similaridad <- 1 - matriz_distancia
+    ```
+    
+    Comprobemos, por ejemplo, si las similaridad entre las unidades 1 y 2 computada
+    mediante `daisy()` es igual a la que computamos a mano.
+    
+    ```{r, echo=TRUE}
+    matriz_similaridad[1] == (similaridad_1_2 / 100)
+    ```
+    
+    Por lo que ambos resultados son iguales.
+    
+    ```{r}
+    # Guardo las matrices
+    saveRDS(
+      matriz_distancia,
+      here::here("doc", "tp1", "shared", "parte_2", "matriz_distancia.rds")
+    )   
+    saveRDS(
+      matriz_similaridad,
+      here::here("doc", "tp1", "shared", "parte_2", "matriz_similaridad.rds")
+    )   
+    ```
 
-datos_fct_df <- datos_fct[-1]
-rownames(datos_fct_df) <- datos_fct$VARIEDAD
-```
-
-Para esta tarea utilizamos la funcion `daisy()` del paquete `cluster`, donde
-especificamos que la metrica a utilizar es `"gower"`, y nos devuelve la matriz
-de distancia entre las diferentes variedades. En la siguiente linea, convertimos
-la matriz de distancia a martiz de similaridad.
-
-```{r, echo=TRUE}
-matriz_distancia <- daisy(datos_fct_df, metric = "gower")
-matriz_similaridad <- 1 - matriz_distancia
-```
-
-Comprobemos, por ejemplo, si las similaridad entre las unidades 1 y 2 computada
-mediante `daisy()` es igual a la que computamos a mano.
-
-```{r, echo=TRUE}
-matriz_similaridad[1] == (similaridad_1_2 / 100)
-```
-
-Por lo que ambos resultados son iguales.
-
-```{r}
-# Guardo las matrices
-saveRDS(
-  matriz_distancia,
-  here::here("doc", "tp1", "shared", "parte_2", "matriz_distancia.rds")
-)   
-saveRDS(
-  matriz_similaridad,
-  here::here("doc", "tp1", "shared", "parte_2", "matriz_similaridad.rds")
-)   
-```
-
-**C.** Aplique Análisis de Coordenadas principales para representar en un 
+A) Aplique Análisis de Coordenadas principales para representar en un 
 espacio bidimensional la semejanza entre las variedades.
 
-Aplicamos el analisis de coordenadas principales de la siguiente manera:
+    Aplicamos el analisis de coordenadas principales de la siguiente manera:
+    
+    ```{r}
+    coordenadas_principales <- cmdscale(sqrt(matriz_distancia), eig = TRUE)
+    ```
+    
+    Luego, graficamos a la caracterizacion cualitativa de las variedades de pepino
+    en el plano principal.
+    
+    ```{r}
+    datos_CP <- as.data.frame(coordenadas_principales$points)
+    colnames(datos_CP) <- c("c1", "c2")
+    datos_CP$etiqueta <- datos$VARIEDAD
+    datos_CP$variedad <- substr(datos_CP$etiqueta, 1, 1)
+    ```
+    
+    ```{r, fig.cap="Caracterizacion cualitativa de las variedades de pepino."}
+    ggplot(datos_CP) + 
+      geom_point(aes(c1, c2, color = variedad), size = 4) + 
+      geom_label_repel(aes(c1, c2, label = etiqueta), max.overlaps = 30) + 
+      geom_vline(xintercept = 0, linetype = "dashed") + 
+      geom_hline(yintercept = 0, linetype = "dashed") + 
+      labs(
+        x = "Coordenada 1",
+        y = "Coordenada 2",
+        color = "Tipo de fruto"
+      ) + 
+      scale_color_manual(values = colores)
+    ```
+    
+    En aquellos casos que mas de una etiqueta apunta hacia el mismo punto sucede que 
+    las variedades coinciden en terminos de las variables analizadas y en 
+    consecuencia los puntos que los representan estan encimados. Por ejemplo,
+    las variedades `A5`, `A6`, `A7`, `A8` tienen idénticos valores para todas las 
+    variables.
+    
+    ```{r}
+    datos %>%
+      filter(VARIEDAD %in% c("A5", "A6", "A7", "A8")) %>%
+      kable(col.names = str_trunc(colnames(datos), 7)) %>% 
+      kable_styling(font_size = 8, full_width = FALSE, latex_options = "HOLD_position") %>% 
+      kable_classic_2() 
+    ```
 
-```{r}
-coordenadas_principales <- cmdscale(sqrt(matriz_distancia), eig = TRUE)
-```
-
-Luego, graficamos a la caracterizacion cualitativa de las variedades de pepino
-en el plano principal.
-
-```{r}
-datos_CP <- as.data.frame(coordenadas_principales$points)
-colnames(datos_CP) <- c("c1", "c2")
-datos_CP$etiqueta <- datos$VARIEDAD
-datos_CP$variedad <- substr(datos_CP$etiqueta, 1, 1)
-```
-
-```{r, fig.cap="Caracterizacion cualitativa de las variedades de pepino."}
-ggplot(datos_CP) + 
-  geom_point(aes(c1, c2, color = variedad), size = 4) + 
-  geom_label_repel(aes(c1, c2, label = etiqueta), max.overlaps = 30) + 
-  geom_vline(xintercept = 0, linetype = "dashed") + 
-  geom_hline(yintercept = 0, linetype = "dashed") + 
-  labs(
-    x = "Coordenada 1",
-    y = "Coordenada 2",
-    color = "Tipo de fruto"
-  )
-```
-
-En aquellos casos que mas de una etiqueta apunta hacia el mismo punto sucede que 
-las variedades coinciden en terminos de las variables analizadas y en 
-consecuencia los puntos que los representan estan encimados. Por ejemplo,
-las variedades `A5`, `A6`, `A7`, `A8` tienen idénticos valores para todas las 
-variables.
-
-```{r}
-datos %>%
-  filter(VARIEDAD %in% c("A5", "A6", "A7", "A8")) %>%
-  kable(col.names = str_trunc(colnames(datos), 7)) %>% 
-  kable_styling(font_size = 8, full_width = FALSE, latex_options = "HOLD_position") %>% 
-  kable_classic_2() 
-```
-
-**D.** Conforme grupos de variedades según su homogeneidad en la caracterización
+A) Conforme grupos de variedades según su homogeneidad en la caracterización
 agronómica cualitativa.
 
-En la Figura 1 se puede ver que las variedades de los tipos de fruto **A** y **H** se 
-se agrupan de manera que respetan al tipo de fruto y se diferencian del resto. 
-Tambien existe una agrupacion, ya no tan clara, para las variedades de los 
-grupos **F** y **P**. En este caso, si no estuviera el color que diferencie a los tipos
-de frutos, no podriamos diferenciar a estos dos grupos claramente. 
-Por ejemplo, las variedades **F2**, **F6** y **P1** estan muy cercanas en el plano y las
-podriamos haber tomado como parte de un mismo grupo.
+    En la Figura 1 se puede ver que las variedades de los tipos de fruto **A** y **H** se 
+    se agrupan de manera que respetan al tipo de fruto y se diferencian del resto. 
+    Tambien existe una agrupacion, ya no tan clara, para las variedades de los 
+    grupos **F** y **P**. En este caso, si no estuviera el color que diferencie a los tipos
+    de frutos, no podriamos diferenciar a estos dos grupos claramente. 
+    Por ejemplo, las variedades **F2**, **F6** y **P1** estan muy cercanas en el plano y las
+    podriamos haber tomado como parte de un mismo grupo.
+    
+    Tambien podemos ver que la variabilidad de las variedades dentro de cada tipo de 
+    fruto difiere. Por ejemplo, para el tipo de fruto **H**, se tiene que casi todas
+    las variedades se corresponden con dos categorizaciones particulares (por eso 
+    vemos tantos puntos encimados). Por otro lado, todas las variedades del tipo de 
+    fruto **P** se corresponden con una configuracion única de las variables 
+    cualitativas.
 
-Tambien podemos ver que la variabilidad de las variedades dentro de cada tipo de 
-fruto difiere. Por ejemplo, para el tipo de fruto **H**, se tiene que casi todas
-las variedades se corresponden con dos categorizaciones particulares (por eso 
-vemos tantos puntos encimados). Por otro lado, todas las variedades del tipo de 
-fruto **P** se corresponden con una configuracion única de las variables 
-cualitativas.
+A) Encuentre el dendograma ultramétrico con ligamiento UPGMA correspondiente
 
-**E.** Encuentre el dendograma ultramétrico con ligamiento UPGMA correspondiente
+    Obtenemos el dendograma utilizando la funcion `hclust()`, a la que le pasamos
+    la matriz de distancia previamente obtenida.
+    
+    ```{r}
+    cluster_cualitativas <- hclust(matriz_distancia, method = "average")
+    ```
+    
+    ```{r}
+    saveRDS(
+      cluster_cualitativas,
+      here::here("doc", "tp1", "shared", "parte_2", "cluster_cualitativas.rds")
+    ) 
+    ```
+    
+    Luego graficamos el dendograma y mostramos con diferentes colores a los 4 
+    clusters obtenidos.
+    
+    **COMENTAR**
+    
+    ```{r}
+    # funcion creada en src/utils.R
+    dendro_data <- dendro_data_k(cluster_cualitativas, k=4)
+    ```
+    
+    ```{r, fig.height=6.5, fig.width=6, fig.cap="Dendograma Ultrametrico con ligamiento UPGMA."}
+    ggplot(dendro_data$segments) + 
+      geom_segment(
+        aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(clust)),
+        size = 1.2,
+        lineend = "round"
+      ) + 
+      geom_text(
+        aes(x = x, y = y - 0.025, label = label, color = as.factor(clust)), 
+        data = dendro_data$labels
+      ) + 
+      coord_flip() + 
+      labs(
+        y = "Distancia"
+      ) + 
+      scale_colour_manual(
+        values = c("grey30", colores)
+      ) + 
+      theme(
+        panel.grid.minor = element_blank(),
+        axis.title.x = element_text(size = 14), 
+        axis.title.y = element_blank(), 
+        axis.text.x = element_text(size = 12),
+        axis.text.y = element_blank(), 
+        axis.line = element_blank(), 
+        axis.ticks.y = element_blank(),
+        plot.title = element_text(hjust = 0.5),
+        legend.position = "none"
+      )
+    ```
 
-Obtenemos el dendograma utilizando la funcion `hclust()`, a la que le pasamos
-la matriz de distancia previamente obtenida.
-
-```{r}
-cluster_cualitativas <- hclust(matriz_distancia, method = "average")
-```
-
-```{r}
-saveRDS(
-  cluster_cualitativas,
-  here::here("doc", "tp1", "shared", "parte_2", "cluster_cualitativas.rds")
-) 
-```
-
-Luego graficamos el dendograma y mostramos con diferentes colores a los 4 
-clusters obtenidos.
-
-**COMENTAR**
-
-```{r}
-# funcion creada en src/utils.R
-dendro_data <- dendro_data_k(cluster_cualitativas, k=4)
-```
-
-```{r, fig.height=6.5, fig.width=6, fig.cap="Dendograma Ultrametrico con ligamiento UPGMA."}
-ggplot(dendro_data$segments) + 
-  geom_segment(
-    aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(clust)),
-    size = 1.2,
-    lineend = "round"
-  ) + 
-  geom_text(
-    aes(x = x, y = y - 0.025, label = label, color = as.factor(clust)), 
-    data = dendro_data$labels
-  ) + 
-  coord_flip() + 
-  labs(
-    y = "Distancia"
-  ) + 
-  scale_colour_manual(
-    values = c("grey30", scales::hue_pal()(4))
-  ) + 
-  theme(
-    panel.grid.major = element_blank(), 
-    panel.grid.minor = element_blank(), 
-    panel.background = element_blank(),
-    axis.title.x = element_text(size = 14), 
-    axis.title.y = element_blank(), 
-    axis.text.x = element_text(size = 12),
-    axis.text.y = element_blank(), 
-    axis.line = element_blank(), 
-    axis.ticks.y = element_blank(),
-    plot.title = element_text(hjust = 0.5),
-    legend.position = "none"
-  )
-```
-
-**F.** Mida a través de su matriz cofenética la concordancia con la matriz de 
+A) Mida a través de su matriz cofenética la concordancia con la matriz de 
 distancias que le dio origen
 
-Primero vamos a calcular la concordancia y luego obtenemos un grafico de
-dispersion donde se muestra la distancia original y la distancia cofenética.
-
-```{r, echo=TRUE}
-distancia_cofenetica <- cophenetic(cluster_cualitativas)
-concordancia <- cor(distancia_cofenetica, matriz_distancia)
-```
-
-```{r, fig.cap="Grafico de dispersion entre distancia original y distancia cofenética."}
-concordancia_df <- data.frame(
-    x = as.vector(distancia_cofenetica),
-    y = as.vector(matriz_distancia)
-)
-ggplot(concordancia_df) + 
-    geom_point(aes(x, y), size = 3, alpha = 0.4) + 
-    labs(
-        x = "Distancia cofenética",
-        y = "Distancia original"
+    Primero vamos a calcular la concordancia y luego obtenemos un grafico de
+    dispersion donde se muestra la distancia original y la distancia cofenética.
+    
+    ```{r, echo=TRUE}
+    distancia_cofenetica <- cophenetic(cluster_cualitativas)
+    concordancia <- cor(distancia_cofenetica, matriz_distancia)
+    ```
+    
+    ```{r, fig.cap="Grafico de dispersion entre distancia original y distancia cofenética a partir de cluster con ligamiento UPGMA. La linea azul representa a la recta identidad."}
+    concordancia_df <- data.frame(
+        x = as.vector(distancia_cofenetica),
+        y = as.vector(matriz_distancia)
     )
-```
-
-La concordancia entre la matriz de distancias cofenética y la matriz de 
-distancia original es igual  a `r round(concordancia, 3)`.
-
-**G.** Cuantifique concordancia entre plano principal de ACoordP y Cluster
-
-```{r}
-concordancia <- cor(distancia_cofenetica, dist(coordenadas_principales$points))
-```
-
-La concordancia concordancia entre plano principal de ACoordP y Cluster es 
-`r round(concordancia, 3)`.
+    ggplot(concordancia_df) + 
+      geom_abline(slope = 1, size = 1.2, alpha = 0.8, color = colores[1]) +
+      geom_point(aes(x, y), size = 3, alpha = 0.7, color = "grey30") + 
+      labs(
+          x = "Distancia cofenética",
+          y = "Distancia original"
+      )
+    ```
+    
+    La concordancia entre la matriz de distancias cofenética y la matriz de 
+    distancia original es igual  a `r round(concordancia, 3)`.
+    
+A) Cuantifique concordancia entre plano principal de ACoordP y Cluster
+    
+    ```{r}
+    concordancia <- cor(distancia_cofenetica, dist(coordenadas_principales$points))
+    ```
+    
+    La concordancia concordancia entre plano principal de ACoordP y Cluster es 
+    `r round(concordancia, 3)`.
