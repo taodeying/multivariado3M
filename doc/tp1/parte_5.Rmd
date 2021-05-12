@@ -10,22 +10,21 @@ editor_options:
   chunk_output_type: console
 ---
 
-<style type="text/css">
-    ol { list-style-type: upper-alpha; }
-</style>
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center",
   fig.pos = "H", out.extra = "", fig.height = 4, fig.width = 6
 )
+```
 
+```{r}
 library(ape)
 library(ggrepel)
 library(kableExtra)
 library(tidyverse)
 source(here::here("src", "utils.R"))
 ```
+
 
 ```{r}
 datos <- read_csv2(here::here("data", "raw", "RAPDS.csv"))

@@ -4,59 +4,33 @@ subtitle: "Ejercicio 2"
 author: "Grupo ....."
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: 
-    html_document:
-        code_folding: show
+  pdf_document:
+    extra_dependencies: ["float"]
 editor_options: 
   chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-  echo = TRUE, message = FALSE, warning = FALSE, fig.align = "center"
+  echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center",
+  fig.pos = "H", out.extra = "", fig.height = 4, fig.width = 6
 )
 ```
-
-## Librerias y utilidades
 
 ```{r}
 library(cluster)
 library(ggrepel)
 library(kableExtra)
 library(tidyverse)
-```
-
-```{r}
 source(here::here("src", "utils.R"))
 ```
-
-## Datos
 
 ```{r}
 datos <- read_csv2(here::here("data", "raw", "CUALITATIVAS.csv"))
 ```
 
 ```{r}
-glimpse(datos)
-```
-
-Vemos que todas las variables fueron importadas como de tipo `"character"`, lo
-que es correcto en este caso, ya que todas representan variables cualitativas. 
-Ahora pasamos a ver que variables tienen datos desconocidos (marcados con "-1").
-Los reemplazaremos por valores `NA`.
-
-```{r, cap}
-sapply(datos, function(x) paste(round(mean(x == "-1") * 100, 2), "%")) %>%
-  t() %>%
-  as.data.frame() %>%
-  kable(caption = "Tabla 1: Porcentaje de datos perdidos por variable") %>%
-  kable_styling(font_size = 12, full_width = FALSE) %>% 
-  kable_classic_2() 
-```
-
-Por lo que vemos que en las variables `CLADOSP` y `CMV` se tiene un 32% y un 27%
-de valores perdidos respectivamente. Procedemos a identificarlos como `NA`.
-
-```{r}
+# Identificamos a los NA
 datos <- datos %>%
   mutate(
     CLADOSP = ifelse(CLADOSP == "-1", NA, CLADOSP),
@@ -73,17 +47,17 @@ Obtenemos dos vectores que representan a cada una de las dos primeras variedades
 y luego calculamos el la proporcion de variables donde ambas variedades 
 coinciden. 
 
-```{r}
+```{r, echo=TRUE}
 variedad1 <- datos[1, -1] %>% unlist() %>% unname()
 variedad2 <- datos[2, -1] %>% unlist() %>% unname()
 similaridad_1_2 <- mean(variedad1 == variedad2, na.rm = TRUE) * 100
 ```
 
 La similaridad entre las variedades de la fila 1 y 2 es del
-`r paste0(round(similaridad_1_2, 2), "%")`. Luego, de manera análoga para el 
+`r paste0(round(similaridad_1_2, 2), "%")`. Luego, de manera analoga
 par de variedades 12 y 13
 
-```{r}
+```{r, echo=TRUE}
 variedad12 <- datos[12, -1] %>% unlist() %>% unname()
 variedad13 <- datos[13, -1] %>% unlist() %>% unname()
 similaridad_12_13 <- mean(variedad12 == variedad13, na.rm = TRUE) * 100
@@ -95,40 +69,60 @@ La similaridad entre las variedades de la fila 12 y 13 es del
 **B.** Halle una matriz de similaridad entre variedades en función del 
 coeficiente SM generalizado.
 
-La funcion `daisy()` del paquete `cluster` requiere que las variables 
-cualitativas sean de tipo `"factor"`. En nuestro caso, son de tipo 
-`"character"`, por lo que necesitamos una nueva version de nuestros datos
-donde las columnas son factores. 
-
 ```{r}
+# La funcion `daisy()` del paquete `cluster` requiere que las variables 
+# cualitativas sean de tipo `"factor"`. En nuestro caso, son de tipo 
+# `"character"`, por lo que necesitamos una nueva version de nuestros datos
+# donde las columnas son factores. 
 datos_fct <- datos %>%
   mutate_all(as.factor)
-```
 
-```{r}
 datos_fct_df <- datos_fct[-1]
 rownames(datos_fct_df) <- datos_fct$VARIEDAD
-matriz_distancia <- daisy(datos_fct_df, "gower")
+```
+
+Para esta tarea utilizamos la funcion `daisy()` del paquete `cluster`, donde
+especificamos que la metrica a utilizar es `"gower"`, y nos devuelve la matriz
+de distancia entre las diferentes variedades. En la siguiente linea, convertimos
+la matriz de distancia a martiz de similaridad.
+
+```{r, echo=TRUE}
+matriz_distancia <- daisy(datos_fct_df, metric = "gower")
 matriz_similaridad <- 1 - matriz_distancia
 ```
 
 Comprobemos, por ejemplo, si las similaridad entre las unidades 1 y 2 computada
 mediante `daisy()` es igual a la que computamos a mano.
 
-```{r}
+```{r, echo=TRUE}
 matriz_similaridad[1] == (similaridad_1_2 / 100)
 ```
 
 Por lo que ambos resultados son iguales.
 
+```{r}
+# Guardo las matrices
+saveRDS(
+  matriz_distancia,
+  here::here("doc", "tp1", "shared", "parte_2", "matriz_distancia.rds")
+)   
+saveRDS(
+  matriz_similaridad,
+  here::here("doc", "tp1", "shared", "parte_2", "matriz_similaridad.rds")
+)   
+```
+
 **C.** Aplique Análisis de Coordenadas principales para representar en un 
 espacio bidimensional la semejanza entre las variedades.
+
+Aplicamos el analisis de coordenadas principales de la siguiente manera:
 
 ```{r}
 coordenadas_principales <- cmdscale(sqrt(matriz_distancia), eig = TRUE)
 ```
 
-Vamos a hacer el grafico
+Luego, graficamos a la caracterizacion cualitativa de las variedades de pepino
+en el plano principal.
 
 ```{r}
 datos_CP <- as.data.frame(coordenadas_principales$points)
@@ -137,8 +131,7 @@ datos_CP$etiqueta <- datos$VARIEDAD
 datos_CP$variedad <- substr(datos_CP$etiqueta, 1, 1)
 ```
 
-
-```{r, fig.cap="Figura 1: Caracterizacion cualitativa de las variedades de pepino.", class.source="fold-hide"}
+```{r, fig.cap="Caracterizacion cualitativa de las variedades de pepino."}
 ggplot(datos_CP) + 
   geom_point(aes(c1, c2, color = variedad), size = 4) + 
   geom_label_repel(aes(c1, c2, label = etiqueta), max.overlaps = 30) + 
@@ -160,20 +153,20 @@ variables.
 ```{r}
 datos %>%
   filter(VARIEDAD %in% c("A5", "A6", "A7", "A8")) %>%
-  kable() %>% 
-  kable_styling(font_size = 12, full_width = FALSE) %>% 
+  kable(col.names = str_trunc(colnames(datos), 7)) %>% 
+  kable_styling(font_size = 8, full_width = FALSE, latex_options = "HOLD_position") %>% 
   kable_classic_2() 
 ```
 
 **D.** Conforme grupos de variedades según su homogeneidad en la caracterización
 agronómica cualitativa.
 
-En la Figura 1 se puede ver que las variedades de los tipos de fruto A y H se 
+En la Figura 1 se puede ver que las variedades de los tipos de fruto **A** y **H** se 
 se agrupan de manera que respetan al tipo de fruto y se diferencian del resto. 
 Tambien existe una agrupacion, ya no tan clara, para las variedades de los 
-grupos F y P. En este caso, si no estuviera el color que diferencie a los tipos
+grupos **F** y **P**. En este caso, si no estuviera el color que diferencie a los tipos
 de frutos, no podriamos diferenciar a estos dos grupos claramente. 
-Por ejemplo, las variedades F2, F6 y P1 estan muy cercanas en el plano y las
+Por ejemplo, las variedades **F2**, **F6** y **P1** estan muy cercanas en el plano y las
 podriamos haber tomado como parte de un mismo grupo.
 
 Tambien podemos ver que la variabilidad de las variedades dentro de cada tipo de 
@@ -185,18 +178,31 @@ cualitativas.
 
 **E.** Encuentre el dendograma ultramétrico con ligamiento UPGMA correspondiente
 
-En el dendograma se muestran coloreados los 4 clusters obtenidos.
+Obtenemos el dendograma utilizando la funcion `hclust()`, a la que le pasamos
+la matriz de distancia previamente obtenida.
 
 ```{r}
 cluster_cualitativas <- hclust(matriz_distancia, method = "average")
 ```
 
 ```{r}
+saveRDS(
+  cluster_cualitativas,
+  here::here("doc", "tp1", "shared", "parte_2", "cluster_cualitativas.rds")
+) 
+```
+
+Luego graficamos el dendograma y mostramos con diferentes colores a los 4 
+clusters obtenidos.
+
+**COMENTAR**
+
+```{r}
 # funcion creada en src/utils.R
 dendro_data <- dendro_data_k(cluster_cualitativas, k=4)
 ```
 
-```{r, fig.height=6.5, fig.width=6, fig.cap="Figura 2: Dendograma Ultrametrico con ligamiento UPGMA.", class.source="fold-hide"}
+```{r, fig.height=6.5, fig.width=6, fig.cap="Dendograma Ultrametrico con ligamiento UPGMA."}
 ggplot(dendro_data$segments) + 
   geom_segment(
     aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(clust)),
@@ -229,19 +235,18 @@ ggplot(dendro_data$segments) +
   )
 ```
 
-
 **F.** Mida a través de su matriz cofenética la concordancia con la matriz de 
 distancias que le dio origen
 
 Primero vamos a calcular la concordancia y luego obtenemos un grafico de
 dispersion donde se muestra la distancia original y la distancia cofenética.
 
-```{r}
+```{r, echo=TRUE}
 distancia_cofenetica <- cophenetic(cluster_cualitativas)
 concordancia <- cor(distancia_cofenetica, matriz_distancia)
 ```
 
-```{r, fig.cap="Figura 3: Grafico de dispersion entre distancia original y distancia cofenética.", class.source="fold-hide"}
+```{r, fig.cap="Grafico de dispersion entre distancia original y distancia cofenética."}
 concordancia_df <- data.frame(
     x = as.vector(distancia_cofenetica),
     y = as.vector(matriz_distancia)
