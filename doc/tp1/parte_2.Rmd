@@ -1,8 +1,5 @@
 ---
-title: "Trabajo practico 1"
-subtitle: "Ejercicio 2"
-author: "Grupo ....."
-date: "`r format(Sys.time(), '%d %B, %Y')`"
+title: "Ejercicio 2"
 output: 
   pdf_document:
     extra_dependencies: ["float"]
@@ -13,7 +10,7 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center",
-  fig.pos = "H", out.extra = "", fig.height = 4, fig.width = 6
+  fig.pos = "H", out.extra = "", fig.height = 3, fig.width = 4.5
 )
 colores <- c("#003f5c", "#7a5195", "#ef5675", "#ffa600")
 ```
@@ -27,8 +24,18 @@ source(here::here("src", "utils.R"))
 ```
 
 ```{r}
-datos <- read_csv2(here::here("data", "raw", "CUALITATIVAS.csv"))
+# Uso read.csv2 en vez de readr::read_csv2 porque muchas funciones asumen
+# que pasamos un data.frame con nombres en las filas, y read_csv2 devuelve
+# un tibble, que se queja de los nombres de filas.
+datos <- read.csv2(
+  here::here("data", "raw", "CUALITATIVAS.csv"), 
+  row.names = 1, 
+  stringsAsFactors = FALSE
+)
+
+row.names(datos) <- trimws(row.names(datos))
 ```
+
 
 ```{r}
 # Identificamos a los NA
@@ -49,23 +56,25 @@ asociadas a las filas 12 y 13 (incluir la variable TIPO)
     coinciden. 
     
     ```{r, echo=TRUE}
-    variedad1 <- datos[1, -1] %>% unlist() %>% unname()
-    variedad2 <- datos[2, -1] %>% unlist() %>% unname()
+    variedad1 <- datos[1, ] %>% unlist() %>% unname()
+    variedad2 <- datos[2, ] %>% unlist() %>% unname()
     similaridad_1_2 <- mean(variedad1 == variedad2, na.rm = TRUE) * 100
     ```
     
     La similaridad entre las variedades de la fila 1 y 2 es del
-    `r paste0(round(similaridad_1_2, 2), "%")`. Luego, de manera analoga
-    par de variedades 12 y 13
+    `r paste0(round(similaridad_1_2, 2), "%")`. Si tenemos en cuenta que se 
+    tienen 9 variables, podemos notar que estas dos variedades coinciden en todas
+    excepto 1. Luego, de manera analoga para el par de variedades 12 y 13
     
     ```{r, echo=TRUE}
-    variedad12 <- datos[12, -1] %>% unlist() %>% unname()
-    variedad13 <- datos[13, -1] %>% unlist() %>% unname()
+    variedad12 <- datos[12, ] %>% unlist() %>% unname()
+    variedad13 <- datos[13, ] %>% unlist() %>% unname()
     similaridad_12_13 <- mean(variedad12 == variedad13, na.rm = TRUE) * 100
     ```
     
     La similaridad entre las variedades de la fila 12 y 13 es del
-    `r paste0(round(similaridad_12_13, 2), "%")`.
+    `r paste0(round(similaridad_12_13, 2), "%")`, lo que significa que difieren
+    mas que el par de variedades 1 y 2.
 
 A) Halle una matriz de similaridad entre variedades en función del 
 coeficiente SM generalizado.
@@ -77,23 +86,21 @@ coeficiente SM generalizado.
     # donde las columnas son factores. 
     datos_fct <- datos %>%
       mutate_all(as.factor)
-    
-    datos_fct_df <- datos_fct[-1]
-    rownames(datos_fct_df) <- datos_fct$VARIEDAD
     ```
     
     Para esta tarea utilizamos la funcion `daisy()` del paquete `cluster`, donde
     especificamos que la metrica a utilizar es `"gower"`, y nos devuelve la matriz
     de distancia entre las diferentes variedades. En la siguiente linea, convertimos
-    la matriz de distancia a martiz de similaridad.
+    la matriz de distancia a matriz de similaridad.
     
     ```{r, echo=TRUE}
-    matriz_distancia <- daisy(datos_fct_df, metric = "gower")
+    matriz_distancia <- daisy(datos_fct, metric = "gower")
     matriz_similaridad <- 1 - matriz_distancia
     ```
     
-    Comprobemos, por ejemplo, si las similaridad entre las unidades 1 y 2 computada
-    mediante `daisy()` es igual a la que computamos a mano.
+    Comprobemos, por ejemplo, si la similaridad entre las variedades de pepino 
+    de la primera y segunda fila computada mediante `daisy()` es igual a la que 
+    computamos a mano.
     
     ```{r, echo=TRUE}
     matriz_similaridad[1] == (similaridad_1_2 / 100)
@@ -118,21 +125,21 @@ espacio bidimensional la semejanza entre las variedades.
 
     Aplicamos el analisis de coordenadas principales de la siguiente manera:
     
-    ```{r}
-    coordenadas_principales <- cmdscale(sqrt(matriz_distancia), eig = TRUE)
+    ```{r, echo=TRUE}
+    coordenadas_principales <- cmdscale(sqrt(matriz_distancia), k = 2, eig = TRUE)
     ```
     
-    Luego, graficamos a la caracterizacion cualitativa de las variedades de pepino
+    Y graficamos a la caracterizacion cualitativa de las variedades de pepino
     en el plano principal.
     
     ```{r}
     datos_CP <- as.data.frame(coordenadas_principales$points)
     colnames(datos_CP) <- c("c1", "c2")
-    datos_CP$etiqueta <- datos$VARIEDAD
+    datos_CP$etiqueta <- rownames(datos)
     datos_CP$variedad <- substr(datos_CP$etiqueta, 1, 1)
     ```
     
-    ```{r, fig.cap="Caracterizacion cualitativa de las variedades de pepino."}
+    ```{r, fig.height=4, fig.width=6, fig.cap="Caracterizacion cualitativa de las variedades de pepino en el plano principal."}
     ggplot(datos_CP) + 
       geom_point(aes(c1, c2, color = variedad), size = 4) + 
       geom_label_repel(aes(c1, c2, label = etiqueta), max.overlaps = 30) + 
@@ -146,15 +153,15 @@ espacio bidimensional la semejanza entre las variedades.
       scale_color_manual(values = colores)
     ```
     
-    En aquellos casos que mas de una etiqueta apunta hacia el mismo punto sucede que 
-    las variedades coinciden en terminos de las variables analizadas y en 
-    consecuencia los puntos que los representan estan encimados. Por ejemplo,
-    las variedades `A5`, `A6`, `A7`, `A8` tienen idénticos valores para todas las 
-    variables.
+    En aquellos casos que mas de una etiqueta apunta hacia el mismo punto sucede 
+    que las variedades coinciden en terminos de las variables analizadas y en 
+    consecuencia los puntos que las representan estan encimados. Por ejemplo,
+    las variedades `A5`, `A6`, `A7`, `A8` tienen idénticos valores para todas 
+    las variables.
     
     ```{r}
     datos %>%
-      filter(VARIEDAD %in% c("A5", "A6", "A7", "A8")) %>%
+      filter(row.names(datos) %in% c("A5", "A6", "A7", "A8")) %>%
       kable(col.names = str_trunc(colnames(datos), 7)) %>% 
       kable_styling(font_size = 8, full_width = FALSE, latex_options = "HOLD_position") %>% 
       kable_classic_2() 
@@ -183,7 +190,7 @@ A) Encuentre el dendograma ultramétrico con ligamiento UPGMA correspondiente
     Obtenemos el dendograma utilizando la funcion `hclust()`, a la que le pasamos
     la matriz de distancia previamente obtenida.
     
-    ```{r}
+    ```{r, echo=TRUE}
     cluster_cualitativas <- hclust(matriz_distancia, method = "average")
     ```
     
@@ -194,14 +201,12 @@ A) Encuentre el dendograma ultramétrico con ligamiento UPGMA correspondiente
     ) 
     ```
     
-    Luego graficamos el dendograma y mostramos con diferentes colores a los 4 
-    clusters obtenidos.
-    
-    **COMENTAR**
-    
+    Luego graficamos el dendograma y mostramos con diferentes colores a los 
+    clusters que se obtienen al especificar `k = 4`.
+
     ```{r}
     # funcion creada en src/utils.R
-    dendro_data <- dendro_data_k(cluster_cualitativas, k=4)
+    dendro_data <- dendro_data_k(cluster_cualitativas, k = 4)
     ```
     
     ```{r, fig.height=6.5, fig.width=6, fig.cap="Dendograma Ultrametrico con ligamiento UPGMA."}
@@ -235,6 +240,40 @@ A) Encuentre el dendograma ultramétrico con ligamiento UPGMA correspondiente
       )
     ```
 
+
+    En la Figura 2 se puede ver que el punto de corte `k = 4` no me permite 
+    separar a los tipos de pepinos de manera perfecta. El agrupamiento hace un
+    buen trabajo al diferenciar a los pepinos de los tipos **F** y **P**, 
+    pero mezcla a las variedades de los tipos **A** y **H**. Estos dos ultimos 
+    tipos, son a su vez, los que mayor similaridad entre variedades presentan.
+    Lo podemos ver en la cantidad de uniones que se presentan a una distancia
+    de 0.
+    
+    Si comparamos la Figura 1 y la Figura 2, puede sorprendernos que la variedad
+    **A4** este tan distante del resto de las variedades en la Figura 2, ya que
+    se presenta cercano al resto de las variedades de tipo **A** en la Figura 1.
+    Sin embargo, no debemos pasar por alto que la Figura 1 es una proyeccion
+    de posicionamientos en un espacio de mayor dimensionalidad, pudiendo estos
+    puntos estar distantes en ese espacio original.
+    
+    Tomemos al tipo de fruto **A** y miremos, por ejemplo, a las variedades 
+    **A4** y **A2**, que parecen cercanos en la Figura 1 pero estan distantes en
+    la Figura 2, y observemos sus datos crudos.
+    
+    ```{r}
+    datos %>%
+      filter(substr(row.names(datos), 1, 1) == "A") %>%
+      kable(col.names = str_trunc(colnames(datos), 7)) %>% 
+      kable_styling(font_size = 8, full_width = FALSE, latex_options = "HOLD_position") %>% 
+      kable_classic_2() %>%
+      row_spec(4, color = "white", background = colores[1])
+    ```
+    
+    En la tabla podemos ver que la variedad **A4** es la unica que presenta
+    extremo pedunculo agudo y es una de las dos unicas que presenta pelos como 
+    tipo de ornamentación, lo que alcanza para diferenciarla de las otras 
+    variedades, que son mucho mas similares entre si.
+  
 A) Mida a través de su matriz cofenética la concordancia con la matriz de 
 distancias que le dio origen
 
@@ -261,7 +300,8 @@ distancias que le dio origen
     ```
     
     La concordancia entre la matriz de distancias cofenética y la matriz de 
-    distancia original es igual  a `r round(concordancia, 3)`.
+    distancia original es igual  a `r round(concordancia, 3)`, lo que indica
+    una concordancia muy alta entre ambas representaciones.
     
 A) Cuantifique concordancia entre plano principal de ACoordP y Cluster
     
@@ -270,4 +310,5 @@ A) Cuantifique concordancia entre plano principal de ACoordP y Cluster
     ```
     
     La concordancia concordancia entre plano principal de ACoordP y Cluster es 
-    `r round(concordancia, 3)`.
+    `r round(concordancia, 3)`, lo que nuevamente nos indica una concordancia
+    muy alta entre ambas representaciones.
