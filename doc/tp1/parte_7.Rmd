@@ -157,9 +157,9 @@ ambas caracterizaciones tanto para individuos como para variables.
     ```
 
     Respecto al grafico de las variables, vemos que en ambos ambientes se da que 
-    **rendimiento** y **peso cada 1000 granos** son las que mas contribuyen a 
+    **rendimiento**, **peso cada 1000 granos**, y **granos por metro** son las que mas contribuyen a 
     la primera dimension. En cambio, las variables que mas contribuyen al segundo 
-    eje dependen del ambiente. En el ambiente Pergamino se trata e las variables 
+    eje dependen del ambiente. En el ambiente Pergamino se trata de las variables 
     asociadas al grano, **largo** y **ancho**, mientras que en el ambiente Ferre
     se trata de la **altura de la planta** y la **altura de la mazorca**, donde
     ademas el ancho del grano tiene una correlacion negativa cercana a -0.7.
@@ -212,8 +212,8 @@ originado por los ACP
     
     La correlacion entre ambas matrices de distancia en el plano principal es de
     `r round(concordancia, 3)`. A partir de este valor podemos decir que 
-    hay una concordancia media entre las condfiguraciones de las poblaciones en 
-    ambos ambientes.
+    hay una concordancia media o media-alta, entre las condfiguraciones de las 
+    poblaciones en ambos ambientes.
 
 A) Encuentra indicios de interacción tanto genotipo-ambiente como 
 variable-ambiente ?
@@ -366,27 +366,24 @@ inciso b ?
     ```
 
     
-
-    No entiendo la parte de 
-
 A) Aplicar APG para tener otra visualización de la interacción genotipo-ambiente
 (retenga todas las dimensiones de ambas configuraciones).
-
-    ```{r}
+    
+    Primero obtenemos ACP para ambos ambientes, reteniendo todas las dimensiones,
+    y creamos un data frame con las coordenadas de los individuos de ambos 
+    ambientes.
+    
+    ```{r, echo=TRUE}
     acp_m1 <- PCA(datos_m1, ncp = 10, graph = FALSE)
     acp_m2 <- PCA(datos_m2, ncp = 10, graph = FALSE)
     
-    df = data.frame(cbind(acp_m1$ind$coord, acp_m2$ind$coord))
+    df <- data.frame(cbind(acp_m1$ind$coord, acp_m2$ind$coord))
+    gpa <- GPA(df, group = c(10, 10), name.group = c("Pergamino", "Ferrre"), 
+               graph = FALSE)
     ```
     
-    
-    ```{r}
-    gpa <- GPA(df, group = c(10, 10), name.group = c("Per", "Fer"), graph = FALSE)
-    ```
-
 A) Visualizar del gráfico correspondiente las 3 poblaciones con mayor efecto 
 ambiente y las 3 con menor efecto
-
 
     ```{r}
     parcial_1 <- as.data.frame(gpa$Xfin[, , 1][, 1:2])
@@ -444,9 +441,71 @@ ambiente y las 3 con menor efecto
       )
     ```
 
-    Me falta decir cuales son las 3 con mayor efecto ambiente, y las 3 con menor.
+    A la hora de observar el grafico hay que tener en cuenta que la escala de 
+    los ejes no es la misma. El eje horizontal va desde -0.2 a 0.45 y el eje
+    vertical va desde -0.175 a 0.175 aproximadamente.
+    
+    Las tres poblaciones con mayor efecto ambiente son 22, 90 y 38. Por otro 
+    lado, las tres poblaciones con menor efecto ambiente son la 15, 16 y 98.
 
-A) Comparar lo encontrado en h) con el ANOVA correspondiente. Realice comentarios
+    Tambien podemos obtener la longitud de los segmentos y obtener a los que 
+    presentan mayor y menor efecto ambiente de manera numerica.
+    
+    ```{r}
+    segmentos <- segmentos %>%
+        mutate(diferencia = (x1 - x0) ^ 2 + (y1 - y0) ^ 2) %>%
+        arrange(diferencia)
+    ```
+    
+    ```{r}
+    t1 <- head(segmentos, 3)["diferencia"]
+    t2 <- tail(segmentos, 3)["diferencia"]
+    
+    kable(
+        list(t1, t2), 
+        col.names = "Longitud del segmento",
+        digits = 5,
+        align = "c"
+    ) %>% 
+    kable_styling(font_size = 12, latex_options = "HOLD_position") %>% 
+    kable_classic_2() 
+    ```
 
-    No van a coincidir porque el dibujo esta en 2d y el ANOVA usa a las 10 dimensiones 
-    para calcular la suma de cuadrados residual.
+    
+A) Comparar lo encontrado en h) con el ANOVA correspondiente. 
+Realice comentarios
+
+    Imprimimos las 3 poblaciones con mayor y menor efecto ambiente segun la suma
+    de cuadrados residual.
+    
+    ```{r}
+    gpa_anova <- as.data.frame(head(gpa$PANOVA$objet, -1)) %>%
+        arrange(SSresidual)
+    ```
+    
+    ```{r}
+    t2 <- tail(gpa_anova, 3)["SSresidual"]
+    t1 <- head(gpa_anova, 3)["SSresidual"]
+    
+    kable(
+        list(t1, t2), 
+        col.names = "SSresidual",
+        digits = 5,
+        align = "c"
+    ) %>% 
+    kable_styling(font_size = 12, latex_options = "HOLD_position") %>% 
+    kable_classic_2() 
+    ```
+    
+    Alli vemos que la informacion que obtenemos en el plano de dos dimensiones
+    no es exactamente la misma que la que se obtiene al calcular los residuos 
+    utilizando las ubicaciones de los puntos en el espacio original. 
+    
+    Aca podemos observar que los ambientes 22 y 90 siguen siendo los que mas 
+    efecto ambiente presentan, pero aparece el ambiente 17 en tercer lugar.
+    Por otro lado, los ambientes 61 y 102 no aparecieron cuando buscamos los
+    ambientes con menor efecto, y ahora figuran como los dos con menor residuo.
+    
+    Estas diferencias se dan porque en el grafico estamos analizando una
+    proyeccion de los datos en un plano de dos dimensiones, cuando en realidad
+    se encuentran en un espacio de 10 dimensiones.
