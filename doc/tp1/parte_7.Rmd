@@ -1,8 +1,5 @@
 ---
-title: "Trabajo practico 1"
-subtitle: "Parte 7"
-author: "Grupo ....."
-date: "`r format(Sys.time(), '%d %B, %Y')`"
+title: "Ejercicio 7"
 output: 
   pdf_document:
     extra_dependencies: ["float"]
@@ -26,22 +23,21 @@ library(ggrepel)
 library(kableExtra)
 library(patchwork)
 library(tidyverse)
+set.seed(1234)
 ```
 
-```{r}
-datos_m1 <- read_csv2(here::here("data", "raw", "MAIZ1.csv"))
-datos_m2 <- read_csv2(here::here("data", "raw", "MAIZ2.csv"))
-```
 
 ```{r}
-class(datos_m1) <- "data.frame"
-class(datos_m2) <- "data.frame"
-
-rownames(datos_m1) <- datos_m1$Poblacion
-rownames(datos_m2) <- datos_m2$Poblacion
-
-datos_m1 <- datos_m1[-1]
-datos_m2 <- datos_m2[-1]
+datos_m1 <- read.csv2(
+  here::here("data", "raw", "MAIZ1.csv"), 
+  row.names = 1, 
+  stringsAsFactors = FALSE
+)
+datos_m2 <- read.csv2(
+  here::here("data", "raw", "MAIZ2.csv"), 
+  row.names = 1, 
+  stringsAsFactors = FALSE
+)
 ```
 
 A) Cuantifique la concordancia de la configuración de poblaciones nativas 
@@ -117,20 +113,24 @@ ambas caracterizaciones tanto para individuos como para variables.
     variables_pca2$etiqueta <- rownames(variables_pca2)
     variables_pca2$x0 <- 0
     variables_pca2$y0 <- 0
-    
     ```
     
     ```{r}
-    biplot <- function(individuos, variables) {
+    plot_acp <- function(individuos, variables) {
       r <- ggplot(individuos) + 
-        geom_point(aes(Dim.1, Dim.2), size = 2.5, color = "gray30") + 
-        geom_label_repel(aes(Dim.1, Dim.2, label = etiqueta), max.overlaps = 30) + 
         geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
         geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
-        labs(
-          x = "Dimension 1", y = "Dimension 2"
-        )
+        geom_point(aes(Dim.1, Dim.2), size = 2.5, color = "gray30") + 
+        geom_label_repel(aes(Dim.1, Dim.2, label = etiqueta), max.overlaps = 30) + 
+        labs(x = "Dimension 1", y = "Dimension 2")
       l <- ggplot(variables) + 
+        geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+        geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+        geom_circle(
+          aes(x0 = x, y0 = y, r = r), 
+          linetype = "dashed", color = "gray30", alpha = 0.5,
+          data = data.frame(x = 0, y = 0, r = 1)
+        ) + 
         geom_segment(
           aes(x = x0, y = y0, xend = Dim.1, yend = Dim.2),
           arrow = arrow(length = unit(0.15, "cm"), type ="closed"),
@@ -142,25 +142,18 @@ ambas caracterizaciones tanto para individuos como para variables.
           min.segment.length = 0,
           max.overlaps = 30
         ) + 
-        geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
-        geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
-        geom_circle(
-          aes(x0 = x, y0 = y, r = r), 
-          linetype = "dashed", color = "gray30", alpha = 0.5,
-          data = data.frame(x = 0, y = 0, r = 1)
-        ) + 
         lims(x = c(-1, 1), y = c(-1, 1)) + 
         labs(x = "Dimension 1", y = "Dimension 2")
       l + r
     }
     ```
     
-    ```{r, fig.width = 11, fig.height = 5, fig.cap="Caracterizacion de los individuos y las variables en el plano principal del ACP para el ambiente Pergamino."}
-    biplot(individuos_pca1, variables_pca1)
+    ```{r, fig.width = 11, fig.height = 5, fig.cap="Caracterizacion de los individuos y las variables en el plano principal del ACP para el ambiente Pergamino. 64\\% variabilidad explicada."}
+    plot_acp(individuos_pca1, variables_pca1)
     ```
     
-    ```{r, fig.width = 11, fig.height = 5, fig.cap="Caracterizacion de los individuos y las variables en el plano principal del ACP para el ambiente Ferre."}
-    biplot(individuos_pca2, variables_pca2)
+    ```{r, fig.width = 11, fig.height = 5, fig.cap="Caracterizacion de los individuos y las variables en el plano principal del ACP para el ambiente Ferre. 57\\% variabilidad explicada."}
+    plot_acp(individuos_pca2, variables_pca2)
     ```
 
     Respecto al grafico de las variables, vemos que en ambos ambientes se da que 
@@ -168,47 +161,216 @@ ambas caracterizaciones tanto para individuos como para variables.
     la primera dimension. En cambio, las variables que mas contribuyen al segundo 
     eje dependen del ambiente. En el ambiente Pergamino se trata e las variables 
     asociadas al grano, **largo** y **ancho**, mientras que en el ambiente Ferre
-    se trata de la **altura de la planta** y la **altura de la mazorca**.
+    se trata de la **altura de la planta** y la **altura de la mazorca**, donde
+    ademas el ancho del grano tiene una correlacion negativa cercana a -0.7.
     
     El angulo entre los vectores asociados a las cargas nos brinda informacion
     sobre la relacion entre las variables, y podemos ver si estas relaciones
-    varian segun el ambiete. Por ejemplo, en Pergamino se da que la altura de 
+    varian segun el ambiente. Por ejemplo, en Pergamino se da que la altura de 
     la planta y de la mazorca se relacionan positivamente con el rinde, 
-    indicando que plantas con mayor altura y mazorcas mas largas se asocian a rindes mayores. 
-    Sin embargo, esta asociacion no sucede en el ambiente Ferre, donde vemos 
-    por el angulo entre los vectores, que el rendimiento de la planta no se 
-    asocia a estas variables de altura.
+    indicando que plantas con mayor altura y mazorcas mas largas se asocian a 
+    rindes mayores. Sin embargo, esta asociacion no sucede en el ambiente Ferre, 
+    donde vemos por el angulo entre los vectores, que el rendimiento de la 
+    planta no se asocia a estas variables de altura. Otro ejemplo similar ocurre
+    con la asociacion entre largo y ancho de grano, que en el ambiente Pergamino
+    resultan altamente dependientes, mientras que en el ambiente Ferre su 
+    correlacion es casi nula.
 
     En cuanto al grafico de los individuos, lo primero que se observa es que la 
     poblacion **44** presenta en ambos ambientes un comportamiento muy diferente 
-    al resto. Podemos ver que tiene valores muy bajos en la primer componente, 
+    al resto. En ambos ambientes tiene valores muy bajos en la primer componente, 
     lo que indica que se trata de una poblacion con un rendimiento y un peso de
-    grano muy inferior al resto de las poblaciones.
+    grano muy inferior al resto de las poblaciones. Sin embargo, en el ambiente
+    Pergamino se corresponde con plantas de poca altura con mazorcas cortas,
+    mientras que en el ambiente Ferre se presenta plantas altas con mazorcas
+    altas.
     
-    **todo:** ver que onda el % de varianza explicada por las primeras dos
-    componentes en ambos casos.
 
 A) Cuantifique la relación de las dos configuraciones en el plano principal 
 originado por los ACP
+
+    Para cada ambiente obtenemos la matriz de distancia entre los puntos en el
+    plano principal y calculamos la correlacion entre ambas matrices.
     
-    **todo:** como uso plano principal, aca si tengo que quedarme con las
-    primeras dos coordenadas.
+    ```{r}
+    concordancia <- cor(dist(acp_m1$ind$coord), dist(acp_m2$ind$coord))
+    ```
+    
+    ```{r, fig.cap="Distancia en Pergamino vs. distancia en Ferre para cada poblacion de maiz."}
+    concordancia_df <- data.frame(
+        x = as.vector(dist(acp_m1$ind$coord)),
+        y = as.vector(dist(acp_m2$ind$coord))
+    )
+    ggplot(concordancia_df) + 
+        geom_abline(slope = 1, size = 1.2, alpha = 0.8, color = colores[1]) +
+        geom_point(aes(x, y), size = 3, alpha = 0.7, color = "grey30") + 
+        labs(
+            x = "Distancia en Pergamino",
+            y = "Distancia en Ferre"
+        )
+    ```
+    
+    La correlacion entre ambas matrices de distancia en el plano principal es de
+    `r round(concordancia, 3)`. A partir de este valor podemos decir que 
+    hay una concordancia media entre las condfiguraciones de las poblaciones en 
+    ambos ambientes.
 
 A) Encuentra indicios de interacción tanto genotipo-ambiente como 
 variable-ambiente ?
 
+    Si, en ambos casos, por todo lo explicado en el inciso **b**. Como ejemplo de 
+    la interaccion genotipo-ambiente tenemos a la poblacion 44, 
+    que en el ambiente Pergamino se corresponde con plantas bajas y mazorcas 
+    cortas, mientras que en Ferre son plantas altas y mazorcas largas. 
+    
+    Y como ejemplo de la interaccion variable-ambiente tenemos que en Pergamino 
+    se da que la altura de la planta y de la mazorca se relacionan positivamente 
+    con el rinde, indicando que plantas con mayor altura y mazorcas mas largas 
+    se asocian a rindes mayores. Sin embargo, esta asociacion no sucede en Ferre, 
+    donde vemos que el rendimiento de la planta no se asocia a estas variables 
+    de altura.
+
 A) Como se quiere encontrar una caracterización ‘media’ o ‘promedio’ para las 
 31 poblaciones en función de la información dada en ambos ambientes proceda a 
 realizar una ACP sobre el promedio de las variables para ambos ambientes
+    
+    Obtenemos un nuevo data frame que representa al promedio entre ambos 
+    ambientes, y realizamos el ACP como lo hicimos anteriormente.
+    
+    ```{r, echo=TRUE}
+    datos_media <- (datos_m1 + datos_m2) / 2
+    acp_media <- PCA(datos_media, ncp = 2, graph = FALSE)
+    ```
+    
+    
+    ```{r}
+    # Preparo los datos
+    individuos <- as.data.frame(acp_media$ind$coord)
+    individuos$etiqueta <- rownames(individuos)
+    
+    variables <- as.data.frame(acp_media$var$coord)
+    variables$etiqueta <- rownames(variables)
+    variables$x0 <- 0
+    variables$y0 <- 0
+    ```
+    
+
+    ```{r, fig.width = 11, fig.height = 5, fig.cap="Caracterizacion de los individuos y las variables en el plano principal del ACP para el promedio de ambientes. 60\\% variabilidad explicada."}
+    plot_acp(individuos, variables)
+    ```
+
+    No estoy seguro sobre que hacer aca. Comparo con lo anterior? Repito 
+    la manera de interpretar? Me parece un embole.
 
 A) Ahora concatene ambos archivos por filas y columnas y realice un ACP para 
 ambas situaciones, encuentra respuesta para las interacciones planteadas en el 
 inciso b ?
 
+    ```{r, echo=TRUE}
+    datos_long <- rbind(datos_m1, datos_m2)
+    acp_long <- PCA(datos_long, ncp = 2, graph = FALSE)
+    ```
+    
+    ```{r, echo=TRUE}
+    datos_wide <- cbind(datos_m1, datos_m2)
+    acp_wide <- PCA(datos_wide, ncp = 2, graph = FALSE)    
+    ```
+    
+    ```{r}
+    # Preparo los datos
+    individuos_long <- as.data.frame(acp_long$ind$coord)
+    individuos_long$etiqueta <- rownames(datos_m1)
+    individuos_long$ambiente <- rep(c("Pergamino", "Ferre"), each = 31)
+    
+    variables_long <- as.data.frame(acp_long$var$coord)
+    variables_long$etiqueta <- rownames(variables_long)
+    variables_long$x0 <- 0
+    variables_long$y0 <- 0
+    ```
+    
+    ```{r, fig.width = 11, fig.height = 5, fig.cap="Caracterizacion de los individuos y las variables en el plano principal del ACP al concatenar filas . 65\\% variabilidad explicada. Ferre en amarillo, Pergamino en azul."}
+    r <- ggplot(individuos_long) + 
+        geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+        geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+        geom_point(aes(Dim.1, Dim.2, color = ambiente), size = 2.5, show.legend = FALSE) + 
+        geom_label_repel(aes(Dim.1, Dim.2, label = etiqueta), max.overlaps = 30) + 
+        scale_color_manual(values = colores[c(1, 4)]) + 
+        labs(x = "Dimension 1", y = "Dimension 2")
+    l <- ggplot(variables_long) + 
+        geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+        geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+        geom_circle(
+          aes(x0 = x, y0 = y, r = r), 
+          linetype = "dashed", color = "gray30", alpha = 0.5,
+          data = data.frame(x = 0, y = 0, r = 1)
+        ) + 
+        geom_segment(
+          aes(x = x0, y = y0, xend = Dim.1, yend = Dim.2),
+          arrow = arrow(length = unit(0.15, "cm"), type ="closed"),
+          size = 1.15,
+          color =  "gray30"
+        ) + 
+        geom_label_repel(
+          aes(Dim.1, Dim.2, label = etiqueta), 
+          min.segment.length = 0,
+          max.overlaps = 30
+        ) + 
+        lims(x = c(-1, 1), y = c(-1, 1)) + 
+        labs(x = "Dimension 1", y = "Dimension 2")
+    l + r
+    ```     
+    
+    
+    ```{r}
+    individuos_wide <- as.data.frame(acp_wide$ind$coord)
+    individuos_wide$etiqueta <- rownames(individuos_wide)
+    
+    variables_wide <- as.data.frame(acp_wide$var$coord)
+    variables_wide$etiqueta <- rep(colnames(datos_m1), 2)
+    variables_wide$ambiente <- rep(c("Pergamino", "Ferre"), each = 10)
+    variables_wide$x0 <- 0
+    variables_wide$y0 <- 0
+    ```
+    
+
+    ```{r, fig.width = 11, fig.height = 5, fig.cap="Caracterizacion de los individuos y las variables en el plano principal del ACP para al concatenar columnas. 51\\% variabilidad explicada. Ferre en amarillo, Pergamino en azul."}
+    r <- ggplot(individuos_wide) + 
+        geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+        geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+        geom_point(aes(Dim.1, Dim.2), size = 2.5, color = "gray30") + 
+        geom_label_repel(aes(Dim.1, Dim.2, label = etiqueta), max.overlaps = 30) + 
+        labs(x = "Dimension 1", y = "Dimension 2")
+    l <- ggplot(variables_wide) + 
+        geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+        geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+        geom_circle(
+          aes(x0 = x, y0 = y, r = r), 
+          linetype = "dashed", color = "gray30", alpha = 0.5,
+          data = data.frame(x = 0, y = 0, r = 1)
+        ) + 
+        geom_segment(
+          aes(x = x0, y = y0, xend = Dim.1, yend = Dim.2, color = ambiente),
+          arrow = arrow(length = unit(0.15, "cm"), type ="closed"),
+          size = 1.15,
+          show.legend = FALSE
+        ) + 
+        scale_color_manual(values = colores[c(1, 4)]) + 
+        geom_label_repel(
+          aes(Dim.1, Dim.2, label = etiqueta), 
+          min.segment.length = 0,
+          max.overlaps = 30
+        ) + 
+        lims(x = c(-1, 1), y = c(-1, 1)) + 
+        labs(x = "Dimension 1", y = "Dimension 2")
+    l + r
+    ```
+
+    
+
+    No entiendo la parte de 
+
 A) Aplicar APG para tener otra visualización de la interacción genotipo-ambiente
 (retenga todas las dimensiones de ambas configuraciones).
-
-
 
     ```{r}
     acp_m1 <- PCA(datos_m1, ncp = 10, graph = FALSE)
@@ -276,16 +438,15 @@ ambiente y las 3 con menor efecto
       ) + 
       scale_color_manual(values = colores, guide=FALSE) + 
       scale_shape_discrete(name = "Ambiente") + 
-      theme(legend.position = "top")
+      theme(
+          legend.position = "top",
+          axis.title = element_blank()
+      )
     ```
 
-```{r}
-# points(gpa$consensus[, 1:2])
-# points(gpa$Xfin[, , 1][, 1:2])
-# points(gpa$Xfin[, , 2][, 1:2])
-```
-
+    Me falta decir cuales son las 3 con mayor efecto ambiente, y las 3 con menor.
 
 A) Comparar lo encontrado en h) con el ANOVA correspondiente. Realice comentarios
 
-No van a coincidir porque el dibujo esta en 2d y el ANOVA usa a las 10 dimensiones para calcular la suma de cuadrados residual.
+    No van a coincidir porque el dibujo esta en 2d y el ANOVA usa a las 10 dimensiones 
+    para calcular la suma de cuadrados residual.
