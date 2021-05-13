@@ -1,11 +1,8 @@
 ---
-title: "Trabajo practico 1"
-subtitle: "Parte 1"
-author: "Grupo ....."
-date: "`r format(Sys.time(), '%d %B, %Y')`"
+title: "Ejercicio 1"
 output: 
-    html_document:
-        code_folding: show
+  pdf_document:
+    extra_dependencies: ["float"]
 editor_options: 
   chunk_output_type: console
 ---
