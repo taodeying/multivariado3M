@@ -46,56 +46,83 @@ Primero tenemos que correr los analisis nuevamente.
 **Ejercicio 2**
 
 ```{r}
-datos_q_fct <- datos_q %>%
-  mutate_all(as.factor)
 
-matriz_distancia_q <- daisy(datos_q_fct[-1], "gower")
-coordenadas_principales_q <- cmdscale(sqrt(1 - matriz_distancia_q), eig = TRUE)
-matriz_distancia_q_cp <- dist(coordenadas_principales_q$points)
+datos_2<-readRDS(here::here("doc", "tp1","shared", "parte_2", "matriz_distancia.rds"))
+coordenadas_principales <- cmdscale(sqrt(datos_2), eig = TRUE)
+datos_2 <- as.data.frame(coordenadas_principales$points)
+datos_2_dist<-dist(datos_2, method = "euclidean", diag = TRUE)
+
 ```
 
 **Ejercicio 3**
 
 ```{r}
-componentes_pricipales_c <- prcomp(datos_c[-1], scale. = TRUE)
-matriz_distancia_c_cp <- dist(componentes_pricipales_c$rotation)
+datos_3<-readRDS(here::here("doc", "tp1","shared", "parte_3", "Coordenadas_1y2_pp_Clusters.rds"))%>%
+  select("c1", "c2")
+datos_3_dist<-dist(datos_3, method = "euclidean", diag = TRUE)
 ```
 
 **Ejercicio 5**
 
 ```{r}
-matriz_distancia_m <- dist(datos_m[-1], method = "manhattan") / 33
-coordenadas_principales_m <- cmdscale(sqrt(matriz_distancia_m), eig = TRUE)
-matriz_distancia_m_cp <- dist(coordenadas_principales_m$points)
+
+datos_5<-readRDS(here::here("doc", "tp1","shared", "parte_5", "matriz_distancia.rds"))
+coordenadas_principales <- cmdscale(datos_5, eig = TRUE, k=2)
+datos_5 <- as.data.frame(coordenadas_principales$points)
+datos_5_dist<-dist(datos_5, method = "euclidean", diag = TRUE)
+
 ```
 
-Y ahora juntamos todo... un desastre, esta mal
 
+Concordancia entre lo obtenido entre el ejer 2 y 3 (VER, ESCRIBIR EN TERMINOS DEL PROBLEMA)
 ```{r}
-cor(matriz_distancia_m_cp, matriz_distancia_c_cp)
+cor(datos_2_dist, datos_3_dist)%>%
+  round(2)%>%
+  kable(align = "c") %>%
+  kable_styling(full_width = FALSE) %>%
+  kable_classic_2() 
+
 ```
 
+Concordancia entre lo obtenido entre el ejer 2 y 5 (VER, ESCRIBIR EN TERMINOS DEL PROBLEMA)
 ```{r}
-cor(matriz_distancia_q_cp, matriz_distancia_m_cp)
+cor(datos_2_dist, datos_5_dist)%>%
+  round(2)%>%
+  kable(align = "c") %>%
+  kable_styling(full_width = FALSE) %>%
+  kable_classic_2() 
+
 ```
 
+Concordancia entre lo obtenido entre el ejer 3 y 5 (VER, ESCRIBIR EN TERMINOS DEL PROBLEMA)
 ```{r}
-cor(matriz_distancia_q_cp, matriz_distancia_c_cp)
+cor(datos_3_dist, datos_5_dist)%>%
+  round(2)%>%
+  kable(align = "c") %>%
+  kable_styling(full_width = FALSE) %>%
+  kable_classic_2() 
+
 ```
 
 **B.** Mida la concordancia entre la caracterización agronómica 
 (cualitativa + cuantitativa) y molecular (planos principales)
 
+```{r}
+
+```
+
 **C.** Con APG halle el consenso entre las configuraciones (plano principal) 
 obtenidas en base a datos cualitativos, cuantitativos y moleculares.
 
+
 ```{r}
 df = cbind(
-  componentes_pricipales_c$x[,1:2],
-  coordenadas_principales_q$points,
-  coordenadas_principales_m$points
+  datos_2,
+  datos_3,
+  datos_5
 ) %>%
-  as.data.frame() 
+  as.data.frame()%>%
+  round(2)
 
 colnames(df) = c("C1", "C2", "Q1", "Q2", "M1", "M2")
 
@@ -104,7 +131,7 @@ gpa <- GPA(
   group = c(2, 2, 2), 
   name.group = c("Cuantiativa", "Cualitativa", "Molecular"),
   graph = TRUE, 
-  axes = 1:2
+  axes = c(1,2)
 )
 ```
 
@@ -112,10 +139,25 @@ gpa <- GPA(
 entre estas tres caracterizaciones
 
 
+```{r}
+#anova por variedad
+#ordenar de menor a mayor
+gpa$PANOVA$objet
+
+gpa$PANOVA$config
+#para saber si hay algun tipo de pepino, se puede hacer promedio de distancia por pepino
+
+```
+
+
 **E.** Finalice el análisis con un cluster UPGMA obtenido a partir de la 
 configuración de consenso
 
 ```{r}
+
+dist<-dist(df, method = "euclidean")
+cluster_upgma<-hclust( dist, method = "average")
+plot(cluster_upgma)
 
 ```
 
