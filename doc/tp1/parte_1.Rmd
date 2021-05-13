@@ -4,13 +4,16 @@ subtitle: "Parte 1"
 author: "Grupo ....."
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: 
-    html_document
+    html_document:
+        code_folding: show
 editor_options: 
   chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+knitr::opts_chunk$set(
+  echo = TRUE, message = FALSE, warning = FALSE, fig.align = "center"
+)
 ```
 
 ## Librerias
@@ -19,6 +22,9 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 library(FactoMineR)
 library(kableExtra)
 library(tidyverse)
+library(ggrepel)
+library(ape)
+source(here::here("src", "utils.R"))
 ```
 
 ## Datos
@@ -210,7 +216,7 @@ matriz_distancia_df %>%
 estandarizadas por media y desvío estándar. Son las mismas las tres variedades 
 más parecidas? Comente al respecto
 
-```{r, class.source="fold-hide"}
+```{r}
 dist_std <- data.frame(scale(datos[-1]))
 rownames(dist_std) <- datos$VAR
 
@@ -344,21 +350,26 @@ A continuacion se presenta la representacion grafica de las variedades en el
 plano principal:
 
 ```{r}
+
 pc1 <- pca$ind$coord[, 1]
 pc2 <- pca$ind$coord[, 2]
 etiquetas <- rownames(pca$ind$coord)
-plot(
-  pc1,
-  pc2, 
-  ylab = "2° COMPONENTE PRINCIPAL", 
-  xlab = "1° COMPONENTE PRINCIPAL", 
-  xlim = c(-6, 6), 
-  ylim = c(-6, 6),
-  pch = 19
-)
-abline(h = 0, lty = 3)
-abline(v = 0, lty = 3)
-text(pc1, pc2, etiquetas, pos = 3, cex = 0.7)
+datos_cp<-as.data.frame(cbind(etiquetas, pc1, pc2))
+colnames(datos_cp) <- c("VARIEDAD","CP1", "CP2")
+#datos_CP$etiqueta <- datos$Var
+#datos_CP$variedad <- substr(datos_CP$etiqueta, 1, 1)
+
+
+ggplot(datos_cp) + 
+  geom_point(aes(pc1, pc2), size = 4) + 
+  geom_label_repel(aes(pc1, pc2, label = VARIEDAD)) + 
+  geom_vline(xintercept = 0, linetype = "solid") + 
+  geom_hline(yintercept = 0, linetype = "solid") + 
+  labs(
+    x = "Coordenada Principal 1",
+    y = "Coordenada Principal 2"
+  )
+
 ```
 
 Tras observar el grafico podemos decir que encontramos cuatro grupos. 
@@ -371,14 +382,40 @@ comportamiento promedio, es decir, el origen del plano.
 **O.** Encuentre e interprete gradientes de las variables originales en el plano
 principal en función de sus cargas sobre las dos primeras componentes.
 
+Observando nuevamente las coordenadas de las variables(autovectores):
 ```{r}
-plot(pca, choix = "var", title = "Grafico de cargas")
+pca$var$coord %>%
+  kable() %>%
+  kable_styling(full_width = FALSE) %>%
+  kable_classic_2() 
 ```
+Considerando la primer componente, los damascos que tengan flores, frutos y endocarpio grandes
+se van a ubicar a la derecha del grafico
+
+Con respecto a la segunda componente, los damoscos cuyas hojas sean grandes estarán ubicados en 
+la parte superior del grafico, lo mismo ocurre con aquellos damascos con flores grandes. Los damascos
+que tengan frutos pequeños, estaran ubicados en la parte inferior del grafico. 
+
+Luego:
+
+   * Damascos con hojas grandes estaran ubicados en el segundo cuadrante del grafico.
+   * Damascos con endocarpio y frutos grandes estaran ubicados en el cuarto cuadrante del grafico
+   * Damascos con flores grandes estaran ubicados en el primer cuadrante del grafico
+   
+
 
 **P.** Caracterice los grupos determinados en el inciso (N) según los gradientes
 descriptos en (O).
 
-Maria susana.
+Grupo 1: es un grupo de variedades caracterizadas por tener flores, endocarpio y
+hojas grandes y frutos medianos.
+
+Grupo 2: es un grupo caracterizado por tener endoncarpio grande, frutos grandes,
+hojas pequeñas y flores medianas
+
+Grupo 3: es un fruto caracterizado por tener hojas grandes, frutos y endocarpio
+pequeños y flores medianas. 
+
 
 **Q.** Superponga en la representación del plano principal un MST. Comente al 
 respecto, haría algún reagrupamiento ?
@@ -489,34 +526,178 @@ round(ydvs, 1) %>%
 
 **FALTA VERIFICAR QUE SE LLEGA AL MISMO RESULTADO**
 
-1. Autovalores y autovectores coinciden.
-2. Graficos de variedades en plano de 2 componentes encimados.
+
+Graficos de variedades en plano de 2 componentes encimados.
+Como hago para encimar en ggplot2??
+```{r}
+
+
+
+```
 
 **T.** Obtenga 4 dendogramas ultramétricos según diferentes criterios de 
 encadenamiento (SIMPLE, COMPUESTO, UPGMA y WARD).
 
 Criterio de encadenamiento Simple:
-```{r}
+```{r, fig.height=5, fig.width=10, class.source = 'fold-hide'}
+
 cluster_min <- hclust(matriz_distancia_std_dist, method = "single")
-plot(cluster_min)
+cluster_min_data<- dendro_data_k(cluster_min, k=4)
+
+ggplot(cluster_min_data$segments) + 
+  geom_segment(
+    aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(clust)),
+    size = 1.2,
+    lineend = "round"
+  ) + 
+  geom_text(
+    aes(x = x, y = y - 0.40, label = label, color = as.factor(clust)), 
+    data = cluster_min_data$labels
+  ) + 
+  coord_flip() + 
+  labs(
+    y = "Distancia"
+  ) + 
+  scale_colour_manual(
+    values = c("grey30", scales::hue_pal()(4))
+  ) + 
+  theme(
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    panel.background = element_blank(),
+    axis.title.x = element_text(size = 14), 
+    axis.title.y = element_blank(), 
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_blank(), 
+    axis.line = element_blank(), 
+    axis.ticks.y = element_blank(),
+    plot.title = element_text(hjust = 0.5),
+    legend.position = "none"
+  )
+
+
 ```
+
+
+
+
  
 Criterio de encadenamiento Compuesto:
-```{r}
+```{r, fig.height=5, fig.width=10, class.source = 'fold-hide'}
 cluster_com <- hclust(matriz_distancia_std_dist, method = "complete")
-plot(cluster_com)
+cluster_com_data<- dendro_data_k(cluster_com, k=4)
+
+ggplot(cluster_com_data$segments) + 
+  geom_segment(
+    aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(clust)),
+    size = 1.2,
+    lineend = "round"
+  ) + 
+  geom_text(
+    aes(x = x, y = y - 0.40, label = label, color = as.factor(clust)), 
+    data = cluster_com_data$labels
+  ) + 
+  coord_flip() + 
+  labs(
+    y = "Distancia"
+  ) + 
+  scale_colour_manual(
+    values = c("grey30", scales::hue_pal()(4))
+  ) + 
+  theme(
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    panel.background = element_blank(),
+    axis.title.x = element_text(size = 14), 
+    axis.title.y = element_blank(), 
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_blank(), 
+    axis.line = element_blank(), 
+    axis.ticks.y = element_blank(),
+    plot.title = element_text(hjust = 0.5),
+    legend.position = "none"
+  )
+
+
+
 ```
 
 Criterio de encadenamiento UPGMA
-```{r}
+```{r, fig.height=5, fig.width=10, class.source = 'fold-hide'}
 cluster_upgma <- hclust(matriz_distancia_std_dist, method = "average")
-plot(cluster_upgma)
+cluster_upgma_data<- dendro_data_k(cluster_min, k=4)
+
+ggplot(cluster_upgma_data$segments) + 
+  geom_segment(
+    aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(clust)),
+    size = 1.2,
+    lineend = "round"
+  ) + 
+  geom_text(
+    aes(x = x, y = y - 0.40, label = label, color = as.factor(clust)), 
+    data = cluster_upgma_data$labels
+  ) + 
+  coord_flip() + 
+  labs(
+    y = "Distancia"
+  ) + 
+  scale_colour_manual(
+    values = c("grey30", scales::hue_pal()(4))
+  ) + 
+  theme(
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    panel.background = element_blank(),
+    axis.title.x = element_text(size = 14), 
+    axis.title.y = element_blank(), 
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_blank(), 
+    axis.line = element_blank(), 
+    axis.ticks.y = element_blank(),
+    plot.title = element_text(hjust = 0.5),
+    legend.position = "none"
+  )
+ 
+
 ```
 
 Criterio de encadenamiento WARD
-```{r}
+```{r, fig.height=5, fig.width=10, class.source = 'fold-hide'}
 cluster_ward <- hclust(matriz_distancia_std_dist, method = "ward.D")
-plot(cluster_ward)
+cluster_ward_data<- dendro_data_k(cluster_min, k=4)
+
+ggplot(cluster_ward_data$segments) + 
+  geom_segment(
+    aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(clust)),
+    size = 1.2,
+    lineend = "round"
+  ) + 
+  geom_text(
+    aes(x = x, y = y - 0.40, label = label, color = as.factor(clust)), 
+    data = cluster_ward_data$labels
+  ) + 
+  coord_flip() + 
+  labs(
+    y = "Distancia"
+  ) + 
+  scale_colour_manual(
+    values = c("grey30", scales::hue_pal()(4))
+  ) + 
+  theme(
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    panel.background = element_blank(),
+    axis.title.x = element_text(size = 14), 
+    axis.title.y = element_blank(), 
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_blank(), 
+    axis.line = element_blank(), 
+    axis.ticks.y = element_blank(),
+    plot.title = element_text(hjust = 0.5),
+    legend.position = "none"
+  )
+
+
 ```
 
 
@@ -526,28 +707,48 @@ matriz cofenética correspondiente. Que miden los elementos de estas matrices ?
 Encadenamiento Simple:
 ```{r}
 cophenetic_min = cophenetic(cluster_min)
-plot(cophenetic_min, matriz_distancia_std_dist)
+min_data<-as.data.frame(cbind(matriz_distancia_std_dist, cophenetic_min))
+
+ggplot(min_data) +
+  geom_point(aes(cophenetic_min,matriz_distancia_std_dist ))+
+  theme_classic()+
+  labs(x="Cophenetic - Simple", y ="Distancias Estandarizadas")
 ```
 
 
 Encadenamiento Compuesto:
 ```{r}
-cophenetic_com = cophenetic(cluster_com)
-plot(cophenetic_com, matriz_distancia_std_dist)
+cophenetic_comp <- cophenetic(cluster_com)
+comp_data<-as.data.frame(cbind(matriz_distancia_std_dist, cophenetic_comp))
+
+ggplot(comp_data) +
+  geom_point(aes(cophenetic_comp,matriz_distancia_std_dist ))+
+  theme_classic()+
+  labs(x="Cophenetic - Compuesto", y ="Distancias Estandarizadas")
 ```
 
 
 Encadenamiento UPGMA:
 ```{r}
 cophenetic_upgma = cophenetic(cluster_upgma)
-plot(cophenetic_upgma, matriz_distancia_std_dist)
+upgma_data<-as.data.frame(cbind(matriz_distancia_std_dist, cophenetic_upgma))
+
+ggplot(upgma_data) +
+  geom_point(aes(cophenetic_upgma,matriz_distancia_std_dist ))+
+  theme_classic()+
+  labs(x="Cophenetic - UPGMA", y ="Distancias Estandarizadas")
 ```
 
 
 Encadenamiento WARD:
 ```{r}
 cophenetic_ward = cophenetic(cluster_ward)
-plot(cophenetic_ward, matriz_distancia_std_dist)
+ward_data<-as.data.frame(cbind(matriz_distancia_std_dist, cophenetic_ward))
+
+ggplot(ward_data) +
+  geom_point(aes(cophenetic_ward,matriz_distancia_std_dist ))+
+  theme_classic()+
+  labs(x="Cophenetic - WARD", y ="Distancias Estandarizadas")
 ```
 
 Los elementos de las matrices anteriores permiten tener una medida de la 
@@ -559,44 +760,82 @@ a los dendogramas y las 4 matrices cofenéticas. A que conclusión llega ?
 
 Encadenamiento simple
 ```{r}
-cor(cophenetic_min, matriz_distancia_std_dist)
+corcof_min<-cor(cophenetic_min, matriz_distancia_std_dist)
+
+round(corcof_min, 2) %>%
+  kable(align = "c", col.names = "Correlacion") %>%
+  kable_styling(full_width = FALSE) %>%
+  kable_classic_2() 
 ```
 
 
 Encadenamiento Compuesto
 ```{r}
-cor(cophenetic_com, matriz_distancia_std_dist)
+corcof_com<-cor(cophenetic_comp, matriz_distancia_std_dist)
+
+round(corcof_com, 2) %>%
+  kable(align = "c", col.names = "Correlacion") %>%
+  kable_styling(full_width = FALSE) %>%
+  kable_classic_2() 
+
 ```
 
 
 Encadenamiento UPGMA
 ```{r}
-cor(cophenetic_upgma, matriz_distancia_std_dist)
+corcof_upgma<-cor(cophenetic_upgma, matriz_distancia_std_dist)
+
+round(corcof_upgma, 2) %>%
+  kable(align = "c", col.names = "Correlacion") %>%
+  kable_styling(full_width = FALSE) %>%
+  kable_classic_2() 
 ```
 
 
 Encadenamiento WARD
 ```{r}
-cor(cophenetic_ward, matriz_distancia_std_dist)
+corcof_ward<-cor(cophenetic_ward, matriz_distancia_std_dist)
+
+round(corcof_ward, 2) %>%
+  kable(align = "c", col.names = "Correlacion") %>%
+  kable_styling(full_width = FALSE) %>%
+  kable_classic_2() 
 ```
 
-FALTA CONCLUSION
+Observando las correlaciones obtenidas entre la matriz de distancia y las diferentes matrices cofeneticas puede decirse que la obtenida a traves del metodo de encadenamiento UPGMA es la mas alta
+QUE MAS??
 
 **W.** Existe algún punto de corte sobre el índice de jerarquización del 
 dendograma UPGMA que origine los mismos agrupamiento de variedades obtenidos en 
 Análisis de Componentes Principales ?
 
 ```{r}
-cutree(cluster_min, k=6)
+grupos<-cutree(cluster_upgma, k=6)
+plot(cluster_upgma, main = " ")
+rect.hclust(cluster_upgma, k=6, border = "RED")
 ```
 
 **X.** Mida el grado de concordancia entre los resultados obtenidos por 
 Componentes y por Cluster UPGMA
 
+????
 ```{r}
-library(ape)
-# usar funcion 'nj'
+
+dist_pca<-dist(pca$ind$coord, method="euclidean")
+cor(dist_pca, cophenetic_upgma)%>%
+  round(2)%>%
+  kable(align = "c") %>%
+  kable_styling(full_width = FALSE) %>%
+  kable_classic_2() 
+
 ```
 
 **Y.** Halle el dendograma aditivo Neighbor Joining, representa mejor la 
 configuración de variedades que el Cluster UPGMA ?
+
+```{r}
+
+nj<-nj(matriz_distancia_std_dist)
+plot(nj, "u")
+# usar funcion 'nj'
+```
