@@ -141,10 +141,10 @@ espacio bidimensional la semejanza entre las variedades.
     
     ```{r, fig.height=4, fig.width=6, fig.cap="Caracterizacion cualitativa de las variedades de pepino en el plano principal."}
     ggplot(datos_CP) + 
+      geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+      geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
       geom_point(aes(c1, c2, color = variedad), size = 4) + 
       geom_label_repel(aes(c1, c2, label = etiqueta), max.overlaps = 30) + 
-      geom_vline(xintercept = 0, linetype = "dashed") + 
-      geom_hline(yintercept = 0, linetype = "dashed") + 
       labs(
         x = "Coordenada 1",
         y = "Coordenada 2",
@@ -287,15 +287,15 @@ distancias que le dio origen
     
     ```{r, fig.cap="Grafico de dispersion entre distancia original y distancia cofenética a partir de cluster con ligamiento UPGMA. La linea azul representa a la recta identidad."}
     concordancia_df <- data.frame(
-        x = as.vector(distancia_cofenetica),
-        y = as.vector(matriz_distancia)
+        x = as.vector(matriz_distancia),
+        y = as.vector(distancia_cofenetica)
     )
     ggplot(concordancia_df) + 
       geom_abline(slope = 1, size = 1.2, alpha = 0.8, color = colores[1]) +
       geom_point(aes(x, y), size = 3, alpha = 0.7, color = "grey30") + 
       labs(
-          x = "Distancia cofenética",
-          y = "Distancia original"
+          x = "Distancia original",
+          y = "Distancia cofenética"
       )
     ```
     
@@ -303,7 +303,26 @@ distancias que le dio origen
     distancia original es igual  a `r round(concordancia, 3)`, lo que indica
     una concordancia muy alta entre ambas representaciones.
     
+    En la Figura 3 se puede ver que la discrepancia entre estas distancias crece 
+    para valores mas altos de la distancia original.
+    
 A) Cuantifique concordancia entre plano principal de ACoordP y Cluster
+
+
+    ```{r, fig.cap="Grafico de dispersion entre distancia original y distancia cofenética a partir de cluster con ligamiento UPGMA. La linea azul representa a la recta identidad."}
+    concordancia_df <- data.frame(
+        x = as.vector(dist(coordenadas_principales$points)),
+        y = as.vector(distancia_cofenetica)
+    )
+    ggplot(concordancia_df) + 
+      geom_abline(slope = 1, size = 1.2, alpha = 0.8, color = colores[1]) +
+      geom_point(aes(x, y), size = 3, alpha = 0.7, color = "grey30") + 
+      labs(
+          x = "Distancia en el plano principal de ACoordP",
+          y = "Distancia cofenética"
+      )
+    ```    
+    
     
     ```{r}
     concordancia <- cor(distancia_cofenetica, dist(coordenadas_principales$points))
@@ -312,3 +331,4 @@ A) Cuantifique concordancia entre plano principal de ACoordP y Cluster
     La concordancia concordancia entre plano principal de ACoordP y Cluster es 
     `r round(concordancia, 3)`, lo que nuevamente nos indica una concordancia
     muy alta entre ambas representaciones.
+  
