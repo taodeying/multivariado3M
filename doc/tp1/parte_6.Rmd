@@ -23,6 +23,7 @@ library(FactoMineR)
 library(ggrepel)
 library(kableExtra)
 library(tidyverse)
+source(here::here("src", "utils.R"))
 ```
 
 ## Datos
@@ -157,7 +158,39 @@ configuración de consenso
 
 dist<-dist(df, method = "euclidean")
 cluster_upgma<-hclust( dist, method = "average")
-plot(cluster_upgma)
+cluster_upgma_data<- dendro_data_k(cluster_upgma, k=4)
+
+ggplot(cluster_upgma_data$segments) + 
+  geom_segment(
+    aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(clust)),
+    size = 1.2,
+    lineend = "round"
+  ) + 
+  geom_text(
+    aes(x = x, y = y - 0.40, label = label, color = as.factor(clust)), 
+    data = cluster_upgma_data$labels
+  ) + 
+  coord_flip() + 
+  labs(
+    y = "Distancia"
+  ) + 
+  scale_colour_manual(
+    values = c("grey30", scales::hue_pal()(4))
+  ) + 
+  theme(
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    panel.background = element_blank(),
+    axis.title.x = element_text(size = 14), 
+    axis.title.y = element_blank(), 
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_blank(), 
+    axis.line = element_blank(), 
+    axis.ticks.y = element_blank(),
+    plot.title = element_text(hjust = 0.5),
+    legend.position = "none"
+  )
+
 
 ```
 

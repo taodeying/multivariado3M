@@ -625,7 +625,7 @@ ggplot(cluster_com_data$segments) +
 Criterio de encadenamiento UPGMA
 ```{r, fig.height=5, fig.width=10, class.source = 'fold-hide'}
 cluster_upgma <- hclust(matriz_distancia_std_dist, method = "average")
-cluster_upgma_data<- dendro_data_k(cluster_min, k=4)
+cluster_upgma_data<- dendro_data_k(cluster_upgma, k=4)
 
 ggplot(cluster_upgma_data$segments) + 
   geom_segment(
@@ -664,7 +664,7 @@ ggplot(cluster_upgma_data$segments) +
 Criterio de encadenamiento WARD
 ```{r, fig.height=5, fig.width=10, class.source = 'fold-hide'}
 cluster_ward <- hclust(matriz_distancia_std_dist, method = "ward.D")
-cluster_ward_data<- dendro_data_k(cluster_min, k=4)
+cluster_ward_data<- dendro_data_k(cluster_ward, k=4)
 
 ggplot(cluster_ward_data$segments) + 
   geom_segment(
