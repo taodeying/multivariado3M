@@ -1,36 +1,50 @@
 ---
 title: "Trabajo practico 1"
-subtitle: "Parte 4"
+subtitle: "Ejercicio 4"
 author: "Grupo ....."
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: 
-    html_document
+  pdf_document:
+    extra_dependencies: ["float"]
 editor_options: 
   chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-  echo = TRUE, message = FALSE, warning = FALSE, fig.align = "center"
+  echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center",
+  fig.pos = "H", out.extra = "", fig.height = 4, fig.width = 6
 )
 ```
 
-Con los resultados del Análisis de Coordenadas Principales y Análisis de 
-Componentes Principales obtenidos en los dos ejercicios anteriores
 
 ## Librerias
 
 ```{r}
-library(FactoMineR)
 library(ggrepel)
 library(kableExtra)
+library(FactoMineR)
 library(tidyverse)
+source(here::here("src", "utils.R"))
 ```
 
 ## Datos
 
 ```{r}
-datos <- read_csv2(here::here("data", "raw", "RAPDS.csv"))
+cuanti.pca <- readRDS(
+      here::here("doc", "tp1", "shared", "parte_3", "pca.rds")
+    )  
+matriz_distancia_cuali <- readRDS(
+      here::here("doc", "tp1", "shared", "parte_2", "matriz_distancia.rds")
+    )  
+cuali.cp <- cmdscale(sqrt(matriz_distancia_cuali), k = 2, eig = TRUE)
+
+coord_cuali <- cuali.cp$points
+colnames(coord_cuali) <- c("c1_cuali","c2_cuali")
+coord_cuanti <- cuanti.pca$ind$coord[,1:2]
+colnames(coord_cuanti) <- c("c1_cuanti","c2_cuanti")
+
+datos <- cbind.data.frame(coord_cuali, coord_cuanti)
 ```
 
 ```{r}
@@ -41,14 +55,46 @@ glimpse(datos)
 **A.** Halle la configuración de consenso recurriendo a Análisis de Procrustes 
 Generalizados
 
+# Ojo que 2 veces si lo corro me da resultados distintos
+
+
 ```{r}
+set.seed=1
 morfologica_gpa <- GPA(
-  morfologica, 
+  datos, 
   group = c(2, 2), 
   name.group = c("Cualitativa", "Cuantiativa"),
+  #axes=c(1,2),
+  graph = F
 )
 ```
 
+```{r}
+plot(morfologica_gpa)
+```
+
+```{r}
+discrepancias <- morfologica_gpa$PANOVA$objet
+```
+
+```{r}
+aux = data.frame(
+  "Discrepancia" = discrepancias[,2][-nrow(discrepancias)],
+  "Variedad" =rownames(discrepancias)[-nrow(discrepancias)]
+) %>% 
+  arrange(Discrepancia)
+  
+ggplot(data=aux)+
+  geom_bar(aes(weight=Discrepancia,y=reorder(Variedad, -Discrepancia)),width = .2) +
+  theme_minimal() 
+#plot(discrepancias[,2][-nrow(discrepancias)],type="h")
+```
+
+
+
+```{r}
+plot(morfologica_gpa$consensus)
+```
 
 **B.** Podría decir para cual o cuales variedades existe mayor concordancia 
 entre la caracterización cuantitativa y cualitativa ?

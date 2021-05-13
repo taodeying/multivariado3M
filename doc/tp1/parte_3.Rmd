@@ -123,39 +123,42 @@ ggplot(aux) +
   )
 ```
 
+```{r, fig.cap="Gradiente de las Variables"}
+plot(fit,choix = "var")
 
-```{r, fig.height=6.5, fig.width=6, fig.cap="Dendograma Ultrametrico con ligamiento UPGMA."}
-ggplot(dendro_data$segments) + 
-  geom_segment(
-    aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(clust)),
-    size = 1.2,
-    lineend = "round"
-  ) + 
-  geom_text(
-    aes(x = x, y = y -  0.125, label = label, color = as.factor(clust)), 
-    data = dendro_data$labels
-  ) + 
-  coord_flip() + 
-  labs(
-    y = "Distancia"
-  ) + 
-  scale_colour_manual(
-    values = c("grey30", scales::hue_pal()(4))
-  ) + 
-  theme(
-    panel.grid.major = element_blank(), 
-    panel.grid.minor = element_blank(), 
-    panel.background = element_blank(),
-    axis.title.x = element_text(size = 14), 
-    axis.title.y = element_blank(), 
-    axis.text.x = element_text(size = 12),
-    axis.text.y = element_blank(), 
-    axis.line = element_blank(), 
-    axis.ticks.y = element_blank(),
-    plot.title = element_text(hjust = 0.5),
-    legend.position = "none"
-  )
 ```
+<!-- ```{r, fig.height=6.5, fig.width=6, fig.cap="Dendograma Ultrametrico con ligamiento UPGMA."} -->
+<!-- ggplot(dendro_data$segments) +  -->
+<!--   geom_segment( -->
+<!--     aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(clust)), -->
+<!--     size = 1.2, -->
+<!--     lineend = "round" -->
+<!--   ) +  -->
+<!--   geom_text( -->
+<!--     aes(x = x, y = y -  0.125, label = label, color = as.factor(clust)),  -->
+<!--     data = dendro_data$labels -->
+<!--   ) +  -->
+<!--   coord_flip() +  -->
+<!--   labs( -->
+<!--     y = "Distancia" -->
+<!--   ) +  -->
+<!--   scale_colour_manual( -->
+<!--     values = c("grey30", scales::hue_pal()(4)) -->
+<!--   ) +  -->
+<!--   theme( -->
+<!--     panel.grid.major = element_blank(),  -->
+<!--     panel.grid.minor = element_blank(),  -->
+<!--     panel.background = element_blank(), -->
+<!--     axis.title.x = element_text(size = 14),  -->
+<!--     axis.title.y = element_blank(),  -->
+<!--     axis.text.x = element_text(size = 12), -->
+<!--     axis.text.y = element_blank(),  -->
+<!--     axis.line = element_blank(),  -->
+<!--     axis.ticks.y = element_blank(), -->
+<!--     plot.title = element_text(hjust = 0.5), -->
+<!--     legend.position = "none" -->
+<!--   ) -->
+<!-- ``` -->
 
 
 **C.** Evalúe visualmente y a través de la correlación entre matrices la concordancia general entre esta configuración y la hallada en función de los caracteres cualitativos
@@ -185,26 +188,6 @@ saveRDS(
   here::here("doc", "tp1", "shared", "parte_3", "Coordenadas_1y2_pp_Clusters.rds")
 )
 
-```
-
-```{r}
-tabla <- table(
-  aux %>% select(clust_cuanti, clust_cuali )
-  )
-tabla <- as_tibble(
-  rbind(tabla[1,1:4],tabla[2,1:4],tabla[3,1:4])
-)
-tabla$Cluster_Cuanti <- 1:3
-tabla <- tabla %>% select(Cluster_Cuanti, `1`,`2`,`3`, `4`)
-
-tabla %>% 
-  kable() %>% 
-  kable_styling(font_size = 8, full_width = FALSE, latex_options = "HOLD_position") %>% 
-  add_header_above(
-    c(" " = 1, "Cluster_Cuali" = 4)
-    ) %>% 
-  kable_classic_2()
-  
 ```
 
 ```{r}
