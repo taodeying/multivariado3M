@@ -1,8 +1,5 @@
 ---
-title: "Trabajo practico 1"
-subtitle: "Ejercicio 5"
-author: "Grupo ....."
-date: "`r format(Sys.time(), '%d %B, %Y')`"
+title: "Ejercicio 5"
 output: 
   pdf_document:
     extra_dependencies: ["float"]
@@ -13,8 +10,9 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center",
-  fig.pos = "H", out.extra = "", fig.height = 4, fig.width = 6
+  fig.pos = "H", out.extra = "", fig.height = 3, fig.width = 4.5
 )
+colores <- c("#003f5c", "#7a5195", "#ef5675", "#ffa600")
 ```
 
 ```{r}
@@ -26,22 +24,25 @@ source(here::here("src", "utils.R"))
 ```
 
 ```{r}
-datos <- read_csv2(here::here("data", "raw", "RAPDS.csv"))
+datos <- read.csv2(
+  here::here("data", "raw", "RAPDS.csv"), 
+  row.names = 1, 
+  stringsAsFactors = FALSE
+)
+row.names(datos) <- trimws(row.names(datos))
 ```
 
 A) Halle la distancia genética de Prevosti entre variedades
 
     ```{r}
-    datos_df <- data.frame(datos[-1])
-    rownames(datos_df) <- datos$Var
     # Dist computa distancia entre filas, y las filas de datos son las variedades.
     # 33 es la cantidad de variables
     ```
     
     Para calcular esta distancia usamos la siguiente sentencia
-    
+    <!-- asdasd -->
     ```{r, echo=TRUE}
-    matriz_distancia <- dist(datos_df, method = "manhattan", diag = TRUE) / 33
+    matriz_distancia <- dist(datos, method = "manhattan", diag = TRUE) / 33
     ```
     
     ```{r}
@@ -51,7 +52,6 @@ A) Halle la distancia genética de Prevosti entre variedades
       here::here("doc", "tp1", "shared", "parte_5", "matriz_distancia.rds")
     )
     ```
-    
     
     Mostramos la matriz resultante de manera parcial, ya que es muy grande como
     para mostrarla de manera completa en una pagina.
@@ -65,6 +65,39 @@ A) Halle la distancia genética de Prevosti entre variedades
         kable_styling(font_size = 12, latex_options = "HOLD_position") %>% 
         kable_classic_2() 
     ```
+    
+    Pero lo que si podemos observar son los pares mas similares y los mas distintos.
+    
+    ```{r}
+    d <- as.data.frame(t(combn(row.names(datos), 2)))
+    colnames(d) <- c("variedad_1", "variedad_2")
+    d$distancia <- as.vector(matriz_distancia)
+    
+    d <- d %>%
+      arrange(distancia)
+    ```
+    
+    ```{r}
+    d[1:7, ] %>% # Todos con distancia 0.
+      as_tibble() %>%
+      mutate(across(where(is.double), round, digits = 2)) %>%
+      kable(col.names = c("Variedad 1", "Variedad 2", "Distancia")) %>% 
+      kable_styling(font_size = 12, latex_options = "HOLD_position") %>% 
+      kable_classic_2() 
+    ```
+
+    ```{r}
+    tail(d, 5) %>%
+      as_tibble() %>%
+      mutate(across(where(is.double), round, digits = 2)) %>%
+      kable(col.names = c("Variedad 1", "Variedad 2", "Distancia")) %>% 
+      kable_styling(font_size = 12, latex_options = "HOLD_position") %>% 
+      kable_classic_2() 
+    ```   
+
+    Donde vemos que hay 7 pares de variedades que presentan valores identicos
+    para sus variables moleculares, y que la distancia maxima entre pares es 
+    0.6.
 
 A) Podría aplicar el coeficiente de similaridad SM ? Porque ?
 
@@ -76,20 +109,23 @@ A) Realice un Análisis de Coordenadas Principales para encontrar la
 configuración de las variedades de pepino en función de esta caracterización
 molecular. Encuentra asociaciones en función del tipo de pepino?
 
-    En la Figura 1 podemos ver que los pepinos del tipo F suelen encontrarse en el 
-    primer cuadrante, los del tipo P en el segundo cuadrdante, los de tipo A en el 
-    tercero, y los de tipo H en el cuarto. Sin embargo esta ordenacion es imprecisa,
-    ya que por ejemplo, hay pepinos de los tipo F y A en el segundo cuadrante. 
+    ```{r, echo=TRUE}
+    coordenadas_principales <- cmdscale(sqrt(matriz_distancia), eig = TRUE)
+    ```
+
+    En la Figura 1 podemos ver que los pepinos del tipo **F** suelen encontrarse en el 
+    primer cuadrante, los del tipo **P** en el segundo cuadrdante, los de tipo **A** en el 
+    tercero, y los de tipo **H** en el cuarto. Sin embargo esta ordenacion es un tanto imprecisa,
+    ya que por ejemplo, hay pepinos de los tipo **F** y **A** en el segundo cuadrante,
+    asi como pepinos del tipo **H** en el tercero.
     Sino estuvieran los colores que indican los tipos de pepinos, probablemente 
     obtendriamos agrupamientos que estuvieran compuestos en su mayoria un unico 
     tipo de pepino, pero que tambien incluirian pepinos de otros tipos.
-
-    ```{r}
-    coordenadas_principales <- cmdscale(sqrt(matriz_distancia), eig = TRUE)
     
+    ```{r}
     datos_CP <- as.data.frame(coordenadas_principales$points)
     colnames(datos_CP) <- c("c1", "c2")
-    datos_CP$etiqueta <- datos$Var
+    datos_CP$etiqueta <- row.names(datos)
     datos_CP$variedad <- substr(datos_CP$etiqueta, 1, 1)
     ```
     
@@ -101,27 +137,28 @@ molecular. Encuentra asociaciones en función del tipo de pepino?
     )
     ```
     
-    ```{r, fig.cap="Caracterizacion molecular de las variedades de pepino."}
+    ```{r, fig.height = 4, fig.width = 6, fig.cap="Caracterizacion molecular de las variedades de pepino en el plano principal."}
     ggplot(datos_CP) + 
+      geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+      geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
       geom_point(aes(c1, c2, color = variedad), size = 4) + 
       geom_label_repel(aes(c1, c2, label = etiqueta), max.overlaps = 30) + 
-      geom_vline(xintercept = 0, linetype = "dashed", color = "grey30", alpha = 0.5) + 
-      geom_hline(yintercept = 0, linetype = "dashed", color = "grey30", alpha = 0.5) + 
       labs(
         x = "Coordenada 1",
         y = "Coordenada 2",
         color = "Tipo de fruto"
-      )
+      ) + 
+      scale_color_manual(values = colores)
     ```
     
 A)  Encuentre el dendograma ultramétrico con ligamiento UPGMA
 
-    ```{r}
+    ```{r, echo=TRUE}
     cluster_molecular <- hclust(matriz_distancia, method = "average")
-    dendro_data <- dendro_data_k(cluster_molecular, k=4)
     ```
     
     ```{r}
+    dendro_data <- dendro_data_k(cluster_molecular, k=4)
     saveRDS(
       cluster_molecular, 
       here::here("doc", "tp1", "shared", "parte_5", "cluster_molecular.rds")
@@ -144,12 +181,10 @@ A)  Encuentre el dendograma ultramétrico con ligamiento UPGMA
         y = "Distancia"
       ) + 
       scale_colour_manual(
-        values = c("grey30", scales::hue_pal()(4))
+        values = c("grey30", colores)
       ) + 
       theme(
-        panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(), 
-        panel.background = element_blank(),
+        panel.grid.minor = element_blank(),
         axis.title.x = element_text(size = 14), 
         axis.title.y = element_blank(), 
         axis.text.x = element_text(size = 12),
@@ -161,6 +196,21 @@ A)  Encuentre el dendograma ultramétrico con ligamiento UPGMA
       )
     ```
 
+    Resulta interesante comparar los agrupamientos representados en la Figura 2
+    con los representados en la Figura 2 del Ejercicio 2. En ambos casos sucede
+    que hay una mezcla de variedades pertenecientes a los tipos alfa-beta y holandes.
+    Sin embargo, en el agrupamiento de este ejercicio se observa que las variedades
+    **A1** y **A2** no pertenecen al mismo cluster que el resto de las alfa-betas,
+    sino que se unen con una variedad del tipo pepinillo, **P7**. 
+    Esto se corresponde con la cercania entre estas tres variedades en el plano
+    principal.
+    
+    En este dendograma, asi como sucede con el dendograma del Ejercicio 2, tambien
+    se observa una variedad que se diferencia sustancialmente del resto de las 
+    variedades, la variedad **F5**. De solo haber mirado la Figura 1, hubieramos
+    interpretado que esta variedad es similar al resto de los pepinillos 
+    franceses, cuando el dendograma no sugiere lo mismo.
+    
 
 A) Mida a través de su matriz cofenética la concordancia con la matriz de 
 distancias que le dio origen
@@ -171,34 +221,54 @@ distancias que le dio origen
     ```
 
     La concordancia entre la matriz de distancias cofenética y la matriz de 
-    distancia original es igual  a `r round(concordancia, 3)`. En la Figura 3
-    se puede ver la asociacion positiva entre las dos medidas de distancia. La
-    dispersion en la nube de puntos aumenta a medida que la distancia es mayor,
-    lo que significa que las dos medidas de distancia tienden a diferir mas 
-    cuando la distancia entre los tipos de pepinos es mayor.
+    distancia original es igual  a `r round(concordancia, 3)`, lo que habla de
+    una alta similaridad entre las mismas. En la Figura 3 se puede ver la 
+    asociacion positiva entre las dos medidas de distancia. La  dispersion en la
+    nube de puntos aumenta a medida que la distancia es mayor, lo que significa 
+    que las dos medidas de distancia tienden a diferir mas cuando la distancia 
+    entre los tipos de pepinos es mayor.
 
     ```{r, fig.cap="Grafico de dispersion entre distancia original y distancia cofenética a partir de d endograma Ultrametico con ligamiento UPGMA. La linea azul representa a la recta identidad."}
     concordancia_df <- data.frame(
-        x = as.vector(distancia_cofenetica_upgma),
-        y = as.vector(matriz_distancia)
+        x = as.vector(matriz_distancia),
+        y = as.vector(distancia_cofenetica_upgma)
     )
     ggplot(concordancia_df) + 
-        geom_abline(slope = 1, intercept = 0, size=1.1, color = "#2980b9", alpha = 0.7) + 
-        geom_point(aes(x, y), size = 3, alpha = 0.4) + 
+        geom_abline(slope = 1, size = 1.2, alpha = 0.8, color = colores[1]) +
+        geom_point(aes(x, y), size = 3, alpha = 0.7, color = "grey30") + 
         labs(
-            x = "Distancia cofenética",
-            y = "Distancia original"
+            x = "Distancia original",
+            y = "Distancia cofenética"
         )
     ```
-    
 
 A) Halle el dendograma aditivo Neighbor Joining
 
-    ```{r}
+    ```{r, echo=TRUE}
     rapds_nj <- nj(matriz_distancia)
-    ggtree::ggtree(rapds_nj, ladderize = FALSE) + ggtree::geom_tiplab()
     ```
     
+    ```{r, fig.height = 4, fig.width=9, fig.cap="Representacion jerarquizada del arbol aditivo Neighbor-Joining"}
+    ggtree::ggtree(rapds_nj, ladderize = FALSE) + 
+        ggtree::geom_tiplab(vjust = 1) + 
+        scale_x_reverse() + 
+        coord_flip() + 
+        labs(x = "Distancia") + 
+        theme_grey() + 
+        theme(
+            panel.background = element_rect(),
+            panel.grid.minor = element_blank(),
+            axis.title.x = element_blank(), 
+            axis.title.y = element_text(size = 14),
+            axis.text.x = element_blank(),
+            axis.text.y = element_text(size = 12), 
+            axis.line = element_blank(), 
+            axis.ticks.y = element_blank(),
+            plot.title = element_text(hjust = 0.5),
+            legend.position = "none"
+      )
+    ```
+
     ```{r}
     saveRDS(
       rapds_nj, 
@@ -208,14 +278,10 @@ A) Halle el dendograma aditivo Neighbor Joining
     
 A) Mida su concordancia con matriz de distancia original
 
-    ```{r}
+    ```{r, echo=TRUE}
     distancia_cofenetica_nj <- as.dist(cophenetic(rapds_nj), diag = TRUE, upper = FALSE)
     concordancia <- cor(distancia_cofenetica_nj, matriz_distancia)
     ```
-    
-    La concordancia entre la matriz de distancias cofenética construida a partir
-    del dendograma aditivo Neighbor Joining y la matriz de distancia original es
-    igual  a `r round(concordancia, 3)`.**falta interpretar**
     
     ```{r, fig.cap="Grafico de dispersion entre distancia original y distancia cofenética a partir del dendograma aditivo. La linea azul representa a la recta identidad."}
     concordancia_df <- data.frame(
@@ -223,8 +289,8 @@ A) Mida su concordancia con matriz de distancia original
         y = as.vector(matriz_distancia)
     )
     ggplot(concordancia_df) + 
-        geom_abline(slope = 1, intercept = 0, size=1.1, color = "#2980b9", alpha = 0.7) + 
-        geom_point(aes(x, y), size = 3, alpha = 0.4) + 
+        geom_abline(slope = 1, size = 1.2, alpha = 0.8, color = colores[1]) +
+        geom_point(aes(x, y), size = 3, alpha = 0.7, color = "grey30") + 
         labs(
             x = "Distancia cofenética",
             y = "Distancia original"
@@ -232,16 +298,25 @@ A) Mida su concordancia con matriz de distancia original
       
     ```
 
-
+    La concordancia entre la matriz de distancias cofenética construida a partir
+    del dendograma aditivo Neighbor Joining y la matriz de distancia original es
+    igual  a `r round(concordancia, 3)`, por lo que este arbol aditivo es el
+    que mejor representa las distancias originales entre las variedades, y se 
+    corresponde con lo mencionado en clase de que en general estos arboles 
+    aditivos dan mejor.
+    
 A) Relacione ambos dendogramas y saque conclusiones
 
-    Falta sacar conclusiones.
-
-    ```{r}
+    ```{r, echo=TRUE}
     concordancia <- cor(distancia_cofenetica_nj, distancia_cofenetica_upgma)
     ```
     
-    La concordancia es `r round(concordancia, 3)`. **interpretar**
+    La concordancia entre ambos dendogramas es `r round(concordancia, 3)`.
+    Es decir, en ambos casos se preserva altamente el ordenamiento entre variedades
+    pero no de manera perfecta. Por ejemplo, si miramos la Figura 4, vemos que 
+    la variedad **P7** se uniria primero a la variedad **A2**, pero no asi a 
+    la variedad **A1**, como si sucede en la Figura 2.
+    
     
     
 
