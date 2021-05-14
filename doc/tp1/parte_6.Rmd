@@ -11,6 +11,7 @@ editor_options:
 knitr::opts_chunk$set(
   echo = TRUE, message = FALSE, warning = FALSE, fig.align = "center"
 )
+colores <- c("#003f5c", "#7a5195", "#ef5675", "#ffa600")
 ```
 
 ## Librerias
@@ -116,7 +117,9 @@ gpa <- GPA(
   axes = c(1,2)
 )
 ```
- 
+
+
+
 A) Identifique si hay algún tipo de pepino para el cual hay más discrepancia
 entre estas tres caracterizaciones
 
