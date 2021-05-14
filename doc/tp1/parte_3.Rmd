@@ -38,13 +38,10 @@ datos <- read_csv2(here::here("data", "raw", "CUANTITATIVAS.csv")) %>%
   rename("VARIEDAD"=X1)
 ```
 
-Inspeccionamos con `glimpse(datos)`
-
-```{r}
-glimpse(datos)
-```
 
 **A.** Aplique sobre estos datos un Análisis de Componentes Principales a partir de matriz de correlaciones.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut congue in est vel commodo. Aliquam congue sapien at nibh feugiat hendrerit. Donec sit amet diam ipsum. Donec porta augue eu ex pulvinar, at viverra sem finibus. Sed ac elit nec purus vestibulum egestas. Nulla maximus imperdiet neque nec vehicula. Nulla eget aliquam libero, non iaculis nulla. Nunc aliquet tempus libero a viverra. Maecenas auctor feugiat turpis maximus gravida. Quisque cursus lectus nec nisi varius, a faucibus augue laoreet. 
 
 ```{r}
 fit <- FactoMineR::PCA(
@@ -87,17 +84,25 @@ ggplot(data = aux) +
 
 
 
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut congue in est vel commodo. Aliquam congue sapien at nibh feugiat hendrerit. Donec sit amet diam ipsum. Donec porta augue eu ex pulvinar, at viverra sem finibus. Sed ac elit nec purus vestibulum egestas. Nulla maximus imperdiet neque nec vehicula. Nulla eget aliquam libero, non iaculis nulla. Nunc aliquet tempus libero a viverra. Maecenas auctor feugiat turpis maximus gravida. Quisque cursus lectus nec nisi varius, a faucibus augue laoreet. 
+
 **B.** Realice la representación de las variedades en el plano principal, encuentre grupos y caracterícelos
+
+
+Variables Cuello, Estrias, Frutos y Flores permiten separar las Variedades H del resto. En segunda medida, las variables Espinas, Aristas y Ccuello, separan las P y F de las A
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut congue in est vel commodo. Aliquam congue sapien at nibh feugiat hendrerit. Donec sit amet diam ipsum. Donec porta augue eu ex pulvinar, at viverra sem finibus. Sed ac elit nec purus vestibulum egestas. Nulla maximus imperdiet neque nec vehicula. Nulla eget aliquam libero, non iaculis nulla. Nunc aliquet tempus libero a viverra. Maecenas auctor feugiat turpis maximus gravida. Quisque cursus lectus nec nisi varius, a faucibus augue laoreet. 
 
 ```{r}
 coord <- fit$ind$coord[,1:2]
 rownames(coord) <- datos$VARIEDAD
 colnames(coord) <- c("c1","c2")
 cluster_cuantitativas <- hclust(dist(coord), method = "average")
-saveRDS(
-  cluster_cuantitativas,
-  here::here("doc", "tp1", "shared", "parte_3", "cluster_cuantitativas.rds")
-)
+# saveRDS(
+#   cluster_cuantitativas,
+#   here::here("doc", "tp1", "shared", "parte_3", "cluster_cuantitativas.rds")
+# )
+
 ```
 
 ```{r}
@@ -123,50 +128,6 @@ ggplot(aux) +
   )
 ```
 
-```{r, fig.cap="Gradiente de las Variables"}
-plot(fit,choix = "var")
-
-```
-<!-- ```{r, fig.height=6.5, fig.width=6, fig.cap="Dendograma Ultrametrico con ligamiento UPGMA."} -->
-<!-- ggplot(dendro_data$segments) +  -->
-<!--   geom_segment( -->
-<!--     aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(clust)), -->
-<!--     size = 1.2, -->
-<!--     lineend = "round" -->
-<!--   ) +  -->
-<!--   geom_text( -->
-<!--     aes(x = x, y = y -  0.125, label = label, color = as.factor(clust)),  -->
-<!--     data = dendro_data$labels -->
-<!--   ) +  -->
-<!--   coord_flip() +  -->
-<!--   labs( -->
-<!--     y = "Distancia" -->
-<!--   ) +  -->
-<!--   scale_colour_manual( -->
-<!--     values = c("grey30", scales::hue_pal()(4)) -->
-<!--   ) +  -->
-<!--   theme( -->
-<!--     panel.grid.major = element_blank(),  -->
-<!--     panel.grid.minor = element_blank(),  -->
-<!--     panel.background = element_blank(), -->
-<!--     axis.title.x = element_text(size = 14),  -->
-<!--     axis.title.y = element_blank(),  -->
-<!--     axis.text.x = element_text(size = 12), -->
-<!--     axis.text.y = element_blank(),  -->
-<!--     axis.line = element_blank(),  -->
-<!--     axis.ticks.y = element_blank(), -->
-<!--     plot.title = element_text(hjust = 0.5), -->
-<!--     legend.position = "none" -->
-<!--   ) -->
-<!-- ``` -->
-
-
-**C.** Evalúe visualmente y a través de la correlación entre matrices la concordancia general entre esta configuración y la hallada en función de los caracteres cualitativos
-
-- Visualmente, se observa que la clusterización en base a componentes principales no logra separar las variadades P y F
-
-- Si analizamos los grupos resultantes para la clusterización en base a las variables cualitativas vs. las cuantitativas en una tabla de contingencia, se observa que 
-
 ```{r}
 cluster_cualitativas <- readRDS(
   here::here("doc", "tp1", "shared", "parte_2", "cluster_cualitativas.rds")
@@ -190,8 +151,38 @@ saveRDS(
 
 ```
 
+
+```{r, fig.cap="Gradiente de las Variables"}
+plot(fit,choix = "var")
+
+```
+
+
+**C.** Evalúe visualmente y a través de la correlación entre matrices la concordancia general entre esta configuración y la hallada en función de los caracteres cualitativos
+
+- Visualmente, se observa que la clusterización en base a componentes principales no logra separar las variadades P y F
+
+
 ```{r}
-#cor()
+matriz_distancia_cuali <- readRDS(
+      here::here("doc", "tp1", "shared", "parte_2", "matriz_distancia.rds")
+    )  
+cuali.cp <- cmdscale(sqrt(matriz_distancia_cuali), k = 2, eig = TRUE)
+
+```
+
+
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut congue in est vel commodo. Aliquam congue sapien at nibh feugiat hendrerit. Donec sit amet diam ipsum. Donec porta augue eu ex pulvinar, at viverra sem finibus. Sed ac elit nec purus vestibulum egestas. Nulla maximus imperdiet neque nec vehicula. Nulla eget aliquam libero, non iaculis nulla. Nunc aliquet tempus libero a viverra. Maecenas auctor feugiat turpis maximus gravida. Quisque cursus lectus nec nisi varius, a faucibus augue laoreet. 
+
+```{r}
+
+cor(
+  as.vector(dist(cuali.cp$points)),
+  as.vector(dist(coord))
+    )
+
+
 ```
 
 
