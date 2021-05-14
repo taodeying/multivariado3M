@@ -114,9 +114,9 @@ molecular. Encuentra asociaciones en función del tipo de pepino?
     ```
 
     En la Figura 1 podemos ver que los pepinos del tipo **F** suelen encontrarse en el 
-    primer cuadrante, los del tipo **P** en el segundo cuadrdante, los de tipo **A** en el 
-    tercero, y los de tipo **H** en el cuarto. Sin embargo esta ordenacion es un tanto imprecisa,
-    ya que por ejemplo, hay pepinos de los tipo **F** y **A** en el segundo cuadrante,
+    primer cuadrante, los del tipo **H** en el segundo cuadrdante, los de tipo **A** en el 
+    tercero, y los de tipo **P** en el cuarto. Sin embargo esta ordenacion es un tanto imprecisa,
+    ya que por ejemplo, hay pepinos de los tipo **F** y **A** en el cuarto cuadrante,
     asi como pepinos del tipo **H** en el tercero.
     Sino estuvieran los colores que indican los tipos de pepinos, probablemente 
     obtendriamos agrupamientos que estuvieran compuestos en su mayoria un unico 
@@ -165,7 +165,7 @@ A)  Encuentre el dendograma ultramétrico con ligamiento UPGMA
     )
     ```
     
-    ```{r, fig.height=6.5, fig.width=6, fig.cap="Dendograma Ultrametrico con ligamiento UPGMA.", class.source = 'fold-hide'}
+    ```{r, fig.height=6.5, fig.width=6, fig.cap="Dendograma Ultrametrico con ligamiento UPGMA para las variedades de pepino en base a caracteristicas moleculares.", class.source = 'fold-hide'}
     ggplot(dendro_data$segments) + 
       geom_segment(
         aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(clust)),
@@ -202,15 +202,13 @@ A)  Encuentre el dendograma ultramétrico con ligamiento UPGMA
     Sin embargo, en el agrupamiento de este ejercicio se observa que las variedades
     **A1** y **A2** no pertenecen al mismo cluster que el resto de las alfa-betas,
     sino que se unen con una variedad del tipo pepinillo, **P7**. 
-    Esto se corresponde con la cercania entre estas tres variedades en el plano
-    principal.
-    
-    En este dendograma, asi como sucede con el dendograma del Ejercicio 2, tambien
-    se observa una variedad que se diferencia sustancialmente del resto de las 
-    variedades, la variedad **F5**. De solo haber mirado la Figura 1, hubieramos
-    interpretado que esta variedad es similar al resto de los pepinillos 
-    franceses, cuando el dendograma no sugiere lo mismo.
-    
+    A priori, hubiera sido dificil imaginarse este agrupamiento si uno solo 
+    hubiera tenido en cuenta a la configuracion de los puntos en el plano principal
+    tal como se ve en la Figura 1. En este dendograma, asi como sucede con el 
+    dendograma de la Figura 2 del Ejercicio 2, tambien se observa una variedad 
+    que se diferencia sustancialmente del resto, la variedad **F5**. 
+    Si bien en la Figura 1 se ve que esta variedad esta en el extremo del grafico,
+    no queda tan claro que se diferencia sustancialmente del resto.
 
 A) Mida a través de su matriz cofenética la concordancia con la matriz de 
 distancias que le dio origen
@@ -248,7 +246,7 @@ A) Halle el dendograma aditivo Neighbor Joining
     rapds_nj <- nj(matriz_distancia)
     ```
     
-    ```{r, fig.height = 4, fig.width=9, fig.cap="Representacion jerarquizada del arbol aditivo Neighbor-Joining"}
+    ```{r, fig.height = 4, fig.width=9, fig.cap="Representacion jerarquizada del arbol aditivo Neighbor-Joining."}
     ggtree::ggtree(rapds_nj) + 
         ggtree::geom_tiplab(vjust = 1) + 
         scale_x_reverse() +
@@ -303,7 +301,7 @@ A) Mida su concordancia con matriz de distancia original
     igual  a `r round(concordancia, 3)`, por lo que este arbol aditivo es el
     que mejor representa las distancias originales entre las variedades, y se 
     corresponde con lo mencionado en clase de que en general estos arboles 
-    aditivos dan mejor.
+    aditivos arrojan mejores resultados.
     
 A) Relacione ambos dendogramas y saque conclusiones
 
@@ -312,8 +310,8 @@ A) Relacione ambos dendogramas y saque conclusiones
     ```
     
     La concordancia entre ambos dendogramas es `r round(concordancia, 3)`.
-    Es decir, en ambos casos se preserva altamente el ordenamiento entre variedades
-    pero no de manera perfecta. Por ejemplo, si miramos la Figura 4, vemos que 
+    Es decir, en ambos casos se preserva altamente el ordenamiento entre variedades,
+    aunque no de manera perfecta. Por ejemplo, si miramos la Figura 4, vemos que 
     la variedad **P7** se uniria primero a la variedad **A2**, pero no asi a 
     la variedad **A1**, como si sucede en la Figura 2.
     
