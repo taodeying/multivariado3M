@@ -141,8 +141,18 @@ ggplot(individuos_wide) +
   geom_segment(
     aes(
       x = Dim.1.Cuali,
-      xend = Dim.1.Cuanti,
+      xend = Dim.1.Consensus,
       y =  Dim.2.Cuali,
+      yend = Dim.2.Consensus,
+      color = "Concenso"
+    ),
+    show.legend = FALSE
+  ) +
+  geom_segment(
+    aes(
+      x = Dim.1.Consensus,
+      xend = Dim.1.Cuanti,
+      y =  Dim.2.Consensus,
       yend = Dim.2.Cuanti,
       color = "Concenso"
     ),

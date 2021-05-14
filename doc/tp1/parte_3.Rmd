@@ -46,7 +46,8 @@ datos <- read_csv2(here::here("data", "raw", "CUANTITATIVAS.csv")) %>%
 
 **A.** Aplique sobre estos datos un Análisis de Componentes Principales a partir de matriz de correlaciones.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut congue in est vel commodo. Aliquam congue sapien at nibh feugiat hendrerit. Donec sit amet diam ipsum. Donec porta augue eu ex pulvinar, at viverra sem finibus. Sed ac elit nec purus vestibulum egestas. Nulla maximus imperdiet neque nec vehicula. Nulla eget aliquam libero, non iaculis nulla. Nunc aliquet tempus libero a viverra. Maecenas auctor feugiat turpis maximus gravida. Quisque cursus lectus nec nisi varius, a faucibus augue laoreet. 
+Para analizar los datos y realizar el  Análisis de Componentes Principales,
+se utilizó la libreria "FactoMineR". Como el objetivo era utilizar la matriz de correlación como base del análisis, se utilizó la opción de escalar los datos dentro del método de la librería. Cabe destacar que el paquete utiliza la noción francesa a la hora de computar las matrices (n, no n-1). A continuación de presentan los resultados:
 
 ```{r}
 # PCA
@@ -114,15 +115,12 @@ ggplot(data = aux) +
 ```
 
 
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut congue in est vel commodo. Aliquam congue sapien at nibh feugiat hendrerit. Donec sit amet diam ipsum. Donec porta augue eu ex pulvinar, at viverra sem finibus. Sed ac elit nec purus vestibulum egestas. Nulla maximus imperdiet neque nec vehicula. Nulla eget aliquam libero, non iaculis nulla. Nunc aliquet tempus libero a viverra. Maecenas auctor feugiat turpis maximus gravida. Quisque cursus lectus nec nisi varius, a faucibus augue laoreet. 
+Como puede observarse en la tabla, las dos primeras componentes acumulan el 76.38% del porcentaje de los autovalores. Tal como denota el gráfico, se observa que el criterio de "broken srick model" apunta a que las dos primeras componentes son suficientes para 
+representar la variabilidad de los datos.
 
 **B.** Realice la representación de las variedades en el plano principal, encuentre grupos y caracterícelos
 
-
-Variables Cuello, Estrias, Frutos y Flores permiten separar las Variedades H del resto. En segunda medida, las variables Espinas, Aristas y Ccuello, separan las P y F de las A
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut congue in est vel commodo. Aliquam congue sapien at nibh feugiat hendrerit. Donec sit amet diam ipsum. Donec porta augue eu ex pulvinar, at viverra sem finibus. Sed ac elit nec purus vestibulum egestas. Nulla maximus imperdiet neque nec vehicula. Nulla eget aliquam libero, non iaculis nulla. Nunc aliquet tempus libero a viverra. Maecenas auctor feugiat turpis maximus gravida. Quisque cursus lectus nec nisi varius, a faucibus augue laoreet. 
+A partir de la representación en dos dimensiones de los datos, se podría establecer que existen visualmente 3 grandes grupos de Pepinos. Los P/F, los A y los H. Esta separación coloca a las variedades Holandesas (H), en el cuadrante superior derecho. Este cuadrante está caracterizado por ser la dirección de crecimiento de las variables Cuello, Estrias, Frutos y Flores. En el cuadrante superior izquierdo se alocan las variedades Pepinillo y Francesas (P y F). Tal cuadrante queda caracterizado por ser la dirección de crecimiento de las variables Espinas, Aristas y Ccuello. Finalmente, en el cuadrante inferior, se sitúan las variedades Alpha-Beta (A).
 
 ```{r}
 # Extraigo coordenadas
@@ -242,7 +240,9 @@ ggplot(variables_pca) +
 
 **C.** Evalúe visualmente y a través de la correlación entre matrices la concordancia general entre esta configuración y la hallada en función de los caracteres cualitativos
 
-- Visualmente, se observa que la clusterización en base a componentes principales no logra separar las variadades P y F
+Visualmente, se observa que la clusterización en base a componentes principales no logra separar las variadades P y F en dos dimensiones. En contra posición, se observa que con dos dimensiones, el análisis basado en las variables cualitativas lográ discriminar con notable exactitud las variedades y hasta colocarlas en cuadrantes opuestos.
+
+Desde un punto de vista cuantitativo, si se calculan las matrices de distancias a partir de la representación en dos dimensiones para tipo de análisis y luego se toma la correlación entre los elementos de la diagonal subinferior, se observa que hay una concordancia del 0.7797612. Esto mismo puede corroborarse en el diagrama de dispersión de puntos.
 
 
 ```{r}
@@ -254,9 +254,6 @@ cuali.cp <- cmdscale(sqrt(matriz_distancia_cuali), k = 2, eig = TRUE)
 
 ```
 
-
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut congue in est vel commodo. Aliquam congue sapien at nibh feugiat hendrerit. Donec sit amet diam ipsum. Donec porta augue eu ex pulvinar, at viverra sem finibus. Sed ac elit nec purus vestibulum egestas. Nulla maximus imperdiet neque nec vehicula. Nulla eget aliquam libero, non iaculis nulla. Nunc aliquet tempus libero a viverra. Maecenas auctor feugiat turpis maximus gravida. Quisque cursus lectus nec nisi varius, a faucibus augue laoreet. 
 
 
 ```{r}
@@ -273,7 +270,7 @@ cor(
 ```
 
 
-```{r}
+```{r , fig.cap="Distancia entre Matrices"}
 # Plot Distancias
 ggplot() + 
       #geom_abline(slope = 1, size = 1.2, alpha = 0.8, color = colores[1]) +
