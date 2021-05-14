@@ -10,13 +10,14 @@ editor_options:
   chunk_output_type: console
 ---
 
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center",
-  fig.pos = "H", out.extra = "", fig.height = 4, fig.width = 6
+  fig.pos = "H", out.extra = "", fig.height = 4, fig.width = 5.5
 )
+colores <- c("#003f5c", "#7a5195", "#ef5675", "#ffa600")
 ```
-
 
 ## Librerias
 
@@ -25,7 +26,11 @@ library(ggrepel)
 library(kableExtra)
 library(FactoMineR)
 library(tidyverse)
+library(ggforce)
+library(ggrepel)
+library(patchwork)
 source(here::here("src", "utils.R"))
+set.seed(1234)
 ```
 
 
@@ -67,19 +72,42 @@ saveRDS(
 aux <- as.data.frame(fit$eig)
 aux$comp <- rownames(aux)
 
+n <- length(aux$eigenvalue)
+bsm <- data.frame(j = seq(1: n), p = 0)
+bsm$p[1] <- 1/n
+for (i in 2:n){bsm$p[i] = bsm$p[i - 1] + (1/(n + 1 - i))}
+bsm$p <- rev(100 * bsm$p/ n)
+
+aux$bsm <- bsm$p
+
+sub_color <- c("% Autovalor"=colores[4], 
+               "Broken stick model"=colores[3], 
+               "% Acumulado de Autovalor"=colores[2])
+
 
 ggplot(data = aux) +
-    geom_bar(aes(x = comp,
-                 weight = `percentage of variance`)) +
-    geom_line(aes(x = 1:7,
-                  y = `percentage of variance`),
-              col = "blue",
-              lwd = 1.2) +
-    geom_line(aes(x = 1:7,
-                  y = `cumulative percentage of variance`),
-              col = "red",
-              lwd = 1.2) +
-    theme_minimal()
+  geom_bar(aes(x = comp,
+               weight = `percentage of variance`),
+           col = colores[1],
+           width = .3) +
+  geom_line(aes(x = 1:7,
+                y = `percentage of variance`,
+                col = "% Autovalor"),
+            lwd = 1.2) +
+  geom_line(aes(x = 1:7,
+                y = bsm,
+                col = "Broken stick model"),
+            lwd = 1.2) +
+  geom_line(aes(x = 1:7,
+                y = `cumulative percentage of variance`,
+                col =  "% Acumulado de Autovalor"),
+            lwd = 1.2) +
+  labs(x = "Componentes",
+       y = "(%)",
+       color = "") +
+  scale_color_manual(values = sub_color) +
+  theme(legend.position="bottom")
+
 ```
 
 
@@ -125,7 +153,9 @@ ggplot(aux) +
     x = "Coordenada 1",
     y = "Coordenada 2",
     color = "Grupos"
-  )
+  ) +
+  scale_color_manual(values = colores) +
+  theme(legend.position="bottom")
 ```
 
 ```{r}
@@ -153,7 +183,50 @@ saveRDS(
 
 
 ```{r, fig.cap="Gradiente de las Variables"}
-plot(fit,choix = "var")
+variables_pca <- as.data.frame(fit$var$coord)
+variables_pca$etiqueta <- rownames(variables_pca)
+variables_pca$x0 <- 0
+variables_pca$y0 <- 0
+
+
+ggplot(variables_pca) +
+  geom_vline(
+    xintercept = 0,
+    linetype = "dashed",
+    color = "gray30",
+    alpha = 0.5
+  ) +
+  geom_hline(
+    yintercept = 0,
+    linetype = "dashed",
+    color = "gray30",
+    alpha = 0.5
+  ) +
+  geom_circle(
+    aes(x0 = x, y0 = y, r = r),
+    linetype = "dashed",
+    color = "gray30",
+    alpha = 0.5,
+    data = data.frame(x = 0, y = 0, r = 1)
+  ) +
+  geom_segment(
+    aes(
+      x = x0,
+      y = y0,
+      xend = Dim.1,
+      yend = Dim.2
+    ),
+    arrow = arrow(length = unit(0.15, "cm"), type = "closed"),
+    size = 1.15,
+    color =  "gray30"
+  ) +
+  geom_label_repel(
+    aes(Dim.1, Dim.2, label = etiqueta),
+    min.segment.length = 0,
+    max.overlaps = 30
+  ) +
+  lims(x = c(-1, 1), y = c(-1, 1)) +
+  labs(x = "Dimension 1", y = "Dimension 2")
 
 ```
 
@@ -175,14 +248,26 @@ cuali.cp <- cmdscale(sqrt(matriz_distancia_cuali), k = 2, eig = TRUE)
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut congue in est vel commodo. Aliquam congue sapien at nibh feugiat hendrerit. Donec sit amet diam ipsum. Donec porta augue eu ex pulvinar, at viverra sem finibus. Sed ac elit nec purus vestibulum egestas. Nulla maximus imperdiet neque nec vehicula. Nulla eget aliquam libero, non iaculis nulla. Nunc aliquet tempus libero a viverra. Maecenas auctor feugiat turpis maximus gravida. Quisque cursus lectus nec nisi varius, a faucibus augue laoreet. 
 
+
 ```{r}
+cuali_d <- as.vector(dist(cuali.cp$points))
+cuanti_d <- as.vector(dist(coord))
 
 cor(
-  as.vector(dist(cuali.cp$points)),
-  as.vector(dist(coord))
-    )
+  cuali_d,
+  cuanti_d
+  )
 
 
 ```
 
 
+```{r}
+ggplot() + 
+      #geom_abline(slope = 1, size = 1.2, alpha = 0.8, color = colores[1]) +
+      geom_point(aes(cuali_d, cuanti_d), size = 3, alpha = 0.7, color = "grey30") + 
+      labs(
+          x = "Distancia en el PP de CUALITATIVAS",
+          y = "Distancia en el PP de CUANTITATIVAS"
+      )
+```
