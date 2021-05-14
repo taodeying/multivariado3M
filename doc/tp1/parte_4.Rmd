@@ -15,6 +15,7 @@ knitr::opts_chunk$set(
   echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center",
   fig.pos = "H", out.extra = "", fig.height = 5, fig.width = 6
 )
+set.seed(1234)
 ```
 
 
@@ -64,8 +65,8 @@ morfologica_gpa <- GPA(
   datos, 
   group = c(2, 2), 
   name.group = c("Cualitativa", "Cuantiativa"),
-  #axes=c(1,2),
-  graph = F
+  axes = c(1, 2),
+  graph = FALSE
 )
 
 saveRDS(

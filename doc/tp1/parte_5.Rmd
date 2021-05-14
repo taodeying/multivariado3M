@@ -110,7 +110,7 @@ configuración de las variedades de pepino en función de esta caracterización
 molecular. Encuentra asociaciones en función del tipo de pepino?
 
     ```{r, echo=TRUE}
-    coordenadas_principales <- cmdscale(sqrt(matriz_distancia), eig = TRUE)
+    coordenadas_principales <- cmdscale(matriz_distancia, eig = TRUE)
     ```
 
     En la Figura 1 podemos ver que los pepinos del tipo **F** suelen encontrarse en el 
@@ -249,10 +249,10 @@ A) Halle el dendograma aditivo Neighbor Joining
     ```
     
     ```{r, fig.height = 4, fig.width=9, fig.cap="Representacion jerarquizada del arbol aditivo Neighbor-Joining"}
-    ggtree::ggtree(rapds_nj, ladderize = FALSE) + 
+    ggtree::ggtree(rapds_nj) + 
         ggtree::geom_tiplab(vjust = 1) + 
-        scale_x_reverse() + 
-        coord_flip() + 
+        scale_x_reverse() +
+        coord_flip() +
         labs(x = "Distancia") + 
         theme_grey() + 
         theme(
