@@ -66,8 +66,12 @@ entre individuos, y utilizando el coeficiente Rv.
     coef_rv <- coeffRV(scale(datos_m1), scale(datos_m2))
     ```
     
-    Este resulta `r round(coef_rv$rv, 3)`, que es menor a la correlacion entre
-    las matrices de distancia calculada anteriormente. **por que?**
+    que resulta `r round(coef_rv$rv, 3)`.
+    
+    Mientras que la correlacion entre las matrices de distancia mide la similaridad
+    entre las posiciones relativas de las poblaciones de maiz, en terminos de 
+    las variables medidas, el coeficiente RV mide directamente la correlacion
+    entre los valores de estas variables para ambos ambientes. 
     
     ```{r, fig.cap="Distancia entre poblaciones para los ambientes Pergamino y Ferre. La linea azul representa a la recta identidad."}
     concordancia_df <- data.frame(
@@ -212,8 +216,10 @@ originado por los ACP
     
     La correlacion entre ambas matrices de distancia en el plano principal es de
     `r round(concordancia, 3)`. A partir de este valor podemos decir que 
-    hay una concordancia media o media-alta, entre las condfiguraciones de las 
-    poblaciones en ambos ambientes.
+    hay una concordancia media o media-alta entre las configuraciones de las 
+    poblaciones en ambos ambientes. Esto significa que el comportamiento de 
+    las poblaciones de maiz es en general similar en ambos ambientes, pero tambien
+    presenta caracteristicas distintas en cada uno de ellos.
 
 A) Encuentra indicios de interacción tanto genotipo-ambiente como 
 variable-ambiente ?
@@ -258,8 +264,29 @@ realizar una ACP sobre el promedio de las variables para ambos ambientes
     plot_acp(individuos, variables)
     ```
 
-    **No estoy seguro sobre que hacer aca**. Comparo con lo anterior? Repito 
-    la manera de interpretar? Me parece un embole.
+    En el panel izquierdo de la Figura 5 vemos que el ACP realizado sobre el 
+    promedio de las variables en ambos ambientes presenta una primera coordenada
+    que esta muy correlacionada positivamente con el rendimiento, el peso 
+    cada 1000 granos, la cantidad de granos por metro, la altura de la planta,
+    y la altura de la mazorca. Por otro lado, la segunda dimension esta relacionada,
+    principalmente, con el ancho del grano.
+    
+    Cuando el comportamiento de la poblacion es consistente en ambos
+    ambientes, vemos que esa informacion tambien se ve reflejado aqui. Por ejemplo,
+    la variedad 43 presenta rendimientos medios y granos anchos y largos 
+    tanto en Ferre como Pergamino, que se corresponde con lo que se observa en
+    este ACP basado en el promedio.
+
+    Sin embargo, observando el angulo que se forma entre los vectores que representan a las
+    variables comenzamos a notar ciertos problemas con esta representacion. 
+    Por ejemplo, el angulo entre ancho de grano (`AGR`) y 
+    altura de mazorca (`ALTMZ`) y altura de planta (`ALTPL`) es de un poco mas de 
+    90 grados, indicando casi una total independencia entre `AGR` y el resto. 
+    Sin embargo, este comportamiento _promedio_, no representa lo que sucede en 
+    ninguno de los dos ambientes. En el ambiente Pergamino `AGR` tiene una correlacion 
+    media con `ALTMZ` y `ALTPL` (angulo aproximado 45 grados) y en el ambiente
+    Ferre tiene una correlacion negativa muy fuerte (angulo aproximado 180 grados).
+    
 
 A) Ahora concatene ambos archivos por filas y columnas y realice un ACP para 
 ambas situaciones, encuentra respuesta para las interacciones planteadas en el 
@@ -287,7 +314,7 @@ inciso b ?
     variables_long$y0 <- 0
     ```
     
-    ```{r, fig.width = 11, fig.height = 5, fig.cap="Caracterizacion de los individuos y las variables en el plano principal del ACP al concatenar filas . 65\\% variabilidad explicada. Ferre en amarillo, Pergamino en azul."}
+    ```{r, fig.width = 11, fig.height = 5, fig.cap="Caracterizacion de los individuos y las variables en el plano principal del ACP al concatenar filas . 65\\% variabilidad explicada. Ferre en azul, Pergamino en amarillo."}
     r <- ggplot(individuos_long) + 
         geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
         geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
@@ -332,7 +359,7 @@ inciso b ?
     ```
     
 
-    ```{r, fig.width = 11, fig.height = 5, fig.cap="Caracterizacion de los individuos y las variables en el plano principal del ACP para al concatenar columnas. 51\\% variabilidad explicada. Ferre en amarillo, Pergamino en azul."}
+    ```{r, fig.width = 11, fig.height = 5, fig.cap="Caracterizacion de los individuos y las variables en el plano principal del ACP para al concatenar columnas. 51\\% variabilidad explicada. Ferre en azul, Pergamino en amarillo."}
     r <- ggplot(individuos_wide) + 
         geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
         geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
@@ -371,24 +398,28 @@ inciso b ?
     la altura de la planta y de la mazorca. Al observar el panel derecho de 
     esta figura, podemos ver que los cultivos en Ferre presentaron en general
     mejores rindes, pero menores tamanos de planta, mientras que las plantas de 
-    Pergamino fueron mas grandes, pero con menor rinde.
+    Pergamino fueron mas grandes, pero con menor rinde. En otras palabras,
+    en Pergamino se presentaron mejores caracteristicas en terminos de la planta,
+    pero en Ferre se presentaron mejores caracteristicas en cuanto al grano
+    y el rendimiento de la cosecha.
     
     En el panel izquiero de la Figura 7 podemos ver, por ejemplo, que el primer
     eje esta asociado al rendimiento, en ambos ambientes. Por lo tanto,
     las poblaciones que se encuentren hacia la derecha en el panel derecho 
-    presentaron rindes altos tanto en Pergamino como en Ferre. 
+    presentaron rindes altos tanto en Pergamino como en Ferre. En cambio, el 
+    segundo eje representa a la altura de planta y mazorca solo para el ambiente
+    Ferre. Alli podemos ver que la variedad 44 en el ambiente Ferre resulto ser 
+    de plantas altas, con mazorcas altas, pero rinde muy por debajo del promedio. 
+    Por otro lado, la variedad 102 tambien se caracterizo por su altura, pero
+    tambien presento rindes elevados. Finalmente, notamos que las poblaciones 44 
+    y 47 se destacan por haber tenido rindes muy pobres en ambos ambientes.
 
 A) Aplicar APG para tener otra visualización de la interacción genotipo-ambiente
 (retenga todas las dimensiones de ambas configuraciones).
     
-    Primero obtenemos ACP para ambos ambientes, reteniendo todas las dimensiones,
-    y creamos un data frame con las coordenadas de los individuos de ambos 
-    ambientes.
-    
     ```{r, echo=TRUE}
     acp_m1 <- PCA(datos_m1, ncp = 10, graph = FALSE)
     acp_m2 <- PCA(datos_m2, ncp = 10, graph = FALSE)
-    
     df <- data.frame(cbind(acp_m1$ind$coord, acp_m2$ind$coord))
     gpa <- GPA(df, group = c(10, 10), name.group = c("Pergamino", "Ferrre"), 
                graph = FALSE)
@@ -460,7 +491,7 @@ ambiente y las 3 con menor efecto
     Las tres poblaciones con mayor efecto ambiente son 22, 90 y 38. Por otro 
     lado, las tres poblaciones con menor efecto ambiente son la 15, 16 y 98.
 
-    Tambien podemos obtener la longitud de los segmentos y obtener a los que 
+    Tambien podemos calcular la longitud de los segmentos y obtener a los que 
     presentan mayor y menor efecto ambiente de manera numerica.
     
     ```{r}
