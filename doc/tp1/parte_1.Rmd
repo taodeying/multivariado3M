@@ -16,24 +16,23 @@ colores <- c("#003f5c", "#7a5195", "#ef5675", "#ffa600")
 ```
 
 ```{r}
-library(FactoMineR)
-library(kableExtra)
-library(tidyverse)
-library(ggrepel)
 library(ape)
+library(FactoMineR)
+library(ggforce)
+library(ggrepel)
+library(kableExtra)
+library(patchwork)
+library(tidyverse)
+library(vegan)
 source(here::here("src", "utils.R"))
 ```
 
-## Datos
-
 ```{r}
-datos <- read_csv2(here::here("data", "raw", "DAMASCO.csv"))
-```
-
-Inspeccionamos con `glimpse(datos)`
-
-```{r}
-glimpse(datos)
+datos <- read.csv2(
+  here::here("data", "raw", "DAMASCO.csv"), 
+  row.names = 1, 
+  stringsAsFactors = FALSE
+)
 ```
 
 A) Cuáles son los valores de $n$ y $p$? Cuanto vale y que indica el valor 
@@ -46,97 +45,119 @@ $x_{32}$ ? Y el vector $\mathbf{x}_6$ ?
 
 A) Cómo clasificaría las variables sobre las que se está trabajando ?
 
-    Las variables con las que se esta trabajando son de tipo continuo en todos los 
-    casos. Mas aun, todas estan medidas en escala de intervalo.
+    Las variables con las que se esta trabajando son de tipo continuo en todos 
+    los casos. Mas aun, todas estan medidas en escala de intervalo.
 
 A) Encuentre el vector de medias y matriz de varianzas-covariancias 
 asociados a la tabla de datos.
 
-    Las medias son:
+    Las medias son
 
-```{r}
-datos %>% 
-    select(-VAR) %>% 
-    summarise_all(mean) %>% 
-    round(1) %>% 
-    kable() %>% 
-    kable_styling(font_size = 12) %>% 
-    kable_classic_2()
-```
+    ```{r}
+    medias <- datos %>% 
+        summarise_all(mean)
+    
+    kable(medias[1:7], digits = 1) %>%
+      kable_styling(font_size = 8, latex_options = "HOLD_position")
+    
+    kable(medias[8:13], digits = 1) %>%
+      kable_styling(font_size = 8, latex_options = "HOLD_position")
+    ```
 
-    La matriz de covarianza es:
-
-```{r, out.width=.5}
-datos %>% 
-    select(-VAR) %>%  
-    cov() %>%  
-    round(1) %>% 
-    kable() %>% 
-    kable_styling(font_size = 12) %>% 
+    Calculamos la matriz de covarianza de la siguiente manera
+    
+    ```{r, echo=TRUE}
+    matriz_covarianza <- cov(datos)
+    ```
+    
+    Pero solo mostramos aquellos casos de mayor covarianza, ya que la tabla
+    es muy grande como para incluirla en formato pdf.
+    
+    ```{r}
+    d <- as.data.frame(t(combn(colnames(datos), 2)))
+    colnames(d) <- c("Variable 1", "Variable 2")
+    d$covarianza <- as.vector(as.dist(matriz_covarianza))
+    d <- d %>%
+      arrange(abs(covarianza))
+    ```
+    
+    ```{r}
+    t1 <- head(d, 5)
+    t2 <- tail(d, 5)
+    
+    kable(
+      list(t1, t2), 
+      col.names = c("Variable 1", "Variable 2", "Covarianza"),
+      row.names = FALSE,
+      digits = 3,
+      align = "c"
+    ) %>% 
+    kable_styling(font_size = 8, latex_options = "HOLD_position") %>% 
     kable_classic_2() 
-```
-
+    ```
+    
+    
 A) Podría decir cuál y cuáles variables son las más dispersas ?
 
     Utilizando el coeficiente de variación, podemos decir que las variables más 
     dispersas, en orden decreciente, son:
 
-```{r}
-datos %>% select(-VAR) %>%
-    summarise_all(function(x) sd(x) / mean(x)) %>% 
-    pivot_longer(cols = everything(), names_to = "VAR", values_to = "CV") %>% 
-    arrange(desc(CV)) %>% 
-    mutate(CV = round(CV, 1)) %>%
-    kable() %>% 
-    kable_styling(font_size = 12, full_width = FALSE) %>% 
-    kable_classic_2()
-```
+    ```{r}
+    cvs <- datos %>%
+        summarise_all(function(x) sd(x) / mean(x)) %>%
+        sort(decreasing = TRUE)
+    
+    kable(cvs[1:7], digits = 2) %>%
+      kable_styling(font_size = 8, latex_options = "HOLD_position")
+    
+    kable(cvs[8:13], digits = 2) %>%
+      kable_styling(font_size = 8, latex_options = "HOLD_position")
+    ```
 
-A) Estandarice las variables por media y desvío. Ahora puede responder al 
-inciso (d) ?
+    Por lo tanto, podemos concluir que la variable mas dispersa es el peso del
+    endocarpio, seguido por el peso de la flor. Si hubieramos observado otra
+    medida que depende de la escala de medicion, como por ejemplo el desvio 
+    estandar, no hubieramos incluido al peso del endocarpio ya que su valor
+    medio (2.4) es mucho mas bajo que el valor medio de otras variables, como 
+    por ejemplo tamaño de la flor, largo de la flor, etc.
 
-```{r}
-# No utilizamos la primer columna
-datos_std = scale(datos[-1])
-```
+    A) Estandarice las variables por media y desvío. Ahora puede responder al 
+    inciso (d) ?
+    
+    ```{r}
+    datos_std <- scale(datos)
+    ```
 
-    Como son variables estandarizadas, el coeficiente de variacion no existe,
-    pero todas tienen desvio estandar 1 (ya que la media es 0)
-
-```{r}
-datos_std %>%
-    as_tibble() %>% 
-    summarise_all(function(x) sd(x, na.rm=TRUE) /  mean(x, na.rm=TRUE)) %>% 
-    round(1)
-```
-
+    El coeficiente de variacion no existe ya que todas las variables tienen 
+    media igual a 0, por lo que no podriamos responder al inciso (d) luego de 
+    la estandarizacion. Sin embargo, lo expuesto en el inciso (d) es suficiente
+    para concluir sobre que variables tienen mayor y menor dispersion.
+    
 A) Halle la matriz de correlación. Que variables son las más relacionadas?
 
-    La matriz de correlación es:
+    La martiz de correlacion es obtenida con la funcion `cor()`.
 
-```{r}
-datos %>% 
-    select(-VAR) %>%
-    cor() %>% 
-    round(1)  %>% 
-    kable() %>% 
-    kable_styling(font_size = 12)%>% 
-    kable_classic_2()
-```
+    ```{r, echo=TRUE}
+    matriz_correlacion <- cor(datos)
+    ```
 
     A continuación una representacion grafica de la matriz de correlacion, la cual permite
     identificar de forma mas sencilla las variables mas relacionadas:      
 
-```{r}
-datos%>%
-    select(-VAR) %>%
-    cor() %>%
-    corrplot::corrplot(
-      method = "circle", 
-      type = "lower", 
-      tl.srt = 15
-    )
-```
+    ```{r, fig.width = 8, fig.height = 4.5}
+    ggcorrplot::ggcorrplot(
+        matriz_correlacion,
+        method = "circle", 
+        type = "upper",
+        outline.col = "black",
+        ggtheme = ggplot2::theme_gray,
+        legend.title = "Correlacion",
+        colors = c(tail(colores, 1), "#ffffff", colores[1])
+      ) + 
+      guides(
+        fill = guide_colorbar(barheight = grid::unit(0.75, "npc"))
+      )
+    ```
 
 A) Pueden dividirse las variables en subgrupos, de modo que las variables 
 dentro de un mismo subgrupo tengan elevadas correlaciones entre sí y que las que
@@ -159,102 +180,56 @@ cuáles variables quedan en cada uno de los subgrupos?
 A) Encuentre la matriz que mide el grado de similaridad entre las variedades
 en función de la distancia euclídea calculada sobre los datos originales.
 
-
-```{r}
-dist <- data.frame(datos[-1])
-rownames(dist) <- datos$VAR
-
-matriz_distancia <- dist %>% 
-    dist(method = "euclidean", diag = TRUE, upper = TRUE) %>% 
-    as.matrix()
-
- matriz_distancia %>% 
-    round(1) %>% 
-    kable() %>% 
-    kable_styling(latex_options = "HOLD_position") %>% 
-    kable_classic_2()
-```
+    ```{r, echo=TRUE}
+    matriz_distancia <- dist(datos, method = "euclidean")
+    ```
 
 A) Podría decir cuales son los tres pares de variedades que presentan mayor 
 semejanza?
 
-    Los pares de variedades que presentan mayor semejanza son:
-
-```{r}
-matriz_distancia_df <- data.frame(
-  "var1" = rep(colnames(matriz_distancia), each = ncol(matriz_distancia)), 
-  "var2" = rep(colnames(matriz_distancia), ncol(matriz_distancia)),
-  "distancia" = c(matriz_distancia)
-)
-
-matriz_distancia_df %>%
-    filter(
-      rep(
-          1:ncol(matriz_distancia),
-          each = ncol(matriz_distancia)
-      ) > 
-      rep(
-          1:ncol(matriz_distancia),
-          times = ncol(matriz_distancia)
-      )
-  ) %>%
-  arrange(distancia) %>%
-  head(3) %>%
-  kable(col.names = c("Variedad 1", "Variedad 2", "Distancia")) %>% 
-  kable_styling(font_size = 12, full_width = FALSE) %>% 
-  kable_classic_2()
-```
-
+    ```{r}
+    d <- as.data.frame(t(combn(rownames(datos), 2)))
+      colnames(d) <- c("Variedad 1", "Variedad 2")
+      d$distancia <- as.vector(matriz_distancia)
+    d <- d %>%
+      arrange(distancia)
+    kable(
+      head(d, 3), 
+      col.names = c("Variedad 1", "Variedad 2", "Distancia"),
+      row.names = FALSE,
+      digits = 3,
+      align = "c"
+    ) %>% 
+    kable_styling(font_size = 8, latex_options = "HOLD_position") %>% 
+    kable_classic_2() 
+    ```
 
 A) Repita lo realizado en el inciso (h) pero sobre las variables 
 estandarizadas por media y desvío estándar. Son las mismas las tres variedades 
 más parecidas? Comente al respecto
 
-```{r}
-dist_std <- data.frame(scale(datos[-1]))
-rownames(dist_std) <- datos$VAR
+    ```{r, echo=TRUE}
+    matriz_distancia_std <- dist(scale(datos))
+    ```
 
-matriz_distancia_std <- dist_std %>% 
-    dist(method = "euclidean", diag = TRUE, upper = TRUE) %>% 
-    as.matrix()
+    Con los datos estandarizados, los pares de variedades mas parecidas son
 
-matriz_distancia_std %>%
-    round(1) %>% 
-    kable() %>% 
-    kable_styling() %>% 
-    kable_classic_2()%>%
-    scroll_box(height = "300px", width = "100%")
-
-```
-
-    Con los datos estandarizados, los pares de variedades mas parecidas son:
-
-```{r}
-matriz_distancia_std_df <- data.frame(
-  "var1" = rep(colnames(matriz_distancia_std), each = ncol(matriz_distancia_std)), 
-  "var2" = rep(colnames(matriz_distancia_std), ncol(matriz_distancia_std)),
-  "distancia" = c(matriz_distancia_std)
-)
-
-
-matriz_distancia_std_df %>%
-    filter(
-      rep(
-          1:ncol(matriz_distancia_std),
-          each = ncol(matriz_distancia_std)
-      ) > 
-      rep(
-          1:ncol(matriz_distancia_std),
-          times = ncol(matriz_distancia_std)
-      )
-  ) %>%
-  arrange(distancia) %>%
-  head(3) %>%
-  kable(col.names = c("Variedad 1", "Variedad 2", "Distancia")) %>% 
-  kable_styling(font_size = 12, full_width = FALSE) %>% 
-  kable_classic_2()
-
-```
+    ```{r}
+    d <- as.data.frame(t(combn(rownames(datos), 2)))
+      colnames(d) <- c("Variedad 1", "Variedad 2")
+      d$distancia <- as.vector(matriz_distancia_std)
+    d <- d %>%
+      arrange(distancia)
+    kable(
+      head(d, 3), 
+      col.names = c("Variedad 1", "Variedad 2", "Distancia"),
+      row.names = FALSE,
+      digits = 3,
+      align = "c"
+    ) %>% 
+    kable_styling(font_size = 8, latex_options = "HOLD_position") %>% 
+    kable_classic_2() 
+    ```
 
     Podemos ver que los tres pares de variedades mas parecidas son distintos a los
     que vimos en el inciso anterior donde utilizamos los datos sin estandarizar. 
@@ -264,69 +239,109 @@ matriz_distancia_std_df %>%
 
 A) Mida el grado de concordancia entre ambas matrices de distancia.
 
-```{r}
-matriz_distancia_dist <- as.dist(matriz_distancia)
-matriz_distancia_std_dist <- as.dist(matriz_distancia_std)
-conc <- cor(matriz_distancia_dist, matriz_distancia_std_dist) %>%
-      as_tibble() %>%
-      round(2) %>%
-      rename(CONCORDANCIA = value)
-```
+    ```{r}
+    concordancia <- cor(matriz_distancia, matriz_distancia_std)
+    ```
 
-    El grado de concordancia entre las matrices de distancias es: `r conc `.
 
-    A continuacion se realiza una representacion grafica:
+    ```{r}
+    concordancia_df <- data.frame(
+        x = as.vector(matriz_distancia),
+        y = as.vector(matriz_distancia_std)
+    )
+    ggplot(concordancia_df) + 
+        geom_point(aes(x, y), size = 3, alpha = 0.7, color = "grey30") + 
+        labs(
+            x = "Distancia sobre datos originales",
+            y = "Distancia sobre datos estandarizados"
+        )
+    ```   
 
-```{r}
-plot(
-  matriz_distancia_dist, 
-  matriz_distancia_std_dist, 
-  ylab = "Distancias euclideas estandarizadas", 
-  xlab = "Distancis euclideas", 
-  main = "Concordancia entre las matrices de distancias euclideas"
-)
-```
+    El grado de concordancia entre las matrices de distancias es
+    `r round(concordancia, 3)`.
 
 A) Realice un Análisis de Componentes Principales utilizando de la matriz de
 correlaciones.
 
-    Los autovalores obtenidos son los siguientes:
+    ```{r, echo=TRUE}
+    pca <- PCA(datos, ncp = 2, graph = FALSE)
+    ```
+    
+    ```{r}
+    autovalores_vector <- as.vector(prop.table(pca$eig[, 1]))
+    autovalores <- data.frame(
+      x = 1:13,
+      varianza = autovalores_vector,
+      varianza_cum = cumsum(autovalores_vector)
+    )
+    autovalores$label <- paste0(round(autovalores$varianza * 100), "%")
+    
+    l <- ggplot(autovalores, aes(x = x)) + 
+      geom_hline(yintercept = 1, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+      geom_col(aes(y = varianza), fill = colores[1]) +
+      geom_line(
+        aes(y = varianza_cum), 
+        linetype = "dashed",
+        size = 1.2, 
+        color = "grey30",
+        lineend = "round"
+      ) + 
+      geom_label(
+        aes(y = varianza, label = label), 
+        nudge_y = 0.025
+      ) + 
+      scale_x_continuous(
+        breaks = 1:13
+      ) + 
+      scale_y_continuous(
+        labels = scales::percent_format()
+      ) + 
+      labs(
+        x = "Componente",
+        y = "Varianza"
+      ) + 
+      theme(
+        panel.grid.minor.x = element_blank()
+      )
+    ```
 
-```{r}
-datos_std <- data.frame(datos_std)
-rownames(datos_std) <- datos$VAR
+    Y los autovectores (cargas asociadas a cada componente) son
 
-pca <- PCA(datos_std, ncp = 2, graph = FALSE)
+    ```{r}
+    
+    variables <- as.data.frame(pca$var$coord)
+    variables$etiqueta <- rownames(pca$var$coord)
+    variables$x0 <- 0
+    variables$y0 <- 0
+    
+    r <- ggplot(variables) + 
+        geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+        geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+        geom_circle(
+          aes(x0 = x, y0 = y, r = r), 
+          linetype = "dashed", color = "gray30", alpha = 0.5,
+          data = data.frame(x = 0, y = 0, r = 1)
+        ) + 
+        geom_segment(
+          aes(x = x0, y = y0, xend = Dim.1, yend = Dim.2),
+          arrow = arrow(length = unit(0.15, "cm"), type ="closed"),
+          size = 1.15,
+          color = "grey30",
+          show.legend = FALSE
+        ) + 
+        scale_color_manual(values = colores[c(1, 4)]) + 
+        geom_label_repel(
+          aes(Dim.1, Dim.2, label = etiqueta), 
+          min.segment.length = 0,
+          max.overlaps = 30
+        ) + 
+        lims(x = c(-1, 1), y = c(-1, 1)) + 
+        labs(x = "Dimension 1", y = "Dimension 2")
+    ```
 
-pca$eig %>%
-  data.frame() %>%
-  rename(
-    "Autovalores" = "eigenvalue", 
-    "% Varianza" = "percentage.of.variance", 
-    "% Varianza acumulada" = "cumulative.percentage.of.variance" 
-  ) %>%
-  kable() %>%
-  kable_styling(full_width = FALSE) %>%
-  kable_classic_2()
-```
-
-    Tambien pueden observarse graficamente: 
-
-```{r}
-# Agregar linea que acumula.
-prop_table = prop.table(pca$eig[, 1])
-barplot(prop_table, main = "AUTOVALORES", names.arg = 1:nrow(pca$eig))
-#lines(c(1, 13), c(0, 0.5))
-```
-
-    Y los autovectores (cargas asociadas a cada componente) son: 
-
-```{r}
-pca$var$coord %>%
-  kable() %>%
-  kable_styling(full_width = FALSE) %>%
-  kable_classic_2()
-```
+    ```{r, fig.width = 11, fig.height = 5}
+    l + r
+    ```
 
 A) Analice los porcentaje de variabilidad explicada por los primeros ejes 
 principales.
@@ -343,28 +358,23 @@ cercanía en el plano principal.
     A continuacion se presenta la representacion grafica de las variedades en el 
     plano principal:
 
-```{r, fig.width = 6, fig.height=4}
-
-pc1 <- pca$ind$coord[, 1]
-pc2 <- pca$ind$coord[, 2]
-etiquetas <- rownames(pca$ind$coord)
-datos_cp<-as.data.frame(cbind(etiquetas, pc1, pc2))
-colnames(datos_cp) <- c("VARIEDAD","CP1", "CP2")
-#datos_CP$etiqueta <- datos$Var
-#datos_CP$variedad <- substr(datos_CP$etiqueta, 1, 1)
-
-
-ggplot(datos_cp) + 
-  geom_point(aes(pc1, pc2), size = 4, color = "gray30") + 
-  geom_label_repel(aes(pc1, pc2, label = VARIEDAD)) + 
-  geom_vline(xintercept = 0, linetype = "solid") + 
-  geom_hline(yintercept = 0, linetype = "solid") + 
-  labs(
-    x = "Coordenada Principal 1",
-    y = "Coordenada Principal 2"
-  )
-
-```
+    ```{r, fig.width = 7, fig.height=4}
+    pc1 <- pca$ind$coord[, 1]
+    pc2 <- pca$ind$coord[, 2]
+    etiquetas <- rownames(pca$ind$coord)
+    datos_cp <- as.data.frame(cbind(etiquetas, pc1, pc2))
+    colnames(datos_cp) <- c("VARIEDAD","CP1", "CP2")
+    
+    ggplot(datos_cp) + 
+      geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+      geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+      geom_point(aes(pc1, pc2), size = 4, color = "gray30") + 
+      geom_label_repel(aes(pc1, pc2, label = VARIEDAD), size=2.75) + 
+      labs(
+        x = "Coordenada Principal 1",
+        y = "Coordenada Principal 2"
+      )
+    ```
 
     Tras observar el grafico podemos decir que encontramos cuatro grupos. 
     El primer grupo contiene a MARTINET, CANINO.T y BLANCO. El segundo esta 
@@ -376,29 +386,21 @@ ggplot(datos_cp) +
 A) Encuentre e interprete gradientes de las variables originales en el plano
 principal en función de sus cargas sobre las dos primeras componentes.
 
-    Observando nuevamente las coordenadas de las variables(autovectores):
-```{r}
-pca$var$coord %>%
-  kable() %>%
-  kable_styling(full_width = FALSE) %>%
-  kable_classic_2() 
-```
-    
-    Considerando la primer componente, los damascos que tengan flores, frutos y endocarpio grandes
-    se van a ubicar a la derecha del grafico
-
-    Con respecto a la segunda componente, los damoscos cuyas hojas sean grandes estarán ubicados en 
-    la parte superior del grafico, lo mismo ocurre con aquellos damascos con flores grandes. Los damascos
-    que tengan frutos pequeños, estaran ubicados en la parte inferior del grafico. 
+    Considerando la primer componente, los damascos que tengan flores, frutos y 
+    endocarpio grandes se van a ubicar a la derecha del grafico. Con respecto a 
+    la segunda componente, los damoscos cuyas hojas sean grandes estarán ubicados 
+    en la parte superior del grafico, lo mismo ocurre con aquellos damascos con 
+    flores grandes. Los damascos que tengan frutos pequeños, estaran ubicados en
+    la parte inferior del grafico. 
 
     Luego:
 
-    * Damascos con hojas grandes estaran ubicados en el segundo cuadrante del grafico.
-    * Damascos con endocarpio y frutos grandes estaran ubicados en el cuarto cuadrante del grafico
+    * Damascos con hojas grandes estaran ubicados en el segundo cuadrante del 
+    grafico.
+    * Damascos con endocarpio y frutos grandes estaran ubicados en el cuarto 
+    cuadrante del grafico
     * Damascos con flores grandes estaran ubicados en el primer cuadrante del grafico
    
-
-
 A) Caracterice los grupos determinados en el inciso (N) según los gradientes
 descriptos en (O).
 
@@ -411,354 +413,149 @@ descriptos en (O).
     Grupo 3: es un fruto caracterizado por tener hojas grandes, frutos y endocarpio
     pequeños y flores medianas. 
 
-
 A) Superponga en la representación del plano principal un MST. Comente al 
 respecto, haría algún reagrupamiento ?
 
-```{r}
-library(vegan)
-```
-
-```{r}
-mst <- spantree(matriz_distancia_std_dist)
-plot(mst, pca$ind$coord)
-# faltan las cp!
-```
-
+    ```{r, fig.width=6, fig.height=4}
+    mst <- spantree(matriz_distancia_std)
+    par(mar = c(4.5, 4.5, 1, 1))
+    plot(
+      mst, 
+      pca$ind$coord, 
+      xlab = "Componente 1", 
+      ylab = "Componente 2",
+      type = "t",
+      col = "grey30",
+      cex = 0.75,
+    )
+    abline(h = 0, lty = "dashed", col = "grey30")
+    abline(v = 0, lty = "dashed", col = "grey30")
+    ```
 
 A) Con el software `R` realice el ACP recurriendo a operaciones con 
 matrices (decomposición espectral)
 
-    Realizando la descomposicion espectral, los autovalores son los siguientes:
-
-```{r}
-x <- as.matrix(datos_std)
-cor <- cor(x)
-autovalores_ <- eigen(cor)
-
-round(autovalores_$values, 1) %>%
-  kable(col.names = "AUTOVALORES") %>%
-  kable_styling(full_width = FALSE) %>%
-  kable_classic_2() 
-```
-
-    Y los autovectores:
-
-```{r}
-round(autovalores_$vectors[, 1:2], 1) %>%
-  kable(col.names = c("AUTOVECTOR 1", "AUTOVECTOR 2")) %>%
-  kable_styling(full_width = FALSE) %>%
-  kable_classic_2()
-```
-
-    Las nuevas coordenadas de las variedades sobre las componentes halladas:
-
-```{r}
-etiquetas <- rownames(pca$var$coord)
-p <- as.matrix(autovalores_$vectors)
-y <- x %*% p
-colnames(y) <- etiquetas
-rownames(y) <- datos$VAR
-
-round(y, 1) %>%
-  kable() %>%
-  kable_classic_2()
-```
+    Realizamos la descomposicion espectral de la siguiente manera
+  
+    ```{r, echo=TRUE}
+    X <- as.matrix(scale(datos))
+    eig <- eigen(cov(X))
+    P <- eig$vectors
+    Y_espectral <- X %*% P 
+    ```
 
 A)  Verifique que con el enfoque Biplot (DVS) llega a los mismos resultados
 
-    Valores singulares (d):
+    ```{r}
+    # Esto es solamente para verificar lo mismo que hizo el profe
+    D <- diag(eig$values)
+    COV2 <- P %*% D %*% t(P)
+    # all.equal(COV2, unname(cov(X)))
+    ```
 
-```{r}
-dvs <- svd(x)
+    Primero calculamos las coordenadas en el plano principal mediante el 
+    enfoque Biplot.
 
-round(dvs$d, 1) %>%
-  kable(col.names = "d")%>%
-  kable_styling(full_width = FALSE)%>%
-  kable_classic_2()
-```
+    ```{r, echo=TRUE}
+    dvs <- svd(X)
+    U <- dvs$u
+    D <- diag(dvs$d)
+    Y_dvs <- U %*% D
+    ```
 
+    ```{r}
+    # hacer acp_1/acp_2 y ves 1 y -1.
+    acp_1 <- as.data.frame(Y_espectral[, 1:2])
+    acp_2 <- as.data.frame(Y_dvs[, 1:2])
+    acp_2$V2 <- -1 * acp_2$V2
+    acp_1$metodo <- "Espectral"
+    acp_2$metodo <- "DVS"
+    acp_ambos <- rbind(acp_1, acp_2)
+    ```
+    
+    Si hacemos la razon entre las dos primeras coordenadas obtenidas mediante descomposicion
+    espectral y mediante DVS, vemos que la segunda razon es igual a `-1`. Esto
+    se da porque la configuracion de los puntos mediante DVS resulta estar 
+    reflejada en el eje X respecto de la configuracion que obutivmos mediante
+    la descomposicion espectral. En el siguiente grafico multiplicamos a la 
+    segunda componente por `-1` para mostrar mas facilmente la equivalencia de las
+    configuraciones obtenidas mediante ambos enfoques.
 
-    Vectores singulares por izquierda (u):
-
-```{r}
-colnames(dvs$u) <- etiquetas
-
-dvs$u %>%
-  round(1) %>%
-  kable() %>%
-  kable_classic_2()
-```
-
-    Vectores singulares por derecha (v):
-
-```{r}
-colnames(dvs$v) <- etiquetas
-
-dvs$v %>%
-  round(1) %>%
-  kable() %>%
-  kable_styling(full_width = FALSE) %>%
-  kable_classic_2()
-```
-
-    Las nuevas cordenadas de las variedades halladas a traves de DVS:
-
-```{r}
-u <- dvs$u
-v <- dvs$v
-d <- diag(dvs$d, 13, 13)
-ydvs <- u %*% d
-colnames(ydvs) <- etiquetas
-rownames(ydvs) <- datos$VAR
-
-round(ydvs, 1) %>%
-  kable() %>%
-  kable_classic_2()
-```
-
-
-**FALTA VERIFICAR QUE SE LLEGA AL MISMO RESULTADO**
-
-
-```{r}
-
-ggplot() + 
-  geom_point(datos_cp, aes(pc1, pc2), size = 4, color = "gray30") + 
-  geom_label_repel(aes(pc1, pc2, label = VARIEDAD)) + 
-  geom_vline(xintercept = 0, linetype = "solid") + 
-  geom_hline(yintercept = 0, linetype = "solid") + 
-  labs(
-    x = "Coordenada Principal 1",
-    y = "Coordenada Principal 2"
-  )
-
-
-```
+    ```{r, fig.width = 6, fig.height = 4}
+    ggplot(acp_ambos) + 
+      geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+      geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+      geom_point(aes(V1, V2, size = metodo), alpha = 0.5, color = colores[1]) + 
+      scale_size_discrete(name = "Metodo") + 
+      labs(
+        x = "Coordenada Principal 1",
+        y = "Coordenada Principal 2"
+      )
+    ```
 
 A) Obtenga 4 dendogramas ultramétricos según diferentes criterios de 
 encadenamiento (SIMPLE, COMPUESTO, UPGMA y WARD).
+    
+    ```{r}
+    dendograma <- function(cluster, k, title) {
+      cluster_min_data <- dendro_data_k(cluster, k = k)
+      adjust <- 0.1 * max(cluster_min_data$segments$yend)
+      ggplot(cluster_min_data$segments) + 
+        geom_segment(
+          aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(clust)),
+          size = 1.2,
+          lineend = "round"
+        ) + 
+        geom_text(
+          aes(x = x, y = y - adjust, label = label, color = as.factor(clust)), 
+          data = cluster_min_data$labels
+        ) + 
+        ylim(
+          -0.15 * max(cluster_min_data$segments$yend) , 
+          max(cluster_min_data$segments$yend)
+        ) + 
+        coord_flip() + 
+        scale_colour_manual(values = c("grey30", colores)) +
+        labs(title = title) +
+        theme(
+          panel.grid.minor = element_blank(),
+          axis.title = element_blank(), 
+          axis.text = element_blank(),
+          axis.line = element_blank(), 
+          axis.ticks = element_blank(),
+          plot.title = element_text(hjust = 0.5),
+          legend.position = "none"
+        )
+    }
+    ```
+    
+    ```{r, fig.width = 14, fig.height = 12}
+    cluster_min <- hclust(matriz_distancia_std, method = "single")
+    ul <- dendograma(cluster_min, 4, title = "Simple")
+    
+    cluster_com <- hclust(matriz_distancia_std, method = "complete")
+    ur <- dendograma(cluster_com, 4, title = "Completo")
 
-    Criterio de encadenamiento Simple:
-```{r, fig.height=5, fig.width=10, class.source = 'fold-hide'}
-
-cluster_min <- hclust(matriz_distancia_std_dist, method = "single")
-cluster_min_data<- dendro_data_k(cluster_min, k=4)
-
-ggplot(cluster_min_data$segments) + 
-  geom_segment(
-    aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(clust)),
-    size = 1.2,
-    lineend = "round"
-  ) + 
-  geom_text(
-    aes(x = x, y = y - 0.40, label = label, color = as.factor(clust)), 
-    data = cluster_min_data$labels
-  ) + 
-  coord_flip() + 
-  labs(
-    y = "Distancia"
-  ) + 
-  scale_colour_manual(
-    values = c("grey30", scales::hue_pal()(4))
-  ) + 
-  theme(
-    panel.grid.major = element_blank(), 
-    panel.grid.minor = element_blank(), 
-    panel.background = element_blank(),
-    axis.title.x = element_text(size = 14), 
-    axis.title.y = element_blank(), 
-    axis.text.x = element_text(size = 12),
-    axis.text.y = element_blank(), 
-    axis.line = element_blank(), 
-    axis.ticks.y = element_blank(),
-    plot.title = element_text(hjust = 0.5),
-    legend.position = "none"
-  )
-
-
-```
-
-
-
-
- 
-    Criterio de encadenamiento Compuesto:
-```{r, fig.height=5, fig.width=10, class.source = 'fold-hide'}
-cluster_com <- hclust(matriz_distancia_std_dist, method = "complete")
-cluster_com_data<- dendro_data_k(cluster_com, k=4)
-
-ggplot(cluster_com_data$segments) + 
-  geom_segment(
-    aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(clust)),
-    size = 1.2,
-    lineend = "round"
-  ) + 
-  geom_text(
-    aes(x = x, y = y - 0.40, label = label, color = as.factor(clust)), 
-    data = cluster_com_data$labels
-  ) + 
-  coord_flip() + 
-  labs(
-    y = "Distancia"
-  ) + 
-  scale_colour_manual(
-    values = c("grey30", scales::hue_pal()(4))
-  ) + 
-  theme(
-    panel.grid.major = element_blank(), 
-    panel.grid.minor = element_blank(), 
-    panel.background = element_blank(),
-    axis.title.x = element_text(size = 14), 
-    axis.title.y = element_blank(), 
-    axis.text.x = element_text(size = 12),
-    axis.text.y = element_blank(), 
-    axis.line = element_blank(), 
-    axis.ticks.y = element_blank(),
-    plot.title = element_text(hjust = 0.5),
-    legend.position = "none"
-  )
-
-
-
-```
-
-    Criterio de encadenamiento UPGMA
-```{r, fig.height=5, fig.width=10, class.source = 'fold-hide'}
-cluster_upgma <- hclust(matriz_distancia_std_dist, method = "average")
-cluster_upgma_data<- dendro_data_k(cluster_upgma, k=4)
-
-ggplot(cluster_upgma_data$segments) + 
-  geom_segment(
-    aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(clust)),
-    size = 1.2,
-    lineend = "round"
-  ) + 
-  geom_text(
-    aes(x = x, y = y - 0.40, label = label, color = as.factor(clust)), 
-    data = cluster_upgma_data$labels
-  ) + 
-  coord_flip() + 
-  labs(
-    y = "Distancia"
-  ) + 
-  scale_colour_manual(
-    values = c("grey30", scales::hue_pal()(4))
-  ) + 
-  theme(
-    panel.grid.major = element_blank(), 
-    panel.grid.minor = element_blank(), 
-    panel.background = element_blank(),
-    axis.title.x = element_text(size = 14), 
-    axis.title.y = element_blank(), 
-    axis.text.x = element_text(size = 12),
-    axis.text.y = element_blank(), 
-    axis.line = element_blank(), 
-    axis.ticks.y = element_blank(),
-    plot.title = element_text(hjust = 0.5),
-    legend.position = "none"
-  )
- 
-
-```
-
-    Criterio de encadenamiento WARD
-
-```{r, fig.height=5, fig.width=10}
-cluster_ward <- hclust(matriz_distancia_std_dist, method = "ward.D")
-cluster_ward_data<- dendro_data_k(cluster_ward, k=4)
-
-ggplot(cluster_ward_data$segments) + 
-  geom_segment(
-    aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(clust)),
-    size = 1.2,
-    lineend = "round"
-  ) + 
-  geom_text(
-    aes(x = x, y = y - 2, label = label, color = as.factor(clust)), 
-    data = cluster_ward_data$labels
-  ) + 
-  coord_flip() + 
-  ylim(-5, 20) + 
-  labs(
-    y = "Distancia"
-  ) + 
-  scale_colour_manual(
-    values = c("grey30", scales::hue_pal()(4))
-  ) + 
-  theme(
-    panel.grid.major = element_blank(), 
-    panel.grid.minor = element_blank(), 
-    panel.background = element_blank(),
-    axis.title.x = element_text(size = 14), 
-    axis.title.y = element_blank(), 
-    axis.text.x = element_text(size = 12),
-    axis.text.y = element_blank(), 
-    axis.line = element_blank(), 
-    axis.ticks.y = element_blank(),
-    plot.title = element_text(hjust = 0.5),
-    legend.position = "none"
-  )
-
-
-```
+    cluster_upgma <- hclust(matriz_distancia_std, method = "average")
+    bl <- dendograma(cluster_upgma, 4, title = "UPGMA")
+    
+    cluster_ward <- hclust(matriz_distancia_std, method = "ward.D")
+    br <- dendograma(cluster_ward, 4, title = "Ward")
+    
+    (ul + ur) / (bl + br)
+    ```
 
 
 A) Asocie a cada uno de los árboles obtenidos en el inciso anterior la 
 matriz cofenética correspondiente. Que miden los elementos de estas matrices ?
 
-    Encadenamiento Simple:
-```{r}
-cophenetic_min = cophenetic(cluster_min)
-min_data<-as.data.frame(cbind(matriz_distancia_std_dist, cophenetic_min))
-
-
-ggplot(min_data) +
-  geom_abline(slope = 1, size = 1.2, alpha = 0.8, color = colores[1]) +
-  geom_point(aes(cophenetic_min,matriz_distancia_std_dist ), size = 3, alpha = 0.7, color = "grey30")+
-  theme_classic()+
-  labs(x="Cophenetic - Simple", y ="Distancias Estandarizadas")
-```
-
-
-    Encadenamiento Compuesto:
-```{r}
-cophenetic_comp <- cophenetic(cluster_com)
-comp_data<-as.data.frame(cbind(matriz_distancia_std_dist, cophenetic_comp))
-
-ggplot(comp_data) +
-  geom_abline(slope = 1, size = 1.2, alpha = 0.8, color = colores[1]) +
-  geom_point(aes(cophenetic_comp,matriz_distancia_std_dist ), size = 3, alpha = 0.7, color = "grey30")+
-  theme_classic()+
-  labs(x="Cophenetic - Compuesto", y ="Distancias Estandarizadas")
-```
-
-
-    Encadenamiento UPGMA:
-```{r}
-cophenetic_upgma = cophenetic(cluster_upgma)
-upgma_data<-as.data.frame(cbind(matriz_distancia_std_dist, cophenetic_upgma))
-
-ggplot(upgma_data) +
-  geom_abline(slope = 1, size = 1.2, alpha = 0.8, color = colores[1]) +
-  geom_point(aes(cophenetic_upgma,matriz_distancia_std_dist ), size = 3, alpha = 0.7, color = "grey30")+
-  theme_classic()+
-  labs(x="Cophenetic - UPGMA", y ="Distancias Estandarizadas")
-```
-
-
-    Encadenamiento WARD:
-```{r}
-cophenetic_ward = cophenetic(cluster_ward)
-ward_data<-as.data.frame(cbind(matriz_distancia_std_dist, cophenetic_ward))
-
-ggplot(ward_data) +
-  geom_abline(slope = 1, size = 1.2, alpha = 0.8, color = colores[1]) +
-  geom_point(aes(cophenetic_ward,matriz_distancia_std_dist ), size = 3, alpha = 0.7, color = "grey30")+
-  theme_classic()+
-  labs(x="Cophenetic - WARD", y ="Distancias Estandarizadas")
-```
-
+    ```{r, echo=TRUE}
+    cophenetic_min <- cophenetic(cluster_min)
+    cophenetic_comp <- cophenetic(cluster_com)
+    cophenetic_upgma <- cophenetic(cluster_upgma)
+    cophenetic_ward <- cophenetic(cluster_ward)
+    ```
+    
     Los elementos de las matrices anteriores permiten tener una medida de la 
     coherencia del criterio de agrupamiento jerarquico. Como pudo observase el 
     criterio de encadenamiento UPGMA es el que brinda, para este conjunto de datos, 
@@ -767,50 +564,35 @@ ggplot(ward_data) +
 A) Cuantifique la concordancia entre la matriz de distancia que dio origen 
 a los dendogramas y las 4 matrices cofenéticas. A que conclusión llega ?
 
-
-    Encadenamiento simple
-```{r}
-corcof_min<-cor(cophenetic_min, matriz_distancia_std_dist)
-
-round(corcof_min, 2) %>%
-  kable(align = "c", col.names = "Correlacion") %>%
-  kable_styling(full_width = FALSE) %>%
-  kable_classic_2() 
-```
-
-
-    Encadenamiento Compuesto
-```{r}
-corcof_com<-cor(cophenetic_comp, matriz_distancia_std_dist)
-
-round(corcof_com, 2) %>%
-  kable(align = "c", col.names = "Correlacion") %>%
-  kable_styling(full_width = FALSE) %>%
-  kable_classic_2() 
-
-```
+    ```{r}
+    scatterplot <- function(original, cofenetica, title) {
+      data <- as.data.frame(cbind(original, cofenetica))
+      corr <- cor(original, cofenetica)
+      ggplot(data) +
+        geom_point(
+          aes(original, cofenetica), 
+          size = 3, 
+          alpha = 0.7, 
+          color = "grey30"
+        ) +
+        labs(title = paste0(title, " (", round(corr, 3), ")")) + 
+        theme(
+          plot.title = element_text(hjust = 0.5),
+          axis.title = element_blank()
+        )
+    }
+    ```
 
 
-    Encadenamiento UPGMA
-```{r}
-corcof_upgma<-cor(cophenetic_upgma, matriz_distancia_std_dist)
-
-round(corcof_upgma, 2) %>%
-  kable(align = "c", col.names = "Correlacion") %>%
-  kable_styling(full_width = FALSE) %>%
-  kable_classic_2() 
-```
-
- 
-    Encadenamiento WARD
-```{r}
-corcof_ward<-cor(cophenetic_ward, matriz_distancia_std_dist)
-
-round(corcof_ward, 2) %>%
-  kable(align = "c", col.names = "Correlacion") %>%
-  kable_styling(full_width = FALSE) %>%
-  kable_classic_2() 
-```
+    ```{r, fig.width = 10, fig.height = 10}
+    # ul: upper left
+    # br: bottom right... y asi.
+    ul <- scatterplot(matriz_distancia_std, cophenetic_min, "Simple")
+    ur <- scatterplot(matriz_distancia_std, cophenetic_comp, "Compuesto")
+    bl <- scatterplot(matriz_distancia_std, cophenetic_upgma, "UPGMA")
+    br <- scatterplot(matriz_distancia_std, cophenetic_ward, "Ward")
+    (ul + ur) / (bl + br)
+    ```
 
     Observando las correlaciones obtenidas entre la matriz de distancia y las 
     diferentes matrices cofeneticas puede decirse que la obtenida a traves del 
@@ -831,45 +613,39 @@ Análisis de Componentes Principales ?
 A) Mida el grado de concordancia entre los resultados obtenidos por 
 Componentes y por Cluster UPGMA
 
-
-```{r, echo=FALSE}
-
-dist_pca<-dist(pca$ind$coord, method="euclidean")
-cor_pca_upgma<-cor(dist_pca, cophenetic_upgma)%>%
-  round(2)
-
-```
+    ```{r}
+    dist_pca <- dist(pca$ind$coord, method="euclidean")
+    cor_pca_upgma <- cor(dist_pca, cophenetic_upgma)%>%
+      round(2)
+    ```
 
     Para hallar el grado de concordancia entre los resultados obtenidos por Componentes
     Principales y por CLuster UPGMA se calcula la correlacion entre las matrices de
     distancias, obteniendo una correlacion de `r cor_pca_upgma`. Dicha correlacion es
     alta y esto se debe a que 
     
-    
-    
-**Y.** Halle el dendograma aditivo Neighbor Joining, representa mejor la 
+A) Halle el dendograma aditivo Neighbor Joining, representa mejor la 
 configuración de variedades que el Cluster UPGMA ?
 
-```{r}
-
-nj<-nj(matriz_distancia_std_dist)
-
-ggtree::ggtree(nj) + 
-        ggtree::geom_tiplab(vjust = 1) + 
-        scale_x_reverse() +
-        coord_flip() +
-        labs(x = "Distancia") + 
-        theme_grey() + 
-        theme(
-            panel.background = element_rect(),
-            panel.grid.minor = element_blank(),
-            axis.title.x = element_blank(), 
-            axis.title.y = element_text(size = 14),
-            axis.text.x = element_blank(),
-            axis.text.y = element_text(size = 12), 
-            axis.line = element_blank(), 
-            axis.ticks.y = element_blank(),
-            plot.title = element_text(hjust = 0.5),
-            legend.position = "none"
-      )
-```
+    ```{r, fig.height = 4, fig.width=9, fig.cap="Representacion jerarquizada del arbol aditivo Neighbor-Joining."}
+    nj <- nj(matriz_distancia_std)
+    ggtree::ggtree(nj) + 
+            ggtree::geom_tiplab(vjust = 1) + 
+            scale_x_reverse() +
+            coord_flip() +
+            labs(x = "Distancia") + 
+            ylim(0, 20) + 
+            theme_grey() + 
+            theme(
+                panel.background = element_rect(),
+                panel.grid.minor = element_blank(),
+                axis.title.x = element_blank(), 
+                axis.title.y = element_text(size = 14),
+                axis.text.x = element_blank(),
+                axis.text.y = element_text(size = 12), 
+                axis.line = element_blank(), 
+                axis.ticks.y = element_blank(),
+                plot.title = element_text(hjust = 0.5),
+                legend.position = "none"
+          )
+    ```
