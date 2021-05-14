@@ -36,23 +36,23 @@ Inspeccionamos con `glimpse(datos)`
 glimpse(datos)
 ```
 
-**A.** Cuáles son los valores de $n$ y $p$? Cuanto vale y que indica el valor 
+A) Cuáles son los valores de $n$ y $p$? Cuanto vale y que indica el valor 
 $x_{32}$ ? Y el vector $\mathbf{x}_6$ ?
 
-El valor de $n$ es `r nrow(datos)` y el valor de $p$ es `r ncol(datos)`. El
-valor de $x_{32}$ es `r datos[[3, 2]]` e indica el tamaño de la flor de la 
-observacion 3. El vector $\mathbf{x}_6$ indica la relacion entre el ancho y largo de la 
-hoja.
+    El valor de $n$ es `r nrow(datos)` y el valor de $p$ es `r ncol(datos)`. El
+    valor de $x_{32}$ es `r datos[[3, 2]]` e indica el tamaño de la flor de la 
+    observacion 3. El vector $\mathbf{x}_6$ indica la relacion entre el ancho y largo de la 
+    hoja.
 
-**B.** Cómo clasificaría las variables sobre las que se está trabajando ?
+A) Cómo clasificaría las variables sobre las que se está trabajando ?
 
-Las variables con las que se esta trabajando son de tipo continuo en todos los 
-casos. Mas aun, todas estan medidas en escala de intervalo.
+    Las variables con las que se esta trabajando son de tipo continuo en todos los 
+    casos. Mas aun, todas estan medidas en escala de intervalo.
 
-**C.** Encuentre el vector de medias y matriz de varianzas-covariancias 
+A) Encuentre el vector de medias y matriz de varianzas-covariancias 
 asociados a la tabla de datos.
 
-Las medias son:
+    Las medias son:
 
 ```{r}
 datos %>% 
@@ -64,7 +64,7 @@ datos %>%
     kable_classic_2()
 ```
 
-La matriz de covarianza es:
+    La matriz de covarianza es:
 
 ```{r, out.width=.5}
 datos %>% 
@@ -76,10 +76,10 @@ datos %>%
     kable_classic_2() 
 ```
 
-**D.** Podría decir cuál y cuáles variables son las más dispersas ?
+A) Podría decir cuál y cuáles variables son las más dispersas ?
 
-Utilizando el coeficiente de variación, podemos decir que las variables más 
-dispersas, en orden decreciente, son:
+    Utilizando el coeficiente de variación, podemos decir que las variables más 
+    dispersas, en orden decreciente, son:
 
 ```{r}
 datos %>% select(-VAR) %>%
@@ -92,7 +92,7 @@ datos %>% select(-VAR) %>%
     kable_classic_2()
 ```
 
-**E.** Estandarice las variables por media y desvío. Ahora puede responder al 
+A) Estandarice las variables por media y desvío. Ahora puede responder al 
 inciso (d) ?
 
 ```{r}
@@ -100,8 +100,8 @@ inciso (d) ?
 datos_std = scale(datos[-1])
 ```
 
-Como son variables estandarizadas, el coeficiente de variacion no existe,
-pero todas tienen desvio estandar 1 (ya que la media es 0)
+    Como son variables estandarizadas, el coeficiente de variacion no existe,
+    pero todas tienen desvio estandar 1 (ya que la media es 0)
 
 ```{r}
 datos_std %>%
@@ -110,9 +110,9 @@ datos_std %>%
     round(1)
 ```
 
-**F.** Halle la matriz de correlación. Que variables son las más relacionadas?
+A) Halle la matriz de correlación. Que variables son las más relacionadas?
 
-La matriz de correlación es:
+    La matriz de correlación es:
 
 ```{r}
 datos %>% 
@@ -124,8 +124,8 @@ datos %>%
     kable_classic_2()
 ```
 
-A continuación una representacion grafica de la matriz de correlacion, la cual permite
-identificar de forma mas sencilla las variables mas relacionadas:      
+    A continuación una representacion grafica de la matriz de correlacion, la cual permite
+    identificar de forma mas sencilla las variables mas relacionadas:      
 
 ```{r}
 datos%>%
@@ -138,27 +138,25 @@ datos%>%
     )
 ```
 
-**G.** Pueden dividirse las variables en subgrupos, de modo que las variables 
+A) Pueden dividirse las variables en subgrupos, de modo que las variables 
 dentro de un mismo subgrupo tengan elevadas correlaciones entre sí y que las que
 se encuentren en subgrupos diferentes tengan bajas correlaciones? Si es así, 
 cuáles variables quedan en cada uno de los subgrupos?
 
-* Los subgrupos de variables con altas correlaciones son los siguientes: 
+    * Los subgrupos de variables con altas correlaciones son los siguientes: 
+    1. Peso, longitud, ancho y espesor del fruto (caracteristicas del fruto)
+    1. Peso, longitud y ancho del endocarpio (caracteristicas del endocarpio)
+    1. Tamaño de la flor, longitu y ancho del petalo (caracteristicas de la flor)
 
-1. Peso, longitud, ancho y espesor del fruto (caracteristicas del fruto)
-1. Peso, longitud y ancho del endocarpio (caracteristicas del endocarpio)
-1. Tamaño de la flor, longitu y ancho del petalo (caracteristicas de la flor)
+    * El subgrupo de variables con bajas correlaciones son los siguientes: 
+    1. Superficie de la hoja, relacion entre peciolo-limbo y relacion entre longitud
+    y ancho de la hoja (caracteristicas de la hoja); tamaño de la flor, longitud y 
+    ancho del petalo (caracteristicas de la flor)
 
-* El subgrupo de variables con bajas correlaciones son los siguientes: 
+    Cabe destacar que la superficie de la hoja y relacion peciolo-limbo presentan
+    correlacion muy baja o nula con cualquiera de las otras variables.
 
-1. Superficie de la hoja, relacion entre peciolo-limbo y relacion entre longitud
-y ancho de la hoja (caracteristicas de la hoja); tamaño de la flor, longitud y 
-ancho del petalo (caracteristicas de la flor)
-
-Cabe destacar que la superficie de la hoja y relacion peciolo-limbo presentan
-correlacion muy baja o nula con cualquiera de las otras variables.
-
-**H.** Encuentre la matriz que mide el grado de similaridad entre las variedades
+A) Encuentre la matriz que mide el grado de similaridad entre las variedades
 en función de la distancia euclídea calculada sobre los datos originales.
 
 
@@ -177,10 +175,10 @@ matriz_distancia <- dist %>%
     kable_classic_2()
 ```
 
-**I.** Podría decir cuales son los tres pares de variedades que presentan mayor 
+A) Podría decir cuales son los tres pares de variedades que presentan mayor 
 semejanza?
 
-Los pares de variedades que presentan mayor semejanza son:
+    Los pares de variedades que presentan mayor semejanza son:
 
 ```{r}
 matriz_distancia_df <- data.frame(
@@ -208,7 +206,7 @@ matriz_distancia_df %>%
 ```
 
 
-**J.** Repita lo realizado en el inciso (h) pero sobre las variables 
+A) Repita lo realizado en el inciso (h) pero sobre las variables 
 estandarizadas por media y desvío estándar. Son las mismas las tres variedades 
 más parecidas? Comente al respecto
 
@@ -229,7 +227,7 @@ matriz_distancia_std %>%
 
 ```
 
-Con los datos estandarizados, los pares de variedades mas parecidas son:
+    Con los datos estandarizados, los pares de variedades mas parecidas son:
 
 ```{r}
 matriz_distancia_std_df <- data.frame(
@@ -258,13 +256,13 @@ matriz_distancia_std_df %>%
 
 ```
 
-Podemos ver que los tres pares de variedades mas parecidas son distintos a los
-que vimos en el inciso anterior donde utilizamos los datos sin estandarizar. 
-Esto sucede porque las variables estan medidas en diferentes unidades de 
-medicion, y al utilizar las variables sin estandarizar se le da mayor peso a 
-las que tienen una variabilidad mayor valor en la escala de medida original.
+    Podemos ver que los tres pares de variedades mas parecidas son distintos a los
+    que vimos en el inciso anterior donde utilizamos los datos sin estandarizar. 
+    Esto sucede porque las variables estan medidas en diferentes unidades de 
+    medicion, y al utilizar las variables sin estandarizar se le da mayor peso a 
+    las que tienen una variabilidad mayor valor en la escala de medida original.
 
-**K.** Mida el grado de concordancia entre ambas matrices de distancia.
+A) Mida el grado de concordancia entre ambas matrices de distancia.
 
 ```{r}
 matriz_distancia_dist <- as.dist(matriz_distancia)
@@ -275,9 +273,9 @@ conc <- cor(matriz_distancia_dist, matriz_distancia_std_dist) %>%
       rename(CONCORDANCIA = value)
 ```
 
-El grado de concordancia entre las matrices de distancias es: `r conc `.
+    El grado de concordancia entre las matrices de distancias es: `r conc `.
 
-A continuacion se realiza una representacion grafica:
+    A continuacion se realiza una representacion grafica:
 
 ```{r}
 plot(
@@ -289,10 +287,10 @@ plot(
 )
 ```
 
-**L.** Realice un Análisis de Componentes Principales utilizando de la matriz de
+A) Realice un Análisis de Componentes Principales utilizando de la matriz de
 correlaciones.
 
-Los autovalores obtenidos son los siguientes:
+    Los autovalores obtenidos son los siguientes:
 
 ```{r}
 datos_std <- data.frame(datos_std)
@@ -312,7 +310,7 @@ pca$eig %>%
   kable_classic_2()
 ```
 
-Tambien pueden observarse graficamente: 
+    Tambien pueden observarse graficamente: 
 
 ```{r}
 # Agregar linea que acumula.
@@ -321,7 +319,7 @@ barplot(prop_table, main = "AUTOVALORES", names.arg = 1:nrow(pca$eig))
 #lines(c(1, 13), c(0, 0.5))
 ```
 
-Y los autovectores (cargas asociadas a cada componente) son: 
+    Y los autovectores (cargas asociadas a cada componente) son: 
 
 ```{r}
 pca$var$coord %>%
@@ -330,20 +328,20 @@ pca$var$coord %>%
   kable_classic_2()
 ```
 
-**M.** Analice los porcentaje de variabilidad explicada por los primeros ejes 
+A) Analice los porcentaje de variabilidad explicada por los primeros ejes 
 principales.
 
-Observando los autovalores y el porcentaje de varianza explicada de cada uno, 
-podemos decir que la primer componente explica el `r round(pca$eig[1, 2], 2)`%, 
-mientras que la segunda componente explica `r round(pca$eig[2, 2], 2)`%. Luego, 
-la varianza total explicada por estas dos componentes es 
-`r round(pca$eig[2, 3], 2)`%.
+    Observando los autovalores y el porcentaje de varianza explicada de cada uno, 
+    podemos decir que la primer componente explica el `r round(pca$eig[1, 2], 2)`%, 
+    mientras que la segunda componente explica `r round(pca$eig[2, 2], 2)`%. Luego, 
+    la varianza total explicada por estas dos componentes es 
+    `r round(pca$eig[2, 3], 2)`%.
 
-**N.** Establezca intuitivamente grupos de variedades similares según su 
+A) Establezca intuitivamente grupos de variedades similares según su 
 cercanía en el plano principal.
 
-A continuacion se presenta la representacion grafica de las variedades en el 
-plano principal:
+    A continuacion se presenta la representacion grafica de las variedades en el 
+    plano principal:
 
 ```{r, fig.width = 6, fig.height=4}
 
@@ -368,52 +366,53 @@ ggplot(datos_cp) +
 
 ```
 
-Tras observar el grafico podemos decir que encontramos cuatro grupos. 
-El primer grupo contiene a MARTINET, CANINO.T y BLANCO. El segundo esta 
-conformado por CANINO y TADEO. El tercer grupo esta conformado solamente por 
-GABACHET, que se diferencia de todas las variedades. Y el cuarto grupo que se 
-compone por el resto de las variedades, que estan ubicadas alrededor del 
-comportamiento promedio, es decir, el origen del plano.
+    Tras observar el grafico podemos decir que encontramos cuatro grupos. 
+    El primer grupo contiene a MARTINET, CANINO.T y BLANCO. El segundo esta 
+    conformado por CANINO y TADEO. El tercer grupo esta conformado solamente por 
+    GABACHET, que se diferencia de todas las variedades. Y el cuarto grupo que se 
+    compone por el resto de las variedades, que estan ubicadas alrededor del 
+    comportamiento promedio, es decir, el origen del plano.
 
-**O.** Encuentre e interprete gradientes de las variables originales en el plano
+A) Encuentre e interprete gradientes de las variables originales en el plano
 principal en función de sus cargas sobre las dos primeras componentes.
 
-Observando nuevamente las coordenadas de las variables(autovectores):
+    Observando nuevamente las coordenadas de las variables(autovectores):
 ```{r}
 pca$var$coord %>%
   kable() %>%
   kable_styling(full_width = FALSE) %>%
   kable_classic_2() 
 ```
-Considerando la primer componente, los damascos que tengan flores, frutos y endocarpio grandes
-se van a ubicar a la derecha del grafico
+    
+    Considerando la primer componente, los damascos que tengan flores, frutos y endocarpio grandes
+    se van a ubicar a la derecha del grafico
 
-Con respecto a la segunda componente, los damoscos cuyas hojas sean grandes estarán ubicados en 
-la parte superior del grafico, lo mismo ocurre con aquellos damascos con flores grandes. Los damascos
-que tengan frutos pequeños, estaran ubicados en la parte inferior del grafico. 
+    Con respecto a la segunda componente, los damoscos cuyas hojas sean grandes estarán ubicados en 
+    la parte superior del grafico, lo mismo ocurre con aquellos damascos con flores grandes. Los damascos
+    que tengan frutos pequeños, estaran ubicados en la parte inferior del grafico. 
 
-Luego:
+    Luego:
 
-   * Damascos con hojas grandes estaran ubicados en el segundo cuadrante del grafico.
-   * Damascos con endocarpio y frutos grandes estaran ubicados en el cuarto cuadrante del grafico
-   * Damascos con flores grandes estaran ubicados en el primer cuadrante del grafico
+    * Damascos con hojas grandes estaran ubicados en el segundo cuadrante del grafico.
+    * Damascos con endocarpio y frutos grandes estaran ubicados en el cuarto cuadrante del grafico
+    * Damascos con flores grandes estaran ubicados en el primer cuadrante del grafico
    
 
 
-**P.** Caracterice los grupos determinados en el inciso (N) según los gradientes
+A) Caracterice los grupos determinados en el inciso (N) según los gradientes
 descriptos en (O).
 
-Grupo 1: es un grupo de variedades caracterizadas por tener flores, endocarpio y
-hojas grandes y frutos medianos.
+    Grupo 1: es un grupo de variedades caracterizadas por tener flores, endocarpio y
+    hojas grandes y frutos medianos.
 
-Grupo 2: es un grupo caracterizado por tener endoncarpio grande, frutos grandes,
-hojas pequeñas y flores medianas
+    Grupo 2: es un grupo caracterizado por tener endoncarpio grande, frutos grandes,
+    hojas pequeñas y flores medianas
 
-Grupo 3: es un fruto caracterizado por tener hojas grandes, frutos y endocarpio
-pequeños y flores medianas. 
+    Grupo 3: es un fruto caracterizado por tener hojas grandes, frutos y endocarpio
+    pequeños y flores medianas. 
 
 
-**Q.** Superponga en la representación del plano principal un MST. Comente al 
+A) Superponga en la representación del plano principal un MST. Comente al 
 respecto, haría algún reagrupamiento ?
 
 ```{r}
@@ -427,10 +426,10 @@ plot(mst, pca$ind$coord)
 ```
 
 
-**R.** Con el software `R` realice el ACP recurriendo a operaciones con 
+A) Con el software `R` realice el ACP recurriendo a operaciones con 
 matrices (decomposición espectral)
 
-Realizando la descomposicion espectral, los autovalores son los siguientes:
+    Realizando la descomposicion espectral, los autovalores son los siguientes:
 
 ```{r}
 x <- as.matrix(datos_std)
@@ -443,7 +442,7 @@ round(autovalores_$values, 1) %>%
   kable_classic_2() 
 ```
 
-Y los autovectores:
+    Y los autovectores:
 
 ```{r}
 round(autovalores_$vectors[, 1:2], 1) %>%
@@ -452,7 +451,7 @@ round(autovalores_$vectors[, 1:2], 1) %>%
   kable_classic_2()
 ```
 
-Las nuevas coordenadas de las variedades sobre las componentes halladas:
+    Las nuevas coordenadas de las variedades sobre las componentes halladas:
 
 ```{r}
 etiquetas <- rownames(pca$var$coord)
@@ -466,9 +465,9 @@ round(y, 1) %>%
   kable_classic_2()
 ```
 
-**S.**  Verifique que con el enfoque Biplot (DVS) llega a los mismos resultados
+A)  Verifique que con el enfoque Biplot (DVS) llega a los mismos resultados
 
-Valores singulares (d):
+    Valores singulares (d):
 
 ```{r}
 dvs <- svd(x)
@@ -480,7 +479,7 @@ round(dvs$d, 1) %>%
 ```
 
 
-Vectores singulares por izquierda (u):
+    Vectores singulares por izquierda (u):
 
 ```{r}
 colnames(dvs$u) <- etiquetas
@@ -491,7 +490,7 @@ dvs$u %>%
   kable_classic_2()
 ```
 
-Vectores singulares por derecha (v):
+    Vectores singulares por derecha (v):
 
 ```{r}
 colnames(dvs$v) <- etiquetas
@@ -503,7 +502,7 @@ dvs$v %>%
   kable_classic_2()
 ```
 
-Las nuevas cordenadas de las variedades halladas a traves de DVS:
+    Las nuevas cordenadas de las variedades halladas a traves de DVS:
 
 ```{r}
 u <- dvs$u
@@ -522,18 +521,25 @@ round(ydvs, 1) %>%
 **FALTA VERIFICAR QUE SE LLEGA AL MISMO RESULTADO**
 
 
-Graficos de variedades en plano de 2 componentes encimados.
-Como hago para encimar en ggplot2??
 ```{r}
 
+ggplot() + 
+  geom_point(datos_cp, aes(pc1, pc2), size = 4, color = "gray30") + 
+  geom_label_repel(aes(pc1, pc2, label = VARIEDAD)) + 
+  geom_vline(xintercept = 0, linetype = "solid") + 
+  geom_hline(yintercept = 0, linetype = "solid") + 
+  labs(
+    x = "Coordenada Principal 1",
+    y = "Coordenada Principal 2"
+  )
 
 
 ```
 
-**T.** Obtenga 4 dendogramas ultramétricos según diferentes criterios de 
+A) Obtenga 4 dendogramas ultramétricos según diferentes criterios de 
 encadenamiento (SIMPLE, COMPUESTO, UPGMA y WARD).
 
-Criterio de encadenamiento Simple:
+    Criterio de encadenamiento Simple:
 ```{r, fig.height=5, fig.width=10, class.source = 'fold-hide'}
 
 cluster_min <- hclust(matriz_distancia_std_dist, method = "single")
@@ -577,7 +583,7 @@ ggplot(cluster_min_data$segments) +
 
 
  
-Criterio de encadenamiento Compuesto:
+    Criterio de encadenamiento Compuesto:
 ```{r, fig.height=5, fig.width=10, class.source = 'fold-hide'}
 cluster_com <- hclust(matriz_distancia_std_dist, method = "complete")
 cluster_com_data<- dendro_data_k(cluster_com, k=4)
@@ -617,7 +623,7 @@ ggplot(cluster_com_data$segments) +
 
 ```
 
-Criterio de encadenamiento UPGMA
+    Criterio de encadenamiento UPGMA
 ```{r, fig.height=5, fig.width=10, class.source = 'fold-hide'}
 cluster_upgma <- hclust(matriz_distancia_std_dist, method = "average")
 cluster_upgma_data<- dendro_data_k(cluster_upgma, k=4)
@@ -656,7 +662,7 @@ ggplot(cluster_upgma_data$segments) +
 
 ```
 
-Criterio de encadenamiento WARD
+    Criterio de encadenamiento WARD
 
 ```{r, fig.height=5, fig.width=10}
 cluster_ward <- hclust(matriz_distancia_std_dist, method = "ward.D")
@@ -698,64 +704,71 @@ ggplot(cluster_ward_data$segments) +
 ```
 
 
-**U.** Asocie a cada uno de los árboles obtenidos en el inciso anterior la 
+A) Asocie a cada uno de los árboles obtenidos en el inciso anterior la 
 matriz cofenética correspondiente. Que miden los elementos de estas matrices ?
 
-Encadenamiento Simple:
+    Encadenamiento Simple:
 ```{r}
 cophenetic_min = cophenetic(cluster_min)
 min_data<-as.data.frame(cbind(matriz_distancia_std_dist, cophenetic_min))
 
+
 ggplot(min_data) +
-  geom_point(aes(cophenetic_min,matriz_distancia_std_dist ))+
+  geom_abline(slope = 1, size = 1.2, alpha = 0.8, color = colores[1]) +
+  geom_point(aes(cophenetic_min,matriz_distancia_std_dist ), size = 3, alpha = 0.7, color = "grey30")+
   theme_classic()+
   labs(x="Cophenetic - Simple", y ="Distancias Estandarizadas")
 ```
 
 
-Encadenamiento Compuesto:
+    Encadenamiento Compuesto:
 ```{r}
 cophenetic_comp <- cophenetic(cluster_com)
 comp_data<-as.data.frame(cbind(matriz_distancia_std_dist, cophenetic_comp))
 
 ggplot(comp_data) +
-  geom_point(aes(cophenetic_comp,matriz_distancia_std_dist ))+
+  geom_abline(slope = 1, size = 1.2, alpha = 0.8, color = colores[1]) +
+  geom_point(aes(cophenetic_comp,matriz_distancia_std_dist ), size = 3, alpha = 0.7, color = "grey30")+
   theme_classic()+
   labs(x="Cophenetic - Compuesto", y ="Distancias Estandarizadas")
 ```
 
 
-Encadenamiento UPGMA:
+    Encadenamiento UPGMA:
 ```{r}
 cophenetic_upgma = cophenetic(cluster_upgma)
 upgma_data<-as.data.frame(cbind(matriz_distancia_std_dist, cophenetic_upgma))
 
 ggplot(upgma_data) +
-  geom_point(aes(cophenetic_upgma,matriz_distancia_std_dist ))+
+  geom_abline(slope = 1, size = 1.2, alpha = 0.8, color = colores[1]) +
+  geom_point(aes(cophenetic_upgma,matriz_distancia_std_dist ), size = 3, alpha = 0.7, color = "grey30")+
   theme_classic()+
   labs(x="Cophenetic - UPGMA", y ="Distancias Estandarizadas")
 ```
 
 
-Encadenamiento WARD:
+    Encadenamiento WARD:
 ```{r}
 cophenetic_ward = cophenetic(cluster_ward)
 ward_data<-as.data.frame(cbind(matriz_distancia_std_dist, cophenetic_ward))
 
 ggplot(ward_data) +
-  geom_point(aes(cophenetic_ward,matriz_distancia_std_dist ))+
+  geom_abline(slope = 1, size = 1.2, alpha = 0.8, color = colores[1]) +
+  geom_point(aes(cophenetic_ward,matriz_distancia_std_dist ), size = 3, alpha = 0.7, color = "grey30")+
   theme_classic()+
   labs(x="Cophenetic - WARD", y ="Distancias Estandarizadas")
 ```
 
-Los elementos de las matrices anteriores permiten tener una medida de la 
-coherencia del criterio de agrupamiento jerarquico
+    Los elementos de las matrices anteriores permiten tener una medida de la 
+    coherencia del criterio de agrupamiento jerarquico. Como pudo observase el 
+    criterio de encadenamiento UPGMA es el que brinda, para este conjunto de datos, 
+    un mejor criterio de agrupamiento. 
 
-**V.** Cuantifique la concordancia entre la matriz de distancia que dio origen 
+A) Cuantifique la concordancia entre la matriz de distancia que dio origen 
 a los dendogramas y las 4 matrices cofenéticas. A que conclusión llega ?
 
 
-Encadenamiento simple
+    Encadenamiento simple
 ```{r}
 corcof_min<-cor(cophenetic_min, matriz_distancia_std_dist)
 
@@ -766,7 +779,7 @@ round(corcof_min, 2) %>%
 ```
 
 
-Encadenamiento Compuesto
+    Encadenamiento Compuesto
 ```{r}
 corcof_com<-cor(cophenetic_comp, matriz_distancia_std_dist)
 
@@ -778,7 +791,7 @@ round(corcof_com, 2) %>%
 ```
 
 
-Encadenamiento UPGMA
+    Encadenamiento UPGMA
 ```{r}
 corcof_upgma<-cor(cophenetic_upgma, matriz_distancia_std_dist)
 
@@ -789,7 +802,7 @@ round(corcof_upgma, 2) %>%
 ```
 
 
-Encadenamiento WARD
+    Encadenamiento WARD
 ```{r}
 corcof_ward<-cor(cophenetic_ward, matriz_distancia_std_dist)
 
@@ -799,40 +812,64 @@ round(corcof_ward, 2) %>%
   kable_classic_2() 
 ```
 
-Observando las correlaciones obtenidas entre la matriz de distancia y las diferentes matrices cofeneticas puede decirse que la obtenida a traves del metodo de encadenamiento UPGMA es la mas alta
-QUE MAS??
+    Observando las correlaciones obtenidas entre la matriz de distancia y las 
+    diferentes matrices cofeneticas puede decirse que la obtenida a traves del 
+    metodo de encadenamiento UPGMA es la mas alta. El metodo de encadenamiento
+    UPGMA es el que 
+    
+    
+    QUE MAS??
 
-**W.** Existe algún punto de corte sobre el índice de jerarquización del 
+A) Existe algún punto de corte sobre el índice de jerarquización del 
 dendograma UPGMA que origine los mismos agrupamiento de variedades obtenidos en 
 Análisis de Componentes Principales ?
 
-```{r}
-grupos<-cutree(cluster_upgma, k=6)
-plot(cluster_upgma, main = " ")
-rect.hclust(cluster_upgma, k=6, border = "RED")
-```
+    Observando el grafico (ver num q le corresponde) podemos ver con los diferentes
+    colores que se puede realizar un corte el cual permite obtener los mismos 
+    agrupamientos que se obtuvieron a traves del Analisis de Componentes Principales
 
-**X.** Mida el grado de concordancia entre los resultados obtenidos por 
+A) Mida el grado de concordancia entre los resultados obtenidos por 
 Componentes y por Cluster UPGMA
 
-????
-```{r}
+
+```{r, echo=FALSE}
 
 dist_pca<-dist(pca$ind$coord, method="euclidean")
-cor(dist_pca, cophenetic_upgma)%>%
-  round(2)%>%
-  kable(align = "c") %>%
-  kable_styling(full_width = FALSE) %>%
-  kable_classic_2() 
+cor_pca_upgma<-cor(dist_pca, cophenetic_upgma)%>%
+  round(2)
 
 ```
 
+    Para hallar el grado de concordancia entre los resultados obtenidos por Componentes
+    Principales y por CLuster UPGMA se calcula la correlacion entre las matrices de
+    distancias, obteniendo una correlacion de `r cor_pca_upgma`. Dicha correlacion es
+    alta y esto se debe a que 
+    
+    
+    
 **Y.** Halle el dendograma aditivo Neighbor Joining, representa mejor la 
 configuración de variedades que el Cluster UPGMA ?
 
 ```{r}
 
 nj<-nj(matriz_distancia_std_dist)
-plot(nj, "u")
-# usar funcion 'nj'
+
+ggtree::ggtree(nj) + 
+        ggtree::geom_tiplab(vjust = 1) + 
+        scale_x_reverse() +
+        coord_flip() +
+        labs(x = "Distancia") + 
+        theme_grey() + 
+        theme(
+            panel.background = element_rect(),
+            panel.grid.minor = element_blank(),
+            axis.title.x = element_blank(), 
+            axis.title.y = element_text(size = 14),
+            axis.text.x = element_blank(),
+            axis.text.y = element_text(size = 12), 
+            axis.line = element_blank(), 
+            axis.ticks.y = element_blank(),
+            plot.title = element_text(hjust = 0.5),
+            legend.position = "none"
+      )
 ```

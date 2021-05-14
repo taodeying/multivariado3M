@@ -24,93 +24,64 @@ library(tidyverse)
 source(here::here("src", "utils.R"))
 ```
 
-## Datos
-
-```{r}
-datos_q <- read_csv2(here::here("data", "raw", "CUALITATIVAS.csv"))
-datos_c <- read_csv2(here::here("data", "raw", "CUANTITATIVAS.csv"))
-datos_m <- read_csv2(here::here("data", "raw", "RAPDS.csv"))
-```
-
-
-```{r}
-colnames(datos_c)[1] <- "VARIEDAD"
-```
-
-**A.** Mida la concordancia entre las configuraciones en el plano principal 
-obtenidas en los ejercicios 2, 3 y 5
-
-Primero tenemos que correr los analisis nuevamente.
-
-**Ejercicio 2**
-
-```{r}
+```{r, echo= FALSE}
 
 datos_2<-readRDS(here::here("doc", "tp1","shared", "parte_2", "matriz_distancia.rds"))
 coordenadas_principales <- cmdscale(sqrt(datos_2), eig = TRUE)
 datos_2 <- as.data.frame(coordenadas_principales$points)
 datos_2_dist<-dist(datos_2, method = "euclidean", diag = TRUE)
 
-```
-
-**Ejercicio 3**
-
-```{r}
 datos_3<-readRDS(here::here("doc", "tp1","shared", "parte_3", "Coordenadas_1y2_pp_Clusters.rds"))%>%
   select("c1", "c2")
 datos_3_dist<-dist(datos_3, method = "euclidean", diag = TRUE)
-```
 
-**Ejercicio 5**
-
-```{r}
-
-datos_5<-readRDS(here::here("doc", "tp1","shared", "parte_5", "matriz_distancia.rds"))
-coordenadas_principales <- cmdscale(datos_5, eig = TRUE, k=2)
-datos_5 <- as.data.frame(coordenadas_principales$points)
+datos_5<-readRDS(here::here("doc", "tp1","shared", "parte_5", "coordenadas_principales.rds"))
+datos_5<- datos_5$points
 datos_5_dist<-dist(datos_5, method = "euclidean", diag = TRUE)
 
 ```
+    
+    Para cada configuracion medida en los pepinos (cualitativa, cuantitativa y
+    molecular) obtenemos la matriz de distancia entre los puntos en el
+    plano principal y calculamos la correlacion entre pares de matrices.
 
-
-Concordancia entre lo obtenido entre el ejer 2 y 3 (VER, ESCRIBIR EN TERMINOS DEL PROBLEMA)
 ```{r}
-cor(datos_2_dist, datos_3_dist)%>%
-  round(2)%>%
-  kable(align = "c") %>%
-  kable_styling(full_width = FALSE) %>%
-  kable_classic_2() 
+conc_2_3 <- cor(datos_2_dist, datos_3_dist)%>%
+             round(2)
+
+conc_2_5 <- cor(datos_2_dist, datos_5_dist)%>%
+            round(2)
+
+conc_3_5 <- cor(datos_3_dist, datos_5_dist)%>%
+             round(2)
 
 ```
 
-Concordancia entre lo obtenido entre el ejer 2 y 5 (VER, ESCRIBIR EN TERMINOS DEL PROBLEMA)
-```{r}
-cor(datos_2_dist, datos_5_dist)%>%
-  round(2)%>%
-  kable(align = "c") %>%
-  kable_styling(full_width = FALSE) %>%
-  kable_classic_2() 
 
-```
+    Al obtener las correlacion entre las matrices de distancias de las diferentes
+    caracterizaciones sobre el plano principal, observamos que la correlacion mas
+    baja se obtiene al comparar la caracterizacion cuantitativa con la molecular,
+    siendo de `r conc_3_5`. Este resultado no es para nada desalentador, por el
+    contrario, nos indica que al incorporar una nueva dimension (caracteristicas
+    moleculares) sobre la informacion cuantitativa que ya conociamos
+    estamos adquiriendo nueva informacion, permitiendo explicar de una mejor forma el
+    comportamiento y caracterizacion de los pepinos. 
+    Luego, la correlacion entre las matrices de distancias de las caracterizaciones 
+    cualitativa y molecular es de `r conc_2_5`, indicando de esta forma una concordancia
+    media-alta.
+    La correlacion entre las matrices de distancias de las caracterizaciones 
+    cualitativa y cuantitativa en el plano principal es de
+    `r conc_2_3`, lo cual nos indica una concordancia alta entre estas caracterizaciones.
+   
 
-Concordancia entre lo obtenido entre el ejer 3 y 5 (VER, ESCRIBIR EN TERMINOS DEL PROBLEMA)
-```{r}
-cor(datos_3_dist, datos_5_dist)%>%
-  round(2)%>%
-  kable(align = "c") %>%
-  kable_styling(full_width = FALSE) %>%
-  kable_classic_2() 
-
-```
-
-**B.** Mida la concordancia entre la caracterización agronómica 
+A) Mida la concordancia entre la caracterización agronómica 
 (cualitativa + cuantitativa) y molecular (planos principales)
 
 ```{r}
 
 ```
 
-**C.** Con APG halle el consenso entre las configuraciones (plano principal) 
+A) Con APG halle el consenso entre las configuraciones (plano principal) 
 obtenidas en base a datos cualitativos, cuantitativos y moleculares.
 
 
@@ -134,19 +105,8 @@ gpa <- GPA(
 )
 ```
 
-**D.** Identifique si hay algún tipo de pepino para el cual hay más discrepancia
+A) Identifique si hay algún tipo de pepino para el cual hay más discrepancia
 entre estas tres caracterizaciones
-
-
-```{r}
-#anova por variedad
-#ordenar de menor a mayor
-gpa$PANOVA$objet
-
-gpa$PANOVA$config
-#para saber si hay algun tipo de pepino, se puede hacer promedio de distancia por pepino
-
-```
 
 
 ```{r}
@@ -155,12 +115,23 @@ df$tipo <- substr(rownames(df), 1, 1)
 
 df %>% 
     group_by(tipo) %>%
-    summarise(media = mean(SSresidual)) %>%
-    arrange(desc(media))
+    summarise(media = round(mean(SSresidual),2)) %>%
+    arrange(desc(media))%>%
+    kable() %>% 
+    kable_styling(font_size = 12, full_width = FALSE) %>% 
+    kable_classic_2() 
+ 
 ```
 
+    Para identificar si hay algun tipo de pepino que tiene mas discrepancia entre
+    las caracteristicas cualitativas, cuantitativas y moleculares se calculan la sumas de
+    cuadrados residuales promedio para cada una de las variedades. Como podemos observar, 
+    los pepinillos son los que presentan mayor discrepancia entre las caracterizaciones. 
+    Los Peninos Holandeses, tal como pudo observarse en la configuracion cualitativa 
+    son los mas parecidos **VER!**
 
-**E.** Finalice el análisis con un cluster UPGMA obtenido a partir de la 
+
+A) Finalice el análisis con un cluster UPGMA obtenido a partir de la 
 configuración de consenso
 
 ```{r}
