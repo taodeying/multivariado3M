@@ -49,6 +49,7 @@ datos <- read_csv2(here::here("data", "raw", "CUANTITATIVAS.csv")) %>%
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut congue in est vel commodo. Aliquam congue sapien at nibh feugiat hendrerit. Donec sit amet diam ipsum. Donec porta augue eu ex pulvinar, at viverra sem finibus. Sed ac elit nec purus vestibulum egestas. Nulla maximus imperdiet neque nec vehicula. Nulla eget aliquam libero, non iaculis nulla. Nunc aliquet tempus libero a viverra. Maecenas auctor feugiat turpis maximus gravida. Quisque cursus lectus nec nisi varius, a faucibus augue laoreet. 
 
 ```{r}
+# PCA
 fit <- FactoMineR::PCA(
     datos[,-1],          # Remover variables cualitativas
     scale.unit=TRUE,     # Escalar las variables == pca con corr mat
@@ -62,6 +63,7 @@ saveRDS(
 ```
 
 ```{r}
+# Resultado de PCA
 (round(fit$eig,2)) %>% 
     kable() %>% 
     kable_styling(font_size = 8, full_width = FALSE, latex_options = "HOLD_position") %>% 
@@ -69,6 +71,7 @@ saveRDS(
 ```
 
 ```{r}
+# Grafico de PCA
 aux <- as.data.frame(fit$eig)
 aux$comp <- rownames(aux)
 
@@ -122,27 +125,31 @@ Variables Cuello, Estrias, Frutos y Flores permiten separar las Variedades H del
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut congue in est vel commodo. Aliquam congue sapien at nibh feugiat hendrerit. Donec sit amet diam ipsum. Donec porta augue eu ex pulvinar, at viverra sem finibus. Sed ac elit nec purus vestibulum egestas. Nulla maximus imperdiet neque nec vehicula. Nulla eget aliquam libero, non iaculis nulla. Nunc aliquet tempus libero a viverra. Maecenas auctor feugiat turpis maximus gravida. Quisque cursus lectus nec nisi varius, a faucibus augue laoreet. 
 
 ```{r}
+# Extraigo coordenadas
 coord <- fit$ind$coord[,1:2]
 rownames(coord) <- datos$VARIEDAD
 colnames(coord) <- c("c1","c2")
-cluster_cuantitativas <- hclust(dist(coord), method = "average")
-# saveRDS(
-#   cluster_cuantitativas,
-#   here::here("doc", "tp1", "shared", "parte_3", "cluster_cuantitativas.rds")
-# )
-
 ```
 
 ```{r}
+#Encuentro los clusters
+cluster_cuantitativas <- hclust(dist(coord), method = "average")
 dendro_data <- dendro_data_k(cluster_cuantitativas, k=3)
 ```
 
 
 
 ```{r, fig.cap="Caracterizacion cuantitativa de las variedades de pepino."}
+# Plot de las coordenadas
 aux <- as_tibble(coord)
 aux$label <- datos$VARIEDAD
 aux <- aux %>% left_join(dendro_data$labels %>% select(clust,label))
+
+saveRDS(
+  aux %>%  rename("clust_cuanti"=clust),
+  here::here("doc", "tp1", "shared", "parte_3", "Coordenadas_1y2_pp_Clusters.rds")
+)
+
 
 ggplot(aux) + 
   geom_point(aes(c1, c2, color = factor(clust)), size = 4) + 
@@ -159,30 +166,32 @@ ggplot(aux) +
 ```
 
 ```{r}
-cluster_cualitativas <- readRDS(
-  here::here("doc", "tp1", "shared", "parte_2", "cluster_cualitativas.rds")
-) 
-dendro_data_cuali <- dendro_data_k(cluster_cualitativas, k=4)
-
-
-aux <- aux %>% 
-  left_join(
-    dendro_data_cuali$labels %>% 
-      select(clust,label) %>% 
-      rename("clust_cuali"=clust)
-    ) %>% 
-  rename("clust_cuanti"=clust)
-
-
-saveRDS(
-  aux,
-  here::here("doc", "tp1", "shared", "parte_3", "Coordenadas_1y2_pp_Clusters.rds")
-)
+# #Levanto los datos anteriores  BORRAR
+# cluster_cualitativas <- readRDS(
+#   here::here("doc", "tp1", "shared", "parte_2", "cluster_cualitativas.rds")
+# ) 
+# dendro_data_cuali <- dendro_data_k(cluster_cualitativas, k=4)
+# 
+# 
+# aux <- aux %>% 
+#   left_join(
+#     dendro_data_cuali$labels %>% 
+#       select(clust,label) %>% 
+#       rename("clust_cuali"=clust)
+#     ) %>% 
+#   rename("clust_cuanti"=clust)
+# 
+# # 
+# # saveRDS(
+# #   aux,
+# #   here::here("doc", "tp1", "shared", "parte_3", "Coordenadas_1y2_pp_Clusters.rds")
+# # )
 
 ```
 
 
 ```{r, fig.cap="Gradiente de las Variables"}
+# Grafico del Gradiente
 variables_pca <- as.data.frame(fit$var$coord)
 variables_pca$etiqueta <- rownames(variables_pca)
 variables_pca$x0 <- 0
@@ -237,6 +246,7 @@ ggplot(variables_pca) +
 
 
 ```{r}
+# Extraigo coordenadas Viejas
 matriz_distancia_cuali <- readRDS(
       here::here("doc", "tp1", "shared", "parte_2", "matriz_distancia.rds")
     )  
@@ -250,6 +260,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut congue in est vel co
 
 
 ```{r}
+# Coorelaciones entre matrices de distancias euclidianas
 cuali_d <- as.vector(dist(cuali.cp$points))
 cuanti_d <- as.vector(dist(coord))
 
@@ -263,6 +274,7 @@ cor(
 
 
 ```{r}
+# Plot Distancias
 ggplot() + 
       #geom_abline(slope = 1, size = 1.2, alpha = 0.8, color = colores[1]) +
       geom_point(aes(cuali_d, cuanti_d), size = 3, alpha = 0.7, color = "grey30") + 

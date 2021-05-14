@@ -15,7 +15,10 @@ knitr::opts_chunk$set(
   echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center",
   fig.pos = "H", out.extra = "", fig.height = 5, fig.width = 6
 )
+colores <- c("#003f5c", "#7a5195", "#ef5675", "#ffa600")
+
 set.seed(1234)
+
 ```
 
 
@@ -46,18 +49,19 @@ coord_cuanti <- cuanti.pca$ind$coord[,1:2]
 colnames(coord_cuanti) <- c("c1_cuanti","c2_cuanti")
 
 datos <- cbind.data.frame(coord_cuali, coord_cuanti)
+rownames(datos) <- rownames(cuali.cp$points)
 ```
 
 ```{r}
-glimpse(datos)
+head(round(datos,2)) %>% 
+    kable() %>% 
+    kable_styling(font_size = 8, full_width = FALSE, latex_options = "HOLD_position") %>% 
+    kable_classic_2() 
 ```
 
 
 **A.** Halle la configuración de consenso recurriendo a Análisis de Procrustes 
 Generalizados
-
-# Ojo que 2 veces si lo corro me da resultados distintos
-
 
 ```{r}
 set.seed(1234)
@@ -77,8 +81,91 @@ saveRDS(
 ```
 
 ```{r}
-plot(morfologica_gpa)
+# Datos para plots
+cuali_GPA <- as.data.frame(morfologica_gpa$Xfin[,,1])
+cuali_GPA$Tipo <- "Cuali"
+cuali_GPA$etiqueta <- rownames(coord_cuali)
+colnames(cuali_GPA)[1:2] <- c("Dim.1", "Dim.2" )
+
+cuanti_GPA <-  as.data.frame(morfologica_gpa$Xfin[,,2])
+cuanti_GPA$Tipo <- "Cuanti"
+cuanti_GPA$etiqueta <- rownames(coord_cuali)
+colnames(cuanti_GPA)[1:2] <- c("Dim.1", "Dim.2" )
+
+individuos_wide <- bind_cols(cuanti_GPA[, 1:2], cuali_GPA)
+colnames(individuos_wide)[1:4] <-
+  c("Dim.1.Cuanti", "Dim.2.Cuanti", "Dim.1.Cuali", "Dim.2.Cuali")
+
+cons <- as_tibble(morfologica_gpa$consensus)
+colnames(cons) <- c("Dim.1.Consensus", "Dim.2.Consensus")
+individuos_wide <- bind_cols(individuos_wide, cons)
+individuos_wide$Clasificacion <- grepl("A",individuos_wide$etiqueta)*1+
+  grepl("P",individuos_wide$etiqueta)*2+
+  grepl("H",individuos_wide$etiqueta)*3+
+  grepl("F",individuos_wide$etiqueta)*4
+individuos_wide$Clasificacion <- as.character(individuos_wide$Clasificacion)
 ```
+
+
+
+```{r}
+# Plot GPA
+sub_color <- c("A"=colores[1], 
+               "Concenso"=colores[2], 
+               "Cuali"=colores[3],
+               "Cuanti"=colores[4]
+               )
+
+
+ggplot(individuos_wide) +
+  geom_vline(
+    xintercept = 0,
+    linetype = "dashed",
+    color = "gray30",
+    alpha = 0.5
+  ) +
+  geom_hline(
+    yintercept = 0,
+    linetype = "dashed",
+    color = "gray30",
+    alpha = 0.5
+  ) +
+  geom_point(aes(x=Dim.1.Cuali, y=Dim.2.Cuali, color = "Cuali"),
+             size = 3,
+             show.legend = T, 
+             pch=18) +
+  geom_point(aes(x=Dim.1.Cuanti, y=Dim.2.Cuanti, color = "Cuanti"),
+             size = 2.5,
+             show.legend = T,
+             pch=17) +
+  geom_segment(
+    aes(
+      x = Dim.1.Cuali,
+      xend = Dim.1.Cuanti,
+      y =  Dim.2.Cuali,
+      yend = Dim.2.Cuanti,
+      color = "Concenso"
+    ),
+    show.legend = FALSE
+  ) +
+  geom_point(aes(x=Dim.1.Consensus, y=Dim.2.Consensus, color = "Concenso"),
+             size = 2.5,
+             show.legend = T) +
+  geom_label_repel(
+    aes(Dim.1.Consensus, Dim.2.Consensus, label = etiqueta),
+    min.segment.length = 0,
+    max.overlaps = 30,
+    size=3
+  ) +
+  scale_color_manual(values = sub_color) +
+  theme(legend.position="bottom") +
+  labs(x = "Dimension 1", y = "Dimension 2")
+```
+
+
+**B.** Podría decir para cual o cuales variedades existe mayor concordancia 
+entre la caracterización cuantitativa y cualitativa ?
+
 
 ```{r}
 discrepancias <- morfologica_gpa$PANOVA$objet
@@ -98,17 +185,47 @@ ggplot(data=aux)+
 ```
 
 
-
-```{r}
-plot(morfologica_gpa$consensus)
-```
-
-**B.** Podría decir para cual o cuales variedades existe mayor concordancia 
-entre la caracterización cuantitativa y cualitativa ?
-
 **C.** Idem para las variedades con mayor discrepancia entre ambas 
 configuraciones.
 
 **D.** Grafique sólo los puntos de consenso y diga si pudo conformar grupos 
 asociados a los tipos de frutos. Compare con los resultados de los ejercicios 2 
 y 3.
+
+
+```{r}
+
+sub_color <- c("1"=colores[1], 
+               "2"=colores[2], 
+               "3"=colores[3],
+               "4"=colores[4]
+               )
+
+
+ggplot(individuos_wide) +
+  geom_vline(
+    xintercept = 0,
+    linetype = "dashed",
+    color = "gray30",
+    alpha = 0.5
+  ) +
+  geom_hline(
+    yintercept = 0,
+    linetype = "dashed",
+    color = "gray30",
+    alpha = 0.5
+  ) +
+  geom_point(aes(x=Dim.1.Consensus, y=Dim.2.Consensus, col=Clasificacion),
+             size = 2.5,
+             show.legend = T) +
+  geom_label_repel(
+    aes(Dim.1.Consensus, Dim.2.Consensus, label = etiqueta),
+    min.segment.length = 0,
+    max.overlaps = 30,
+    size=3
+  ) +
+  scale_color_manual(values = sub_color) +
+  theme(legend.position="bottom") +
+  labs(x = "Dimension 1", y = "Dimension 2")
+```
+
