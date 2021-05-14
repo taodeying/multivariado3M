@@ -104,7 +104,7 @@ gpa <- GPA(
   axes = c(1,2)
 )
 ```
-
+ 
 A) Identifique si hay algún tipo de pepino para el cual hay más discrepancia
 entre estas tres caracterizaciones
 

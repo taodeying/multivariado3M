@@ -801,7 +801,7 @@ round(corcof_upgma, 2) %>%
   kable_classic_2() 
 ```
 
-
+ 
     Encadenamiento WARD
 ```{r}
 corcof_ward<-cor(cophenetic_ward, matriz_distancia_std_dist)
