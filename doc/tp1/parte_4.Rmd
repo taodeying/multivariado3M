@@ -13,7 +13,7 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center",
-  fig.pos = "H", out.extra = "", fig.height = 4, fig.width = 6
+  fig.pos = "H", out.extra = "", fig.height = 5, fig.width = 6
 )
 ```
 
@@ -59,7 +59,7 @@ Generalizados
 
 
 ```{r}
-set.seed=1
+set.seed(1234)
 morfologica_gpa <- GPA(
   datos, 
   group = c(2, 2), 
@@ -67,6 +67,12 @@ morfologica_gpa <- GPA(
   #axes=c(1,2),
   graph = F
 )
+
+saveRDS(
+  morfologica_gpa,
+  here::here("doc", "tp1", "shared", "parte_4", "morfologica_gpa.rds")
+)
+
 ```
 
 ```{r}
