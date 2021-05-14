@@ -242,7 +242,6 @@ realizar una ACP sobre el promedio de las variables para ambos ambientes
     acp_media <- PCA(datos_media, ncp = 2, graph = FALSE)
     ```
     
-    
     ```{r}
     # Preparo los datos
     individuos <- as.data.frame(acp_media$ind$coord)
@@ -259,7 +258,7 @@ realizar una ACP sobre el promedio de las variables para ambos ambientes
     plot_acp(individuos, variables)
     ```
 
-    No estoy seguro sobre que hacer aca. Comparo con lo anterior? Repito 
+    **No estoy seguro sobre que hacer aca**. Comparo con lo anterior? Repito 
     la manera de interpretar? Me parece un embole.
 
 A) Ahora concatene ambos archivos por filas y columnas y realice un ACP para 
@@ -365,7 +364,20 @@ inciso b ?
     l + r
     ```
 
+
+    De la Figura 6 podemos apreciar que la primer dimension esta muy relacionada
+    con el rinde de la cosecha, la cantidad de granos por metro y el ancho del grano.
+    La segunda dimension, en cambio, representa variables de altura, como son
+    la altura de la planta y de la mazorca. Al observar el panel derecho de 
+    esta figura, podemos ver que los cultivos en Ferre presentaron en general
+    mejores rindes, pero menores tamanos de planta, mientras que las plantas de 
+    Pergamino fueron mas grandes, pero con menor rinde.
     
+    En el panel izquiero de la Figura 7 podemos ver, por ejemplo, que el primer
+    eje esta asociado al rendimiento, en ambos ambientes. Por lo tanto,
+    las poblaciones que se encuentren hacia la derecha en el panel derecho 
+    presentaron rindes altos tanto en Pergamino como en Ferre. 
+
 A) Aplicar APG para tener otra visualización de la interacción genotipo-ambiente
 (retenga todas las dimensiones de ambas configuraciones).
     
@@ -419,7 +431,7 @@ ambiente y las 3 con menor efecto
       ) + 
       geom_point(
         aes(dim.1, dim.2, shape = ambiente, color = color),
-        size = 1.5,
+        size = 1.5
       ) + 
       geom_point(
         aes(x, y, color = color),

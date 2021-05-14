@@ -149,6 +149,17 @@ gpa$PANOVA$config
 ```
 
 
+```{r}
+df <- as.data.frame(head(gpa$PANOVA$objet, -1))
+df$tipo <- substr(rownames(df), 1, 1)
+
+df %>% 
+    group_by(tipo) %>%
+    summarise(media = mean(SSresidual)) %>%
+    arrange(desc(media))
+```
+
+
 **E.** Finalice el análisis con un cluster UPGMA obtenido a partir de la 
 configuración de consenso
 

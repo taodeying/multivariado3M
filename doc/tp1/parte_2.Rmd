@@ -36,7 +36,6 @@ datos <- read.csv2(
 row.names(datos) <- trimws(row.names(datos))
 ```
 
-
 ```{r}
 # Identificamos a los NA
 datos <- datos %>%

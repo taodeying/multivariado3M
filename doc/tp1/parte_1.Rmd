@@ -9,11 +9,11 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-  echo = TRUE, message = FALSE, warning = FALSE, fig.align = "center"
+  echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center",
+  fig.pos = "H", out.extra = "", fig.height = 3, fig.width = 4.5
 )
+colores <- c("#003f5c", "#7a5195", "#ef5675", "#ffa600")
 ```
-
-## Librerias
 
 ```{r}
 library(FactoMineR)
@@ -173,9 +173,8 @@ matriz_distancia <- dist %>%
  matriz_distancia %>% 
     round(1) %>% 
     kable() %>% 
-    kable_styling() %>% 
-    kable_classic_2()%>%
-    scroll_box(height = "300px", width = "100%")
+    kable_styling(latex_options = "HOLD_position") %>% 
+    kable_classic_2()
 ```
 
 **I.** Podría decir cuales son los tres pares de variedades que presentan mayor 
@@ -346,7 +345,7 @@ cercanía en el plano principal.
 A continuacion se presenta la representacion grafica de las variedades en el 
 plano principal:
 
-```{r}
+```{r, fig.width = 6, fig.height=4}
 
 pc1 <- pca$ind$coord[, 1]
 pc2 <- pca$ind$coord[, 2]
@@ -358,7 +357,7 @@ colnames(datos_cp) <- c("VARIEDAD","CP1", "CP2")
 
 
 ggplot(datos_cp) + 
-  geom_point(aes(pc1, pc2), size = 4) + 
+  geom_point(aes(pc1, pc2), size = 4, color = "gray30") + 
   geom_label_repel(aes(pc1, pc2, label = VARIEDAD)) + 
   geom_vline(xintercept = 0, linetype = "solid") + 
   geom_hline(yintercept = 0, linetype = "solid") + 
@@ -420,7 +419,6 @@ respecto, haría algún reagrupamiento ?
 ```{r}
 library(vegan)
 ```
-
 
 ```{r}
 mst <- spantree(matriz_distancia_std_dist)
@@ -659,7 +657,8 @@ ggplot(cluster_upgma_data$segments) +
 ```
 
 Criterio de encadenamiento WARD
-```{r, fig.height=5, fig.width=10, class.source = 'fold-hide'}
+
+```{r, fig.height=5, fig.width=10}
 cluster_ward <- hclust(matriz_distancia_std_dist, method = "ward.D")
 cluster_ward_data<- dendro_data_k(cluster_ward, k=4)
 
@@ -670,10 +669,11 @@ ggplot(cluster_ward_data$segments) +
     lineend = "round"
   ) + 
   geom_text(
-    aes(x = x, y = y - 0.40, label = label, color = as.factor(clust)), 
+    aes(x = x, y = y - 2, label = label, color = as.factor(clust)), 
     data = cluster_ward_data$labels
   ) + 
   coord_flip() + 
+  ylim(-5, 20) + 
   labs(
     y = "Distancia"
   ) + 
