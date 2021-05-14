@@ -135,8 +135,8 @@
 \end{Shaded}
 
 \begin{verbatim}
-Para cada configuracion medida en los pepinillos (cualitativa, cuantitativa y
-molecular) obtenemos la matriz de distancia entre los puntos en el
+Para cada una de las configuraciones que se midieron en los pepinos, cualitativa, 
+cuantitativa y molecular, obtenemos la matriz de distancia entre los puntos en el
 plano principal y calculamos la correlacion entre pares de matrices.
 \end{verbatim}
 
@@ -160,10 +160,10 @@ baja se obtiene al comparar la caracterizacion cuantitativa con la molecular,
 siendo de 0.6. Este resultado no es para nada desalentador, por el
 contrario, nos indica que al incorporar una nueva dimension (caracteristicas
 moleculares) sobre la informacion cuantitativa que ya conociamos
-estamos adquiriendo nueva informacion, permitiendo explicar de una mejor forma el
-comportamiento y caracterizacion de los pepinillos. 
+estamos adquiriendo nueva informacion, permitiendo conocer y explicar de una mejor forma el
+comportamiento y caracterizacion de los pepinos. 
 Luego, la correlacion entre las matrices de distancias de las caracterizaciones 
-cualitativa y molecular es de 0.67, indicando de esta forma una concordancia
+cualitativa y molecular es de 0.67, indicando una concordancia
 media-alta.
 La correlacion entre las matrices de distancias de las caracterizaciones 
 cualitativa y cuantitativa en el plano principal es de
@@ -175,6 +175,12 @@ cualitativa y cuantitativa en el plano principal es de
 \item
   Mida la concordancia entre la caracterización agronómica (cualitativa
   + cuantitativa) y molecular (planos principales)
+
+  Al medir la conconrdancia entre la caracterizacion agronomica y
+  molecular observamos que la misma es de 0.66. Al igual que se planteo
+  en el punto anterior, este resultado es alentador ya que nos confirma
+  que al incorporar nueva informacion sobre las caracteristicas
+  agronomicas de los pepinos se puede enriquecer aun mas el analisis.
 \item
   Con APG halle el consenso entre las configuraciones (plano principal)
   obtenidas en base a datos cualitativos, cuantitativos y moleculares.
@@ -219,10 +225,10 @@ cualitativa y cuantitativa en el plano principal es de
 
 \NormalTok{df }\OperatorTok{%>%}\StringTok{ }
 \StringTok{    }\KeywordTok{group_by}\NormalTok{(tipo) }\OperatorTok{%>%}
-\StringTok{    }\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{media =} \KeywordTok{mean}\NormalTok{(SSresidual)) }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{media =} \KeywordTok{round}\NormalTok{(}\KeywordTok{mean}\NormalTok{(SSresidual),}\DecValTok{2}\NormalTok{)) }\OperatorTok{%>%}
 \StringTok{    }\KeywordTok{arrange}\NormalTok{(}\KeywordTok{desc}\NormalTok{(media))}\OperatorTok{%>%}
 \StringTok{    }\KeywordTok{kable}\NormalTok{() }\OperatorTok{%>%}\StringTok{ }
-\StringTok{    }\KeywordTok{kable_styling}\NormalTok{(}\DataTypeTok{font_size =} \DecValTok{12}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{    }\KeywordTok{kable_styling}\NormalTok{(}\DataTypeTok{font_size =} \DecValTok{12}\NormalTok{, }\DataTypeTok{full_width =} \OtherTok{FALSE}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
 \StringTok{    }\KeywordTok{kable_classic_2}\NormalTok{() }
 \end{Highlighting}
 \end{Shaded}
@@ -234,13 +240,13 @@ cualitativa y cuantitativa en el plano principal es de
 \hline
 tipo & media\\
 \hline
-P & 0.6074664\\
+P & 0.61\\
 \hline
-F & 0.3259472\\
+F & 0.33\\
 \hline
-A & 0.1929178\\
+A & 0.19\\
 \hline
-H & 0.1458124\\
+H & 0.15\\
 \hline
 \end{tabular}
 \endgroup{}
@@ -250,11 +256,18 @@ H & 0.1458124\\
 Para identificar si hay algun tipo de pepino que tiene mas discrepancia entre
 las caracteristicas cualitativas, cuantitativas y moleculares se calculan la sumas de
 cuadrados residuales promedio para cada una de las variedades. Como podemos observar, 
-los pepinos tipo .... tienen 
+los pepinillos son los que presentan mayor discrepancia entre las caracterizaciones. 
+Los Peninos Holandeses, tal como pudo observarse en la configuracion cualitativa 
+son los mas parecidos **VER!**
 \end{verbatim}
 
-\textbf{E.} Finalice el análisis con un cluster UPGMA obtenido a partir
-de la configuración de consenso
+\begin{enumerate}
+\def\labelenumi{\Alph{enumi})}
+\tightlist
+\item
+  Finalice el análisis con un cluster UPGMA obtenido a partir de la
+  configuración de consenso
+\end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
