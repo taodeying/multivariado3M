@@ -1,5 +1,8 @@
 ---
-title: "Ejercicio 6"
+title: "Trabajo practico 1"
+subtitle: "Ejercicio 6"
+author: "Grupo ....."
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: 
   pdf_document:
     extra_dependencies: ["float"]
@@ -7,11 +10,14 @@ editor_options:
   chunk_output_type: console
 ---
 
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-  echo = TRUE, message = FALSE, warning = FALSE, fig.align = "center"
+  echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center",
+  fig.pos = "H", out.extra = "", fig.height = 5, fig.width = 6
 )
 colores <- c("#003f5c", "#7a5195", "#ef5675", "#ffa600")
+
 ```
 
 ## Librerias
@@ -44,9 +50,7 @@ datos_5_dist<-dist(datos_5, method = "euclidean", diag = TRUE)
 
 ```
     
-    Para cada una de las configuraciones que se midieron en los pepinos, cualitativa, 
-    cuantitativa y molecular, obtenemos la matriz de distancia entre los puntos en el
-    plano principal y calculamos la correlacion entre pares de matrices.
+Para cada una de las configuraciones que se midieron en los pepinos, cualitativa, cuantitativa y molecular, obtenemos la matriz de distancia entre los puntos en el plano principal y calculamos la correlacion entre pares de matrices.
 
 ```{r}
 conc_2_3 <- cor(datos_2_dist, datos_3_dist)%>%
@@ -61,20 +65,20 @@ conc_3_5 <- cor(datos_3_dist, datos_5_dist)%>%
 ```
 
 
-    Al obtener las correlacion entre las matrices de distancias de las diferentes
-    caracterizaciones sobre el plano principal, observamos que la correlacion mas
-    baja se obtiene al comparar la caracterizacion cuantitativa con la molecular,
-    siendo de `r conc_3_5`. Este resultado no es para nada desalentador, por el
-    contrario, nos indica que al incorporar una nueva dimension (caracteristicas
-    moleculares) sobre la informacion cuantitativa que ya conociamos
-    estamos adquiriendo nueva informacion, permitiendo conocer y explicar de una mejor forma el
-    comportamiento y caracterizacion de los pepinos. 
-    Luego, la correlacion entre las matrices de distancias de las caracterizaciones 
-    cualitativa y molecular es de `r conc_2_5`, indicando una concordancia
-    media-alta.
-    La correlacion entre las matrices de distancias de las caracterizaciones 
-    cualitativa y cuantitativa en el plano principal es de
-    `r conc_2_3`, lo cual nos indica una concordancia alta entre estas caracterizaciones.
+Al obtener las correlacion entre las matrices de distancias de las diferentes
+caracterizaciones sobre el plano principal, observamos que la correlacion mas
+baja se obtiene al comparar la caracterizacion cuantitativa con la molecular,
+siendo de `r conc_3_5`. Este resultado no es para nada desalentador, por el
+contrario, nos indica que al incorporar una nueva dimension (caracteristicas
+moleculares) sobre la informacion cuantitativa que ya conociamos
+estamos adquiriendo nueva informacion, permitiendo conocer y explicar de una mejor forma el
+comportamiento y caracterizacion de los pepinos. 
+Luego, la correlacion entre las matrices de distancias de las caracterizaciones 
+cualitativa y molecular es de `r conc_2_5`, indicando una concordancia
+media-alta.
+La correlacion entre las matrices de distancias de las caracterizaciones 
+cualitativa y cuantitativa en el plano principal es de
+`r conc_2_3`, lo cual nos indica una concordancia alta entre estas caracterizaciones.
    
 
 A) Mida la concordancia entre la caracterización agronómica 
@@ -89,13 +93,13 @@ cor_4_5<-cor(datos_4_dist, datos_5_dist)%>%
   round(2)
 ```
 
-    Al medir la conconrdancia entre la caracterizacion agronomica y molecular 
-    observamos que la misma es de `r cor_4_5`. 
-    Al igual que se planteo en el punto anterior, este resultado es alentador 
-    ya que nos confirma que al incorporar nueva informacion sobre las 
-    caracteristicas agronomicas de los pepinos se puede enriquecer aun mas
-    el analisis.
-    
+Al medir la conconrdancia entre la caracterizacion agronomica y molecular 
+observamos que la misma es de `r cor_4_5`. 
+Al igual que se planteo en el punto anterior, este resultado es alentador 
+ya que nos confirma que al incorporar nueva informacion sobre las 
+caracteristicas agronomicas de los pepinos se puede enriquecer aun mas
+el analisis.
+
 A) Con APG halle el consenso entre las configuraciones (plano principal) 
 obtenidas en base a datos cualitativos, cuantitativos y moleculares.
 
@@ -106,8 +110,8 @@ df = cbind(
   datos_3,
   datos_5
 ) %>%
-  as.data.frame()%>%
-  round(2)
+  as.data.frame()#%>%
+  #round(2)
 
 colnames(df) = c("C1", "C2", "Q1", "Q2", "M1", "M2")
 
@@ -139,6 +143,11 @@ individuos_wide <- bind_cols(cuali_GPA[, 1:2], cuanti_GPA[,1:2], mol_GPA)
 colnames(individuos_wide)[1:6] <-
   c("Dim.1.Cuali", "Dim.2.Cuali", "Dim.1.Cuanti", "Dim.2.Cuanti", "Dim.1.Mol", "Dim.2.Mol")
 
+cons <- as_tibble(gpa$consensus)
+colnames(cons) <- c("Dim.1.Consensus", "Dim.2.Consensus")
+individuos_wide <- bind_cols(individuos_wide, cons)
+
+
 individuos_wide$Clasificacion <- grepl("A",individuos_wide$etiqueta)*1+
   grepl("P",individuos_wide$etiqueta)*2+
   grepl("H",individuos_wide$etiqueta)*3+
@@ -151,7 +160,7 @@ individuos_wide$Clasificacion <- as.character(individuos_wide$Clasificacion)
 
 ```{r}
 # Plot GPA
-sub_color <- c( "A"=colores[1],
+sub_color <- c( "Concenso"=colores[1],
                "Molecular"=colores[2], 
                "Cualitativa"=colores[3],
                "Cuantitativa"=colores[4]
@@ -171,6 +180,36 @@ ggplot(individuos_wide) +
     color = "gray30",
     alpha = 0.5
   ) +
+  geom_segment(
+    aes(
+      x = Dim.1.Cuali,
+      xend = Dim.1.Consensus,
+      y =  Dim.2.Cuali,
+      yend = Dim.2.Consensus,
+      color = "Concenso"
+    ),
+    show.legend = FALSE
+  ) +
+  geom_segment(
+    aes(
+      x = Dim.1.Mol,
+      xend = Dim.1.Consensus,
+      y =  Dim.2.Mol,
+      yend = Dim.2.Consensus,
+      color = "Concenso"
+      ),
+    show.legend = FALSE
+  ) +
+  geom_segment(
+    aes(
+      x = Dim.1.Cuanti,
+      xend = Dim.1.Consensus,
+      y =  Dim.2.Cuanti,
+      yend = Dim.2.Consensus,
+      color = "Concenso"
+      ),
+    show.legend = FALSE
+  ) +
   geom_point(aes(x=Dim.1.Cuali, y=Dim.2.Cuali, color = "Cualitativa"),
              size = 3,
              show.legend = T, 
@@ -178,36 +217,22 @@ ggplot(individuos_wide) +
   geom_point(aes(x=Dim.1.Cuanti, y=Dim.2.Cuanti, color = "Cuantitativa"),
              size = 2.5,
              show.legend = T,
-             pch=17) +
+             pch=25) +
   geom_point(aes(x=Dim.1.Mol, y=Dim.2.Mol, color = "Molecular"),
              size = 2.5,
              show.legend = T,
              pch=17) +
+  geom_point(aes(x=Dim.1.Consensus, y=Dim.2.Consensus, color = "Concenso"),
+             size = 2.5,
+             show.legend = T,
+             pch=19) +
   geom_label_repel(
-    aes(Dim.1.Mol, Dim.2.Mol, label = etiqueta),
+    aes(Dim.1.Consensus, Dim.2.Consensus, label = etiqueta),
     min.segment.length = 0,
     max.overlaps = 30,
     size=3
   ) +
-  geom_segment(
-    aes(
-      x = Dim.1.Cuali,
-      xend = Dim.1.Mol,
-      y =  Dim.2.Cuali,
-      yend = Dim.2.Mol
-    ),
-    show.legend = FALSE
-  ) +
-  geom_segment(
-    aes(
-      x = Dim.1.Mol,
-      xend = Dim.1.Cuanti,
-      y =  Dim.2.Mol,
-      yend = Dim.2.Cuanti
-      ),
-    show.legend = FALSE
-  ) +
-  scale_color_manual(values = sub_color) +
+  scale_color_manual("",values = sub_color) +
   theme(legend.position="bottom") +
   labs(x = "Dimension 1", y = "Dimension 2")
 
@@ -234,12 +259,12 @@ df %>%
  
 ```
 
-    Para identificar si hay algun tipo de pepino que tiene mas discrepancia entre
-    las caracteristicas cualitativas, cuantitativas y moleculares se calculan la sumas de
-    cuadrados residuales promedio para cada una de las variedades. Como podemos observar, 
-    los pepinillos son los que presentan mayor discrepancia entre las caracterizaciones. 
-    Los Peninos Holandeses, tal como pudo observarse en la configuracion cualitativa 
-    son los mas parecidos **VER!**
+Para identificar si hay algun tipo de pepino que tiene mas discrepancia entre
+las caracteristicas cualitativas, cuantitativas y moleculares se calculan la sumas de
+cuadrados residuales promedio para cada una de las variedades. Como podemos observar, 
+los pepinillos son los que presentan mayor discrepancia entre las caracterizaciones. 
+Los Peninos Holandeses, tal como pudo observarse en la configuracion cualitativa 
+son los mas parecidos **VER!**
 
 
 A) Finalice el análisis con un cluster UPGMA obtenido a partir de la 
