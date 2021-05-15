@@ -171,7 +171,7 @@ ggplot(individuos_wide) +
     max.overlaps = 30,
     size=3
   ) +
-  scale_color_manual(values = sub_color[-1]) +
+  scale_color_manual("",values = sub_color[-1]) +
   theme(legend.position="bottom") +
   labs(x = "Dimension 1", y = "Dimension 2")
 ```
