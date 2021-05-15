@@ -63,6 +63,10 @@ head(round(datos,2)) %>%
 **A.** Halle la configuración de consenso recurriendo a Análisis de Procrustes 
 Generalizados
 
+Se utilizó para el análisis la librería FactorAnalysis y el método GPA con
+la semilla "1234" para poder hacer reproducible el análisis. A continuación
+se muestra su resultádo gráfico:
+
 ```{r}
 set.seed(1234)
 morfologica_gpa <- GPA(
@@ -167,7 +171,7 @@ ggplot(individuos_wide) +
     max.overlaps = 30,
     size=3
   ) +
-  scale_color_manual(values = sub_color) +
+  scale_color_manual(values = sub_color[-1]) +
   theme(legend.position="bottom") +
   labs(x = "Dimension 1", y = "Dimension 2")
 ```
@@ -176,6 +180,7 @@ ggplot(individuos_wide) +
 **B.** Podría decir para cual o cuales variedades existe mayor concordancia 
 entre la caracterización cuantitativa y cualitativa ?
 
+Se puede observar la discrepancia y concordancia resultante del análisis de Procrustes en el siguiente gráfico:
 
 ```{r}
 discrepancias <- morfologica_gpa$PANOVA$objet
@@ -190,18 +195,22 @@ aux = data.frame(
   
 ggplot(data=aux)+
   geom_bar(aes(weight=Discrepancia,y=reorder(Variedad, -Discrepancia)),width = .2) +
-  theme_minimal() 
+  theme_minimal() +
+  labs(x="Discrepancias", y= "Variedades")
 #plot(discrepancias[,2][-nrow(discrepancias)],type="h")
 ```
 
+Aquellas cinco que presentan mayor concordancia son H10, A3, H11, H12, F2. En términos agregados, se podría decir que en promedio la Alpha-Beta poseen una mayor concordancia, seguidas por los Pepinillos.
 
 **C.** Idem para las variedades con mayor discrepancia entre ambas 
 configuraciones.
 
-**D.** Grafique sólo los puntos de consenso y diga si pudo conformar grupos 
-asociados a los tipos de frutos. Compare con los resultados de los ejercicios 2 
-y 3.
+Aquellas cinco que presentan mayor discrepancia son H1, F8, F5, F1, P6. En términos agregados, se podría decir que en promedio las Francesas poseen una mayor discrepancia, seguidas por las Holandesas.
 
+**D.** Grafique sólo los puntos de consenso y diga si pudo conformar grupos 
+asociados a los tipos de frutos. Compare con los resultados de los ejercicios 2 y 3.
+
+Al graficar los puntos de consenso, se nota como la combinación de la información cualitativa junto con la cuantitativa permite separar casi a la perfección los diferentes grupos. A diferencia del PCA sobre las variables cuantitativas, la representación logra separar en los cuatro cuadrantes a los diferentes tipos de frutos e intensifica la separación entre la variedad Holandesa y la Alpha-Beta. Si en cambio, comparamos la representación de las variables cualitativas, se observa que la separación en cuadrantes mejora, aunque no así con la separación entre los Pepinillos y las Francesas.
 
 ```{r}
 
