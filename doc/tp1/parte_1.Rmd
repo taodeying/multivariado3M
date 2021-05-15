@@ -121,8 +121,8 @@ A) Podría decir cuál y cuáles variables son las más dispersas ?
     medio (2.4) es mucho mas bajo que el valor medio de otras variables, como 
     por ejemplo tamaño de la flor, largo de la flor, etc.
 
-    A) Estandarice las variables por media y desvío. Ahora puede responder al 
-    inciso (d) ?
+A) Estandarice las variables por media y desvío. Ahora puede responder al 
+inciso (d) ?
     
     ```{r}
     datos_std <- scale(datos)
@@ -163,13 +163,16 @@ A) Pueden dividirse las variables en subgrupos, de modo que las variables
 dentro de un mismo subgrupo tengan elevadas correlaciones entre sí y que las que
 se encuentren en subgrupos diferentes tengan bajas correlaciones? Si es así, 
 cuáles variables quedan en cada uno de los subgrupos?
-
-    * Los subgrupos de variables con altas correlaciones son los siguientes: 
+    
+    A traves del grafico presentado en el inciso anterior resulta sencillo ver
+    las agrupaciones de varibales con altas o bajas correlaciones.
+    Luego los subgrupos de variables quedan conformados de la siguiente manera:
+    * Subgrupos de variables con altas correlaciones: 
     1. Peso, longitud, ancho y espesor del fruto (caracteristicas del fruto)
     1. Peso, longitud y ancho del endocarpio (caracteristicas del endocarpio)
     1. Tamaño de la flor, longitu y ancho del petalo (caracteristicas de la flor)
 
-    * El subgrupo de variables con bajas correlaciones son los siguientes: 
+    *Subgrupo de variables con bajas correlaciones: 
     1. Superficie de la hoja, relacion entre peciolo-limbo y relacion entre longitud
     y ancho de la hoja (caracteristicas de la hoja); tamaño de la flor, longitud y 
     ancho del petalo (caracteristicas de la flor)
@@ -182,11 +185,13 @@ en función de la distancia euclídea calculada sobre los datos originales.
 
     ```{r, echo=TRUE}
     matriz_distancia <- dist(datos, method = "euclidean")
+    
     ```
 
 A) Podría decir cuales son los tres pares de variedades que presentan mayor 
 semejanza?
 
+    
     ```{r}
     d <- as.data.frame(t(combn(rownames(datos), 2)))
       colnames(d) <- c("Variedad 1", "Variedad 2")
