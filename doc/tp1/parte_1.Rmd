@@ -1,31 +1,4 @@
----
-title: "Ejercicio 1"
-output: 
-  pdf_document:
-    extra_dependencies: ["float"]
-editor_options: 
-  chunk_output_type: console
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center",
-  fig.pos = "H", out.extra = "", fig.height = 3, fig.width = 4.5
-)
-colores <- c("#003f5c", "#7a5195", "#ef5675", "#ffa600")
-```
-
-```{r}
-library(ape)
-library(FactoMineR)
-library(ggforce)
-library(ggrepel)
-library(kableExtra)
-library(patchwork)
-library(tidyverse)
-library(vegan)
-source(here::here("src", "utils.R"))
-```
+ 
 
 ```{r}
 datos <- read.csv2(
