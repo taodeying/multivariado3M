@@ -1,97 +1,67 @@
 ---
 title: "Ejercicio 2"
-output:
-  html_document
+output: 
+  pdf_document:
+    extra_dependencies: ["float"]
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center",
-  fig.pos = "H", out.extra = "", fig.height = 3.5, fig.width = 5
+  fig.pos = "H", out.extra = "", fig.height = 3.5, fig.width = 5.5
 )
 colores <- c("#003f5c", "#7a5195", "#ef5675", "#ffa600")
 ```
 
-
 ```{r}
+library(cluster)
+library(dplyr)
 library(FactoMineR)
 library(ggplot2)
 library(ggforce)
 library(ggrepel)
 library(kableExtra)
-library(cluster)
-# library(patchwork)
- library(tidyverse)
-# library(vegan)
- source(here::here("src", "utils.R"))
+library(patchwork)
+source(here::here("src", "utils.R"))
 ```
 
-Los datos del archivo QUINOA corresponden a 24 accesiones de quinoa nativa del Noroeste Argentino
-conservadas en el Banco de Germoplasma, caracterizadas a través de 10 variables cuantitativas y 8 variables cualitativas. En el identificador de cada accesión se encuentra la indicación de la procedencia del mismo: AL (altiplano), VA (Valles de altura), VS (Valles secos), VH (Valles húmedos orientales).
+Los datos del archivo QUINOA corresponden a 24 accesiones de quinoa nativa del 
+Noroeste Argentino conservadas en el Banco de Germoplasma, caracterizadas a 
+través de 10 variables cuantitativas y 8 variables cualitativas. En el 
+identificador de cada accesión se encuentra la indicación de la procedencia del 
+mismo: AL (altiplano), VA (Valles de altura), VS (Valles secos), 
+VH (Valles húmedos orientales).
 
-# Variables cuantitativas:
- 
- *    DIAMTAL Diámetro del tallo (mm)
- *    ALTPL Altura de planta (cm)
- *    LONGHO Longitud de la hoja (mm)
- *    ANCHOHO Ancho de la hoja (mm)
- *    LONGPEC Longitud del peciolo (mm)
- *    LONGPAN Longitud de la panoja (cm)
- *    LONGGLO Longitud del glomérulo (mm)
- *    DSBF Días desde siembra a botón floral (días)
- *    DSFL Días desde siembra a floración (días)
- *    DSMF Días desde siembra a madurez fisiológica (días)
+A) Realice un ACP con las variables cuantitativas.
 
-# Variables cualitativas:
-
- *    AX Presencia de axilas: Si – No
- *    CEstrias Color de las estrías: amarilla, rojas, purpuras, no (no tiene estrías)
- *    CTallo Color del tallo: rojo, púrpura, verde
- *    PoRAMA Presencia de ramas Si – No
- *    CFA Color de panoja a fin de antesis: Blanca – Púrpura – Gris
- *    Cco Color de la panoja a la cosecha: amarilla, blanca, púrpura, marrón
- *    TP Tipo de panoja: Diferenciada y terminal – No diferenciada
- *    FP Forma de panoja: Glomerulada – Amarantiforme
-
-# Origen de los individuos
-
- *    AL Altiplano
- *    VA Valles de altura
- *    VH Valles húmedos
- *    VS Valles secos
-
-A)      Realice un ACP con las variables cuantitativas.
-
-```{r}
-data <- read.csv2(
-  here::here("data", "raw", "QUINOA.csv"), 
-  row.names = 1, 
-  stringsAsFactors = FALSE
-)
-
-head(data)
-cuanti <- dplyr::select(data,"DIAMTAL","ALTPL", "LONGHO" , "ANCHOHO", "LONGPEC",
-                    "LONGPAN", "LONGGLO", "DSBF", "DSFL", "DSMF")
-
-cuali <- dplyr::select(data, "AX", "CEstrias", "CTallo", "PoRAMA", "CFA",  "Cco",
-                "TP", "FP")
-
-
-pca <- PCA(cuanti, ncp=2, graph = FALSE)
-
-```
-
-```{r, fig.width = 7, fig.height=4}
-
-autovalores_vector <- as.vector(prop.table(pca$eig[, 1]))
-    autovalores <- data.frame(
-      x = 1:10,
-      varianza = autovalores_vector,
-      varianza_cum = cumsum(autovalores_vector)
+    ```{r}
+    data <- read.csv2(
+      here::here("data", "raw", "QUINOA.csv"), 
+      row.names = 1, 
+      stringsAsFactors = FALSE
     )
+    cuanti <- data %>%
+      select(
+        DIAMTAL, ALTPL, LONGHO, ANCHOHO, LONGPEC,
+        LONGPAN, LONGGLO, DSBF, DSFL, DSMF
+      )
+    cuali <- data %>%
+      select(AX, CEstrias, CTallo, PoRAMA, CFA,  Cco, TP, FP)
+    pca <- PCA(cuanti, ncp = 2, graph = FALSE)
+    ```
+
+    ```{r, fig.width=9, fig.height=4.5, fig.cap="Izquierda: porcentaje de varianza retenido por cada componente. Derecha: Correlacion de las variables con los componentes."}
+    autovalores_vector <- as.vector(prop.table(pca$eig[, 1]))
+        autovalores <- data.frame(
+          x = 1:10,
+          varianza = autovalores_vector,
+          varianza_cum = cumsum(autovalores_vector)
+        )
     autovalores$label <- paste0(round(autovalores$varianza * 100), "%")
     
-    ggplot(autovalores, aes(x = x)) + 
+    p1 <- ggplot(autovalores, aes(x = x)) + 
       geom_hline(yintercept = 1, linetype = "dashed", color = "gray30", alpha = 0.5) + 
       geom_col(aes(y = varianza), fill = colores[1]) +
       geom_line(
@@ -118,52 +88,98 @@ autovalores_vector <- as.vector(prop.table(pca$eig[, 1]))
       theme(
         panel.grid.minor.x = element_blank()
       )
-```
-
-
-    Luego de realizar el analisis de componentes principales, podemos observar que el porcentaje de           variabilidad total explicada por las dos primeras componentes es de `r round(pca$eig[2, 3], 2)`%; el      `r round(pca$eig[1, 2], 2)`% corresponde a la primera componente, mientras que el 
-    `r round(pca$eig[2, 2], 2)`% restante corresponde a la segunda componente.
     
-```{r, fig.width = 7, fig.height=4}
-variables <- as.data.frame(pca$var$coord)
+    variables <- as.data.frame(pca$var$coord)
     variables$etiqueta <- rownames(pca$var$coord)
     variables$x0 <- 0
     variables$y0 <- 0
+        
+    p2 <- ggplot(variables) + 
+      geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+      geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+      geom_circle(
+        aes(x0 = x, y0 = y, r = r), 
+        linetype = "dashed", color = "gray30", alpha = 0.5,
+        data = data.frame(x = 0, y = 0, r = 1)
+      ) + 
+      geom_segment(
+        aes(x = x0, y = y0, xend = Dim.1, yend = Dim.2),
+        arrow = arrow(length = unit(0.15, "cm"), type ="closed"),
+        size = 1.15,
+        color = "grey30",
+        show.legend = FALSE
+      ) + 
+      scale_color_manual(values = colores[c(1, 4)]) + 
+      geom_label_repel(
+        aes(Dim.1, Dim.2, label = etiqueta), 
+        min.segment.length = 0,
+        max.overlaps = 30
+      ) + 
+      lims(x = c(-1, 1), y = c(-1, 1)) + 
+      labs(x = "Dimension 1", y = "Dimension 2")
     
-    ggplot(variables) + 
-        geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
-        geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
-        geom_circle(
-          aes(x0 = x, y0 = y, r = r), 
-          linetype = "dashed", color = "gray30", alpha = 0.5,
-          data = data.frame(x = 0, y = 0, r = 1)
-        ) + 
-        geom_segment(
-          aes(x = x0, y = y0, xend = Dim.1, yend = Dim.2),
-          arrow = arrow(length = unit(0.15, "cm"), type ="closed"),
-          size = 1.15,
-          color = "grey30",
-          show.legend = FALSE
-        ) + 
-        scale_color_manual(values = colores[c(1, 4)]) + 
-        geom_label_repel(
-          aes(Dim.1, Dim.2, label = etiqueta), 
-          min.segment.length = 0,
-          max.overlaps = 30
-        ) + 
-        lims(x = c(-1, 1), y = c(-1, 1)) + 
-        labs(x = "Dimension 1", y = "Dimension 2")
+    p1 | p2
+    ```
 
-```
+    Luego de realizar el analisis de componentes principales, podemos observar 
+    que el porcentaje de variabilidad total explicada por las dos primeras 
+    componentes es de `r round(pca$eig[2, 3], 2)`%; el
+    `r round(pca$eig[1, 2], 2)`% corresponde a la primera componente, mientras 
+    que el `r round(pca$eig[2, 2], 2)`% restante corresponde a la segunda componente.
+    Esto indica que la configuracion en el plano principal conserva en muy buena
+    manera la configuracion de los datos en el espacio original.
 
+    En relacion a las variables que mas aportan a la formacion de las
+    componentes, podemos decir que todas las variables contribuyen de forma 
+    positiva a la primer componente, y que longitud del glomérulo es quien 
+    lo hace en  menor medida. Con respecto a la segunda componente, se puede 
+    notar que las variables que mas aportan son Longitud y Ancho de la hoja
+    (de forma positiva) y días desde siembra a botón floral y a floración 
+    (de forma negativa).
     
-    En relacion a las variables que mas aportan a la formacion de las componentes, podemos decir que todas las variables contribuyen de forma positiva a la primer componente, pero Longitud del glomérulo lo hace en menor medida.
-    Con respecto a la Segunda Componente, podemos decir que las variables que mas aportan son Longitud y 
-    Ancho de la hoja (de forma positiva) y días desde siembra a botón floral y a floración (de forma          negativa)
+    El panel derecho de la **Figura 1** tambien nos permite identificar grupos
+    de variables segun su correlacion. Podemos identificar a los siguientes tres
+    grupos que presentan correlacion muy alta entre sus variables: 
+    
+    * Grupo 1: Longitud del glomérulo, diámetro del tallo, longitud de la panoja 
+    y altura de planta (medidas morfológicas de la planta y su fruto).
+    * Grupo 2: Longitud de la hoja, ancho de la hoja y longitud del peciolo 
+    (medidas morfológicas asociadas a la hoja).
+    * Grupo 3: Días desde siembra a botón floral, días desde siembra a floración 
+    y días desde siembra a madurez fisiológica (medidas temporales).
 
+    Se puede notar que el Grupo 1 presenta una correlacion moderada con los 
+    grupos 2 y 3, mientras que estos dos ultimos estan practicamente no 
+    correlacionados entre si ya que forman un angulo aproximado de 90 grados.
 
+    A partir de la **Figura 2** podemos hacer una caracterizacion de accesiones
+    de quinoa segun la procedencia.
+    
+    En primer lugar, se puede notar que las accesiones del Altiplano poseen
+    valores bajos en la primer componente, y en torno al promedio o mas bien 
+    altos en la segunda. Esto nos permite decir que estas accesiones presentan 
+    valores pequeños en cuanto a las caracteristicas morfológicas de la hoja y 
+    de la planta, pero que sus variables temporales tambien son menor que el 
+    promedio. Es decir, la aparicion de boton floral, la floracion y la madurez 
+    fisiologica se dan mas tempranamente que en otras regiones.
+    
+    Por otro lado, se tiene que las accesiones de Vallles Humedo y Seco presentan
+    similares valores en cuanto a la primer dimension, pero difieren en cuanto
+    a la segunda. Las accesiones del Valle Humedo suelen presentar valores
+    menor al promedio y mientras que las del Valle Seco son mayores. Asi,
+    podemos decir que en ambas procedencias se dan similares caracteristicas
+    en cuanto a las medidas morfologicas de la planta (de gran tamaño en ambos casos),
+    pero que las accesiones del Valle Seco suelen asociarse a mayor tamaño de hoja
+    y peciolo, mientras que las del Valle Humedo se asocian a mayor tiempo hasta
+    la aparicion del boton floral, floracion y madurez fisiológica.
+  
+    Con respecto a Valles de Altura, podemos decir que presentan un 
+    comportamiento cercano al promedio en terminos de la primera componente
+    y estan en torno al promedio, o mas bien bajo el promedio, en cuanto a la segunda.
+    En otras palabras, se asocian a accesiones de tamano de planta promedio, 
+    tamaño de hoja tirando a bajo, y tiempos de floracion y madurez tardios.
 
-```{r, fig.width = 7, fig.height=4}
+    ```{r, fig.width=7, fig.height=4, fig.cap="Accesiones de Quinoa en el plano principal del ACP."}
     pc1 <- pca$ind$coord[, 1]
     pc2 <- pca$ind$coord[, 2]
     etiquetas <- rownames(pca$ind$coord)
@@ -179,27 +195,21 @@ variables <- as.data.frame(pca$var$coord)
         x = "Coordenada Principal 1",
         y = "Coordenada Principal 2"
       )
-```    
+    ```    
 
-        La figura anterior permite caracterizar a las distintas accesiones de Quinoa sobre el plano principal de las dos primeras componentes. En la misma, podemos observar que las de Altiplano poseen valores bajos de la Primer Componente, distinguiendose de los Valles. 
-        Las correspondientes a Valles Seco y Humedo forman un solo grupo y no se logra diferenciar entre ellos. Estas accesiones poseen valores altos de la Primer Componente.
-        Con respecto a Valles de Altura, podemos decir que poseen mucha variabilidad sobre la Segunda             Componente
+A) Realice un ACM con las variables cualitativas y compare las configuraciones 
+de individuos provistas por ambas técnicas en el plano principal.
 
-
-A)      Realice un ACM con las variables cualitativas y compare las configuraciones de individuos provistas por ambas técnicas en el plano principal.
-
-```{r, fig.width = 7, fig.height=4}
-
-acm <- MCA(cuali, graph = FALSE)
-
-autovalores_vector <- as.vector(prop.table(acm$eig[, 1]))
+    ```{r, fig.width=7, fig.height=3.5}
+    acm <- MCA(cuali, graph = FALSE)
+    autovalores_vector <- as.vector(prop.table(acm$eig[, 1]))
     autovalores <- data.frame(
       x = 1:15,
       varianza = autovalores_vector,
       varianza_cum = cumsum(autovalores_vector)
     )
     autovalores$label <- paste0(round(autovalores$varianza * 100), "%")
-    
+        
     ggplot(autovalores, aes(x = x)) + 
       geom_hline(yintercept = 1, linetype = "dashed", color = "gray30", alpha = 0.5) + 
       geom_col(aes(y = varianza), fill = colores[1]) +
@@ -227,25 +237,39 @@ autovalores_vector <- as.vector(prop.table(acm$eig[, 1]))
       theme(
         panel.grid.minor.x = element_blank()
       )
+    ```
 
-```
-
-    El porcentaje de incercia explicado es de `r round(acm$eig[2,3],2)`%, siendo bastante menor que lo        obtenido con ACP. Este resultado es alentador, ya que nos indica que al incorporar nueva informacion      acerca de caracteristicas Cualitativas de la Quinoa el analisis puede ser enriquecido.
+    El porcentaje de incercia explicado es por las primeras dos componentes es 
+    de `r round(acm$eig[2, 3], 2)`%, bastante menor que lo obtenido con ACP.
+    Esto indica que la representacion que obtenemos en el plano principal del
+    analisis obtenido con ACM no conserva la configuracion original de los datos
+    de la misma manera que lo hace el analisis ACP con las variables cuantiativas.
     
-    
+    ```{r, fig.cap="Contribucion de las variables a los dos primeros ejes."}
+    d <- as.data.frame(acm$var$eta2[, 1:2])
+    d$etiquetas <- rownames(d)
 
-```{r}
-plot.MCA(acm, choix = "var")
-
-```
+    ggplot(d, aes(`Dim 1`, `Dim 2`)) + 
+      geom_point(size = 3, color = colores[1]) +
+      geom_text_repel(aes(label = etiquetas)) + 
+      geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+      geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+      labs(x = "Dimension 1 (27.87%)", y = "Dimension 2 (14.52%)") + 
+      lims(x = c(0, 1), y = c(0, 1))
+    ```
  
-    Las variables que mas aportan a la formacion del Eje 1 son Color de las estrias, Color de 
-    panoja a fin de antesis y Color de tallo; mientras que Color de la panoja a la cosecha y Tipo 
-    de panoja son las que mas contribuyen al Eje 2.
+    Las variables que mas aportan a la formacion de la Dimension 1 son Color de 
+    las estrias, Color de panoja a fin de antesis y Color de tallo. Esta contribucion
+    se da de manera practicamente exclusiva, ya que no se observa contribucion 
+    en la segunda dimension. Por otro lado, tipo de panojy el color de la panoja
+    a la cosecha y a son las que mas contribuyen a la Dimension 2. Esta ultima
+    variable tambien contribuye moderadamente a la primera dimension. 
     
-
-
-```{r, fig.width = 7, fig.height=4}
+    Finalmente notamos que la presencia de ramas, la forma de la panoja, y la 
+    presencia de axilas tienen muy poca contribucion a la formacion de cualquiera
+    de los dos ejes.
+    
+    ```{r, fig.width=7, fig.height=4, fig.cap="Configuracion de los individuos en el plano principal de ACM."}
     eje1 <- acm$ind$coord[,1]
     eje2 <- acm$ind$coord[,2]
     etiquetas <- rownames(acm$ind$coord)
@@ -261,80 +285,90 @@ plot.MCA(acm, choix = "var")
         x = "Eje Principal 1",
         y = "Eje Principal 2"
       )
-``` 
+    ``` 
 
-    Al observar el grafico anterior, donde se representan los "individuos" sobre los dos primeros ejes 
-    principales, no se logra distinguir a los ambientes; es decir las variables cualitativas, a diferencia
-    de las cuantitativas, no logran diferenciarlos.
+    Se nota en la **Figura 4** que en el analisis AFM basado en las variables
+    cualitativas no permite formar agrupamientos en terminos del ambiente en 
+    el plano principal, a diferencia de lo que sucedio con el analisis ACP 
+    basado en variables cuantitativas.
 
-    Luego, si comparamos las configuraciones de individuos provistas por las dos tecnicas realizadas,         podemos concluir que las mismas parecen no ser homogeneas, ya que, como se pudo observar, una tecnica     logra una diferenciacion por ambientes mientras que la otra no.
+    Luego, si comparamos las configuraciones de individuos provistas por las dos
+    tecnicas realizadas, podemos concluir que las mismas parecen no ser 
+    homogeneas, ya que, como se pudo observar, una tecnica logra una 
+    diferenciacion por ambientes mientras que la otra no.
+
+    Con alguna tecnica numerica podriamos realizar esa comparacion:
+    Para poder comparar, siempre en el plano principal, en acp, se podría buscar 
+    una matriz de distancias euclideas entre individuos, lo mismo puedo tmb hacer
+    para acm. Luego, puedo comparar esas matrices de distancia, medir el "acuerdo", 
+    a traves de una corr de matrices de distancias(tiene que dar un valor bajo)
 
 
-#Con alguna tecnica numerica podriamos realizar esa comparacion:
-#Para poder comparar, siempre en el plano principal, en acp, se podría buscar una matriz de distancias euclideas entre individuos, lo mismo puedo tmb hacer para acm. Luego, puedo comparar esas matrices de distancia, medir el "acuerdo", a traves de una corr de matrices de distancias(tiene que dar un valor bajo)
+    Realice un AFM considerando como grupos a ambos tipos de variables:
 
+    ```{r}
+    afm <- MFA(
+      data, 
+      group = c(ncol(cuanti), ncol(cuali)), 
+      type = c("s", "n"), 
+      ncp = 2, 
+      name.group = c("Cuantitativas", "Cualitativas"),
+      graph = FALSE
+    )
+    ```
 
-## Realice un AFM considerando como grupos a ambos tipos de variables:
+A) Realice el análisis de la interestructura. ¿Qué puede decir de la relación existe entre los grupos?
 
-```{r}
-
-afm <- MFA(data, 
-           group = c(ncol(cuanti),ncol(cuali)), 
-           type = c("s", "n"), 
-           ncp = 2, 
-           name.group = c("Cuantitativas", "Cualitativas"),
-           graph = FALSE)
-
-```
-
-c) Realice el análisis de la interestructura. ¿Qué puede decir de la relación existe entre los grupos?
-
-```{r}
-kable(
-      afm$group$Lg, 
-      digits = 2,
-      align = "c",
-      caption  =  "Coeficiente Lg"
+    ```{r}
+    kable(
+          afm$group$Lg, 
+          digits = 2,
+          align = "c",
+          caption = "Coeficiente Lg"
     ) %>% 
-    kable_styling(font_size = 10, latex_options = "HOLD_position") %>% 
-    kable_classic_2() 
+      kable_styling(font_size = 10, latex_options = "HOLD_position") %>% 
+      kable_classic_2() 
+    ```
 
-```
-
-    Al obtener el Coeficiente Lg, el cual nos brinda una medida de estructura comun entre las variables       Caulitativas y Cuantitativas, observamos que el mismo es de `r round(afm$group$Lg[2,1],2)`. Dado que      se obtuvo un valor bajo, podemos decir que las variables del grupo "Cuantitativas" no estan               correlacionadas con las del grupo "Cualitativas". Es decir, las configuraciones no tienen estructura      en comun.
+    Al obtener el Coeficiente $L_g$, el cual nos brinda una medida de estructura 
+    comun entre las variables Caulitativas y Cuantitativas, observamos que el 
+    mismo es de `r round(afm$group$Lg[2,1],2)`. Dado que se obtuvo un valor 
+    bajo, podemos decir que las variables del grupo "Cuantitativas" no estan
+    correlacionadas con las del grupo "Cualitativas". Es decir, las 
+    configuraciones no tienen estructura en comun.
    
-```{r}
-
-kable(
-      sqrt(afm$group$Lg), 
-      digits = 2,
-      align = "c",
-      caption = "Coeficiente Ng"
+    ```{r}
+    kable(
+        sqrt(afm$group$Lg), 
+        digits = 2,
+        align = "c",
+        caption = "Coeficiente Ng"
     ) %>% 
-    kable_styling(font_size = 10, latex_options = "HOLD_position") %>% 
-    kable_classic_2() 
+      kable_styling(font_size = 10, latex_options = "HOLD_position") %>% 
+      kable_classic_2() 
+    ```
 
-```
+    Al obtener una medida de dimensionalidad de cada grupo (coeficiente $N_g$), 
+    observamos que el grupo "Cualitativas" tiene una dimensionalidad mayor que 
+    "Cuantitativas"
 
-    Al obtener una medida de dimensionalidad de cada grupo (coeficiente Ng), observamos que el grupo         "Cualitativas" tiene una dimensionalidad mayor que "Cuantitativas"
-
-```{r}
-
-kable(
+    ```{r}
+    kable(
       afm$group$RV, 
       digits = 2,
       align = "c",
       caption = "Coeficiente RV"
     ) %>% 
-    kable_styling(font_size = 10, latex_options = "HOLD_position") %>% 
-    kable_classic_2() 
-```
+      kable_styling(font_size = 10, latex_options = "HOLD_position") %>% 
+      kable_classic_2() 
+    ```
 
-    Tal como se intuyo al realizar el analisis por separado, las configuraciones cualitativas y               cuantitativas de las quinoas no son "homoteticas" entre si. Luego, al ser un valor bajo indica que los     grupos de variables brindan informacion complementarria.
+    Tal como se intuyo al realizar el analisis por separado, las configuraciones
+    cualitativas y cuantitativas de las quinoas no son "homoteticas" entre si. 
+    Luego, al ser un valor bajo indica que los grupos de variables brindan 
+    informacion complementarria.
     
-
-```{r, fig.cap="Caracterizacion de los grupos de variables en el plano principal AFM."}
-    
+    ```{r, fig.cap="Caracterizacion de los grupos de variables en el plano principal AFM."}
     d = as.data.frame(afm$group$coord)[, 1:2]
     d$ambiente = rownames(d)
     rownames(d) = NULL
@@ -354,59 +388,66 @@ kable(
       lims(x = c(0, 1), y = c(0, 1))
     ```
 
-    Si observamos el grafico anterior, podemos ver que las variables Cuantitativas son las que contribuyen     a la formacion de la Coordenada 1, mientras que las Cualitativas son las que contribuyen a la             formacion de la Coordenada 2 del Analisis Factorial Multiple.
+    Si observamos el grafico anterior, podemos ver que las variables 
+    Cuantitativas contribuyen unicamente a la formacion de la Coordenada 1,
+    mientras que las Cualitativas son las que contribuyen a la formacion de la 
+    Coordenada 2 del Analisis Factorial Multiple. Estas ultimas, presentan
+    una leve contribucion en la primer coordenada, que se corresponde con 
+    el coeficiente $N_g$ un poco mayor a 1 como es el 1.39 antes visto.
     
-
-
-```{r}
-#Contribucion a los ejes
-
-kable(
+    ```{r}
+    # Contribucion a los ejes
+    kable(
       afm$quali.var$contrib[,1:2], 
       digits = 2,
       align = "c",
       caption  = "Contribuciones a los Ejes - Cualitativas"
     ) %>% 
-    kable_styling(font_size = 10, latex_options = "HOLD_position") %>% 
-    kable_classic_2()
+      kable_styling(font_size = 10, latex_options = "HOLD_position") %>% 
+      kable_classic_2()
+    ```
 
-```
-
-```{r}
-kable(
+    ```{r}
+    kable(
       afm$quanti.var$contrib[,1:2],
       digits = 2,
       align = "c",
       caption  = "Contribuciones a los Ejes - Cuantitativas"
     ) %>% 
-    kable_styling(font_size = 10, latex_options = "HOLD_position") %>% 
-    kable_classic_2()
+      kable_styling(font_size = 10, latex_options = "HOLD_position") %>% 
+      kable_classic_2()
+    ```
 
-```
+A) ¿Existe un agrupamiento de individuos por zona?
 
-d) ¿Existe un agrupamiento de individuos por zona?
+    ```{r}
+    # individuos conseso, permite ver si hay agrupamientos por zona
+    plot.MFA(afm, choix = "ind", invisible = "quali", habillage = "group")
+    ```
 
-```{r}
-#individuos conseso, permite ver si hay agrupamientos por zona
-plot.MFA(afm, choix = "ind", invisible = "quali", habillage = "group")
-```
+    Vemos que abajo a la izq estan las Altiplano (similar a como habia quedado 
+    en las cuali), luego vemos valles humedos y secos juntos. Las de altura 
+    estan mas dispersas, y forman dos grupos sobre el eje vertical, lo que 
+    estaria indicando que difieren en sus vbles cualitativas, ya q estas vbles 
+    son las q contribuyen a la formacion del eje vertical. Podemos ver que hay 
+    dos "individuos" (VS414 Y VH458) qson atipicos. Seguramente esto se deba a 
+    que tengan valores mas altos de cualitativas, distinto al resto
+    (ya q el eje 2 es cuali) VER!!
 
-    Vemos que abajo a la izq estan las Altiplano (similar a como habia quedado en las cuali), luego vemos valles humedos y secos juntos. Las de altura estan mas dispersas, y forman dos grupos sobre el eje vertical, lo que estaria indicando que difieren en sus vbles cualitativas, ya q estas vbles son las q contribuyen a la formacion del eje vertical. Podemos ver que hay dos "individuos" (VS414 Y VH458) qson atipicos. Seguramente esto se deba a que tengan valores mas altos de cualitativas, distinto al resto (ya q el eje 2 es cuali) VER!!
-
-```{r}
-
-plot.MFA(afm, choix = "ind", invisible = "quali", habillage = "group", partial = "all")
-```
+    ```{r}
+    plot.MFA(afm, choix = "ind", invisible = "quali", habillage = "group", partial = "all")
+    ```
     
-    Con este grafico confirmamos lo anterior, VS414 y VH458 poseen valores mas altos de cualitativas q el         resto, es por ello q se apartan del grupo. REDACTAR MEJOR!  
+    Con este grafico confirmamos lo anterior, VS414 y VH458 poseen valores mas 
+    altos de cualitativas q el resto, es por ello q se apartan del grupo. 
+    REDACTAR MEJOR!  
 
-```{r}
-plot.MFA(afm, choix = "ind", invisible = "ind")
+    ```{r}
+    plot.MFA(afm, choix = "ind", invisible = "ind")
+    ```
 
-```
+A) Caracterice los grupos de individuos a través de todas las variables.
 
-
-e) Caracterice los grupos de individuos a través de todas las variables.
-
-    con los graficos anteriores caracterizar los grupos y decir cuales quinoas tienen hojas mas grandes y bla bla bla
+    Con los graficos anteriores caracterizar los grupos y decir cuales quinoas 
+    tienen hojas mas grandes y bla bla bla
         
