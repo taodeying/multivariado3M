@@ -24,7 +24,6 @@ library(ggforce)
 library(ggrepel)
 library(kableExtra)
 library(patchwork)
-source(here::here("src", "utils.R"))
 ```
 
 Los datos del archivo QUINOA corresponden a 24 accesiones de quinoa nativa del 
