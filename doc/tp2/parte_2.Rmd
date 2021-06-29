@@ -303,7 +303,35 @@ de individuos provistas por ambas técnicas en el plano principal.
     a traves de una corr de matrices de distancias(tiene que dar un valor bajo)
 
 
-    Realice un AFM considerando como grupos a ambos tipos de variables:
+```{r}
+dist_acp <- dist(pca$ind$coord[,1:2])
+dist_acm <- dist(acm$ind$coord[,1:2])                
+
+```
+
+
+```{r, fig.cap="Comparacion de distancias en el plano principal para ACP y ACM."}
+    concordancia_df <- data.frame(
+      x = as.vector(dist_acp),
+      y = as.vector(dist_acm)
+    )
+    ggplot(concordancia_df) + 
+      geom_point(aes(x, y), size = 3, alpha = 0.7, color = "grey30") + 
+      labs(
+          x = "Distancia en el plano principal de ACP",
+          y = "Distancia en el plano principal de ACM"
+      )
+    ```
+    
+    El grafico nos permite ver que las representaciones sobre el plano principal
+    no son concordantes. La correlacion entre las distancias 
+    en los planos principales es de `r round(cor(dist_acp, dist_acm), 3)`, lo
+    que indica, consistentemente con el grafico, la discrepancia entre
+    ambas representaciones.
+    
+
+
+Realice un AFM considerando como grupos a ambos tipos de variables:
 
     ```{r}
     afm <- MFA(
@@ -406,6 +434,9 @@ A) Realice el análisis de la interestructura. ¿Qué puede decir de la relació
       kable_classic_2()
     ```
 
+    Las variables Cualitativas que más aportan en la formación del eje 2 son Color
+    de Estrías y de Panoja a fin de antesis Púrpura
+    
     ```{r}
     kable(
       afm$quanti.var$contrib[,1:2],
@@ -417,6 +448,10 @@ A) Realice el análisis de la interestructura. ¿Qué puede decir de la relació
       kable_classic_2()
     ```
 
+    Las variables cuantitativas que más aportan en la formación del eje 1 son: 
+    altura de planta, diámetro del tallo, longitud de la panoja, Días de siembra
+    a botón floral y días desde siembre a floración. Es decir, aquellos individuos
+    que posean valores altos de la primer componente van a tener...COMPLETAR
 A) ¿Existe un agrupamiento de individuos por zona?
 
     ```{r}
@@ -424,14 +459,16 @@ A) ¿Existe un agrupamiento de individuos por zona?
     plot.MFA(afm, choix = "ind", invisible = "quali", habillage = "group")
     ```
 
-    Vemos que abajo a la izq estan las Altiplano (similar a como habia quedado 
-    en las cuali), luego vemos valles humedos y secos juntos. Las de altura 
-    estan mas dispersas, y forman dos grupos sobre el eje vertical, lo que 
-    estaria indicando que difieren en sus vbles cualitativas, ya q estas vbles 
-    son las q contribuyen a la formacion del eje vertical. Podemos ver que hay 
-    dos "individuos" (VS414 Y VH458) qson atipicos. Seguramente esto se deba a 
-    que tengan valores mas altos de cualitativas, distinto al resto
-    (ya q el eje 2 es cuali) VER!!
+    Al observar la figura VER NUMERO Q CORRESPONDE podemos referenciar algunos 
+    agrupamientos según la zona de procedencia. El primer grupo es el conformado 
+    por las variedades VA466 y VA465, procedentes de Valles de Altura; el resto
+    de las variedades de Valles de Altura pueden asociarse en un segundo grupo.
+    El tercer grupo que puede identificarse está conformado por las variedades 
+    procedentes de Altiplano; y por último, el cuarto agrupamiento se compone por 
+    las que son procedentes de Valles Húmedos y Secos. 
+    Cabe descatar que hay dos "individuos", VS414 y VH458, que se alejan del cuarto
+    agrupamiento. Es muy probable que estos valores extremos se deban a que presenten 
+    valores más altos en la configuración Cualitativa.
 
     ```{r}
     plot.MFA(afm, choix = "ind", invisible = "quali", habillage = "group", partial = "all")
@@ -447,6 +484,11 @@ A) ¿Existe un agrupamiento de individuos por zona?
 
 A) Caracterice los grupos de individuos a través de todas las variables.
 
-    Con los graficos anteriores caracterizar los grupos y decir cuales quinoas 
-    tienen hojas mas grandes y bla bla bla
+    Las variedades VA466 y VA465, las cuales conforman el primer grupo, se 
+    caracterizan por tener el color de las estrias y de la panoja a fin de antesis
+    de color púrpura. Además, estas variedades tienen un comportamiento promedio
+    con respecto a las variables cuantitativas 
+    
+    
+    
         
