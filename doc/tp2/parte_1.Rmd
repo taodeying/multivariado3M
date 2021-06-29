@@ -17,8 +17,9 @@ colores <- c("#003f5c", "#7a5195", "#ef5675", "#ffa600")
 
 ```{r}
 library(FactoMineR)
+library(factoextra)
 library(ggplot2)
- library(ggforce)
+library(ggforce)
 library(ggrepel)
 library(kableExtra)
 # library(patchwork)
@@ -313,8 +314,16 @@ entre ambos ambientes en el plano principal? (nombrar 5 para cada dimensión).
 
 A) ¿Cuáles son las variables que más contribuyen a la determinación de los ejes? 
   
-  Usar la mayor correlacion con el eje, y quedarnos con las variables que tengan
-  carga mayor a 2/3 el valor maximo.
+    Para determinar que presentan la mayor contribucion con los ejes vamos a tomar
+    como referencia a la maxima correlacion, y quedarnos con aquellas variables
+    cuya correlacion sea al menos dos tercios de esta cantidad. 
+    
+    En la Tabla 4 podemos ver que las variables mas asociadas con la primer
+    dimension son el diametro de mazorca, la cantidad de granos por metro,
+    el peso de 1000 granos, y el rendimiento, para ambos Ambientes. El hecho de
+    que para ambos ambientes tengamos las mismas variables altamente correlacionadas
+    con la primera dimension nos indica que la relacion entre estas variables 
+    es consistente en ambos ambientes.
 
     ```{r}
     variables <- rownames(mfa$quanti.var$coord)
@@ -327,20 +336,101 @@ A) ¿Cuáles son las variables que más contribuyen a la determinación de los e
     ```{r}
     max_dim1 <- max(abs(coord$Dim.1))
     max_dim2 <- max(abs(coord$Dim.2))
-    coord[abs(coord$Dim.1) > 0.75 * max_dim1, c("Dim.1", "ambiente", "variable")]
-    coord[abs(coord$Dim.2) > 0.75 * max_dim2, c("Dim.2", "ambiente", "variable")]
+    t1 <- coord[abs(coord$Dim.1) > 0.75 * max_dim1, c("Dim.1", "ambiente", "variable")]
+    t1 <- t1[c("variable", "ambiente", "Dim.1")]
+    t2 <- coord[abs(coord$Dim.2) > 0.75 * max_dim2, c("Dim.2", "ambiente", "variable")]
+    t2 <- t2[c("variable", "ambiente", "Dim.2")]
     ```
+
+    ```{r}
+    kable(
+        t1, 
+        col.names = c("Variable", "Ambiente", "Correlacion"),
+        digits = 3,
+        row.names = FALSE,
+        align = "c",
+        caption = "Correlacion entre variables y el primer eje"
+    ) %>% 
+    kable_styling(font_size = 12, full_width = FALSE, latex_options = "HOLD_position") %>% 
+    kable_classic_2() 
+    ```
+    
+    
+    ```{r}
+    kable(
+        t2, 
+        col.names = c("Variable", "Ambiente", "Correlacion"),
+        digits = 3,
+        row.names = FALSE,
+        align = "c",
+        caption = "Correlacion entre variables y el segundo eje"
+    ) %>% 
+    kable_styling(font_size = 12, latex_options = "HOLD_position") %>% 
+    kable_classic_2() 
+    ```
+    
+    En cuanto al segundo eje, vemos que esta asociado de manera negativa con el
+    ancho del grano en ambos ambientes, y de manera positiva con la altura de 
+    la planta y la altura de la mazorca en el ambiente Ferre. 
+    
+    Que esta dimension este principalmente asociada con variables del ambiente
+    Ferre es consistente con lo que observamos en el punto C, donde vimos
+    que la dimensionalidad para el ambiente Ferre era mayor que para el 
+    ambiente Pergamino. Esto se da, principalmente, porque en el ambiente
+    Pergamino las variables altura de mazorca y altura de planta estan muy
+    correlacionadas positivamente con variables tales como el rendimiento,
+    mientras que en el ambiente Ferre son practicamente independientes,
+    requiriendo mas de una dimension para reflejar la riqueza de los datos.
 
 A) Busque en el Help de R el comando HCPC. Utilícelo con los datos de este 
 ejercicio y comente el resultado (Usar UPGMA). 
 
-    ```{r}
-    #HCPC(datos, method = "average") # datos o mfa?
+    ```{r, echo=TRUE}
+    hcpc <- HCPC(mfa, nb.clust = 4, method = "average", graph = FALSE)
     ```
 
 A) Arme grupos de individuos y realice una caracterización. 
 
+    ```{r, fig.width=6, fig.height=4}
+    fviz_cluster(hcpc) + 
+      scale_fill_manual(values = colores) + 
+      scale_color_manual(values = colores) +
+      scale_shape_discrete(guide = FALSE)
+    ```
 
+    Agregar comentariosssssss
+    
 A) Obtenga la matriz de distancias euclídeas entre individuos en el plano 
 principal del AFM. Compare dicha matriz con la obtenida a partir de APG. 
 
+    ```{r}
+    dist_mfa <- dist(mfa$ind$coord[, 1:2])
+    ```
+
+    ```{r}
+    acp_m1 <- PCA(datos_m1, ncp = 10, graph = FALSE)
+    acp_m2 <- PCA(datos_m2, ncp = 10, graph = FALSE)
+    df <- data.frame(cbind(acp_m1$ind$coord, acp_m2$ind$coord))
+    gpa <- GPA(df, group = c(10, 10), name.group = c("Pergamino", "Ferrre"),
+    graph = FALSE)
+    dist_gpa <- dist(gpa$consensus[, 1:2])
+    ```
+
+
+    ```{r}
+    concordancia_df <- data.frame(
+        x = as.vector(dist_mfa),
+        y = as.vector(dist_gpa)
+    )
+    ggplot(concordancia_df) + 
+      geom_point(aes(x, y), size = 3, alpha = 0.7, color = "grey30") + 
+      labs(
+          x = "Distancia en el plano principal de AFM",
+          y = "Distancia en el plano principal de AOG"
+      )
+    
+    ```
+    
+    La correlacion entre las distancias en los planos principales es de 
+    `r round(cor(dist_mfa, dist_gpa), 3)`
+    
