@@ -57,8 +57,8 @@ ambientes concatenados pero sin utilizar la ponderación del AFM?
     en la primer direccion principal, es mayor.
     
     En cambio, al ponderar a cada tabla por el inverso del primer autovalor, 
-    el primer autovalor de cada tabla ponderada es 1 y en consecuencia cada
-    ambos ambientes tienen el mismo peso en el ACP global.
+    el primer autovalor de cada tabla ponderada es 1 y en consecuencia ambos 
+    ambientes tienen el mismo peso en el ACP global.
     
     Realice un AFM y responda las siguientes cuestiones: 
   
@@ -104,11 +104,12 @@ de los ambientes (condiciones).
     kable_classic_2() 
     ```
 
-    En la tabla 1, vemos que el coeficiente $RV$ entre los ambientes Pergamino
+    En la **Tabla 1**, vemos que el coeficiente $RV$ entre los ambientes Pergamino
     y Ferre es de 0.57. Esto significa que las configuraciones de las variedades
     de maiz en ambos ambientes son medianamente similares. En otras palabras,
     si bien no hay un desentendimiento total entre estas dos configuraciones,
-    tampoco presentan estructuras homoteticas^[En criollo podriamos decir _ni tan tan, ni muy muy_.].
+    tampoco presentan estructuras homoteticas^[Si alguien nos pregunta: 
+    ¿Cuánto se parecen? Responderiamos en criollo _ni tan tan, ni muy muy_.].
     Por otro lado, los valores del coeficiente $RV$ entre las representaciones
     parciales de cada ambiente y la representacion promedio del AFM es de
     0.87  para Pergamino y 0.90 para Ferre. Estos valores indican que la 
@@ -116,16 +117,16 @@ de los ambientes (condiciones).
     parciales de cada ambiente, siendo la configuracion en el ambiente Ferre
     levemente mas similar a la configuracion promedio.
 
-    En cuanto a la tabla 2, vemos que el mayor valor del coeficiente $L_g$ lo 
-    presenta el ambiente Ferre. Esto significa que este ambiente aporta una 
-    descripcion mas rica que el ambiente Pergamino.
+    En cuanto a la **Tabla 2**, vemos que el mayor valor del coeficiente $L_g$ lo 
+    presenta el ambiente Ferre. Esto significa que los datos en este ambiente 
+    tienen mayor riqueza, o menor redundancia, que para el ambiente Pergamino.
     
-    Los coeficientes $N_g$, es decir, la raiz cuadrada del coeficiente $L_g$
-    de un grupo respecto de si mismo, son 1.12 y 1.3 para Pergamino y Ferre,
-    respectivamente. Esto significa que el ambiente Pergamino aporta casi de
-    manera exclusiva en una sola dimension, mientras que el ambiente Ferre 
-    tiene una dimensionalidad un poco mayor a 1, por lo que aporta un poco
-    en una segunda dimension.
+    El valor de los coeficiente $N_g$, es decir, la raiz cuadrada de los 
+    coeficientes $L_g$ de un grupo respecto de si mismo, son 1.12 y 1.3 para 
+    Pergamino y Ferre, respectivamente. Esto significa que el ambiente Pergamino
+    aporta casi de manera exclusiva en una sola dimension, mientras que el 
+    ambiente Ferre tiene una dimensionalidad un poco mayor a 1, por lo que 
+    aporta un poco en una segunda dimension.
     
     Naturalmente, la informacion obtenida mediante el coeficiente $N_g$ es 
     redundante con lo que concluimos mediante el coeficiente $L_g$. En otras
@@ -162,6 +163,18 @@ de los ambientes (condiciones).
 A) Analice si encuentra indicios de interacción tanto genotipo-ambiente como 
 variable-ambiente. 
 
+    En la Figura 2 podemos analizar la interaccion genotipo-ambiente. Alli se
+    puede ver que muchos genotipos de maiz presentan caracterizaciones muy 
+    distintas en ambos ambientes. A simple vista, uno puede resaltar a las variedades
+    38, 90, y 22 como algunas de las variedades con mayor interaccion 
+    genotipo ambiente, ya que las configuraciones parciales difieren mucho
+    entre ellas en el plano principal. En otras palabras, para estas variedades,
+    la caracterizacion promedio que se obtiene mediante AFM no es representativa
+    de su comportamiento en ninguno de los ambientes estudiados.
+    
+    Por otro lado, tambien hay poblaciones de maiz que presentan muy poca 
+    interaccion genotipo-ambiente, como por ejemplo las variedades 44, 102, y 92.
+
     ```{r}
     colores_fct <- as.factor(c(rep(1:4, 7), 1:3))
     
@@ -188,7 +201,7 @@ variable-ambiente.
     ```
 
 
-    ```{r, fig.width=7, fig.height=4, fig.cap="Configuracion "}
+    ```{r, fig.width=7, fig.height=4, fig.cap="Caracterizaciones parciales y de consenso mediante AFM."}
     ggplot(parciales) + 
       geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
       geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
@@ -216,8 +229,8 @@ variable-ambiente.
       scale_color_manual(values = colores, guide = FALSE) + 
       scale_shape_discrete(name = "Ambiente") + 
       theme(
-          legend.position = "top",
-          axis.title = element_blank()
+        legend.position = "top",
+        axis.title = element_blank()
       )
     ```
 
@@ -258,16 +271,6 @@ variable-ambiente.
         )
     ```
 
-    En la Figura 2 podemos analizar la interaccion genotipo-ambiente. Alli se
-    puede ver que muchos genotipos presentan caracterizaciones muy distintas
-    en ambos ambientes. A simple vista, uno puede resaltar a las variedades
-    38, 90, y 22 como algunas de las variedades con mayor interaccion 
-    genotipo ambiente, ya que las configuraciones parciales difieren mucho
-    entre ellas en el plano principal. 
-    
-    Por otro lado, tambien hay poblaciones de maiz que presentan muy poca 
-    interaccion genotipo-ambiente, como por ejemplo las variedades 44, 102, y 92.
-    
     En el caso de la interaccion variable-ambiente, miramos el angulo que forman
     los dos vectores que representan a la misma variable en ambos ambientes en
     la Figura 3. Nuevamente, podemos concluir que hay interaccion variable-ambiente.
@@ -276,7 +279,7 @@ variable-ambiente.
     con mayor altura y mazorcas mas largas se asocian a rindes mayores. 
     Sin embargo, esta asociacion no sucede en Ferre, donde vemos que el 
     rendimiento de la planta no se asocia a estas variables de altura, ya que 
-    forman un angulo aproximado de 90
+    forman un angulo aproximado de 90 grados.
 
 
 A) ¿Cuáles son las poblaciones que tuvieron un comportamiento más diferenciado 
@@ -314,16 +317,30 @@ entre ambos ambientes en el plano principal? (nombrar 5 para cada dimensión).
 
 A) ¿Cuáles son las variables que más contribuyen a la determinación de los ejes? 
   
-    Para determinar que presentan la mayor contribucion con los ejes vamos a tomar
-    como referencia a la maxima correlacion, y quedarnos con aquellas variables
-    cuya correlacion sea al menos dos tercios de esta cantidad. 
+    Para determinar que variables presentan la mayor contribucion con los ejes 
+    vamos a tomar como referencia a la maxima correlacion y nos quedamos con 
+    aquellas variables cuya correlacion sea al menos dos tercios de esta cantidad. 
     
-    En la Tabla 4 podemos ver que las variables mas asociadas con la primer
+    En la **Tabla 4** podemos ver que las variables mas asociadas con la primer
     dimension son el diametro de mazorca, la cantidad de granos por metro,
-    el peso de 1000 granos, y el rendimiento, para ambos Ambientes. El hecho de
-    que para ambos ambientes tengamos las mismas variables altamente correlacionadas
-    con la primera dimension nos indica que la relacion entre estas variables 
-    es consistente en ambos ambientes.
+    el peso de 1000 granos, y el rendimiento, para ambos ambientes. 
+    
+    El hecho de que para ambos ambientes tengamos las mismas variables altamente 
+    correlacionadas con la primera dimension nos indica que la relacion entre 
+    estas variables es consistente en ambos ambientes.
+
+    En cuanto al segundo eje, vemos que esta asociado de manera negativa con el
+    ancho del grano en ambos ambientes, y de manera positiva con la altura de 
+    la planta y la altura de la mazorca en el ambiente Ferre. 
+    
+    Que esta dimension este principalmente asociada con variables del ambiente
+    Ferre es consistente con lo que observamos en el **item C** de este ejercicio, 
+    donde vimos que la dimensionalidad para el ambiente Ferre era mayor que para
+    el ambiente Pergamino. Esto se da, principalmente, porque en el ambiente
+    Pergamino las variables altura de mazorca y altura de planta estan muy
+    correlacionadas positivamente con variables tales como el rendimiento,
+    mientras que en el ambiente Ferre son practicamente independientes,
+    requiriendo mas de una dimension para reflejar la riqueza de los datos.
 
     ```{r}
     variables <- rownames(mfa$quanti.var$coord)
@@ -369,19 +386,6 @@ A) ¿Cuáles son las variables que más contribuyen a la determinación de los e
     kable_classic_2() 
     ```
     
-    En cuanto al segundo eje, vemos que esta asociado de manera negativa con el
-    ancho del grano en ambos ambientes, y de manera positiva con la altura de 
-    la planta y la altura de la mazorca en el ambiente Ferre. 
-    
-    Que esta dimension este principalmente asociada con variables del ambiente
-    Ferre es consistente con lo que observamos en el punto C, donde vimos
-    que la dimensionalidad para el ambiente Ferre era mayor que para el 
-    ambiente Pergamino. Esto se da, principalmente, porque en el ambiente
-    Pergamino las variables altura de mazorca y altura de planta estan muy
-    correlacionadas positivamente con variables tales como el rendimiento,
-    mientras que en el ambiente Ferre son practicamente independientes,
-    requiriendo mas de una dimension para reflejar la riqueza de los datos.
-
 A) Busque en el Help de R el comando HCPC. Utilícelo con los datos de este 
 ejercicio y comente el resultado (Usar UPGMA). 
 
@@ -391,15 +395,45 @@ ejercicio y comente el resultado (Usar UPGMA).
 
 A) Arme grupos de individuos y realice una caracterización. 
 
-    ```{r, fig.width=6, fig.height=4}
+    Los cuatro grupos de individuos pueden verse en la **Figura 5**. 
+    El primero que se destaca, es el grupo numero 1, que contiene solamente a 
+    la variedad 44 de maiz. Esta variedadresalta en ambos ambientes por su bajisimo 
+    rinde y otras caracteristicas no deseables para una variedad de maiz como pueden 
+    ser los granos pequeños y livianos. 
+    
+    El grupo 2 presenta variedades de maiz cuyo rendimiento es mas bajo que el 
+    promedio. Estas variedades ademas presentan granos livianos y mediciones 
+    morfologicas mas tirando a bajas que medias. Excepcionalmente, alguna
+    de las variedades de este grupo, como puede ser la 47 y 17, estan asociadas
+    a plantas y mazorcas altas en el ambiente Ferre. Pero como mencionamos 
+    anteriormente, esto no se asocia a mejor rinde.
+    
+    Por otro lado, el grupo numero 3 se compone de variedades que en ambos ambientes
+    presentan granos anchos y rendimientos cercanos al promedio, o incluso
+    mas bajos que el promedio (esto se da particularmente para la variedad 62). 
+    Tambien notamos que las variedades de este grupo presentan plantas y 
+    mazorcas mas bajas que el promedio para el ambiente Ferre. 
+    
+    Finalmente, el grupo 4. Estas variedades se asocian principalmente con rindes altos,
+    granos pesados, y muchos granos por metros. Esto es consistente con que 
+    estas variedades no estan asociadas a granos anchos, por ejemplo.
+    
+
+    ```{r, fig.width=6, fig.height=3.25, fig.cap="Agrupamiento basado en HCPC."}
     fviz_cluster(hcpc) + 
+      geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+      geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+      scale_y_continuous(expand = c(0.1, 0.1)) + 
       scale_fill_manual(values = colores) + 
       scale_color_manual(values = colores) +
-      scale_shape_discrete(guide = FALSE)
+      scale_shape_discrete(guide = FALSE) +
+      theme(
+        #legend.position = "top",
+        title = element_blank()
+      )
     ```
 
-    Agregar comentariosssssss
-    
+
 A) Obtenga la matriz de distancias euclídeas entre individuos en el plano 
 principal del AFM. Compare dicha matriz con la obtenida a partir de APG. 
 
@@ -417,20 +451,22 @@ principal del AFM. Compare dicha matriz con la obtenida a partir de APG.
     ```
 
 
-    ```{r}
+    ```{r, fig.cap="Comparacion de distancias en el plano principal para AFM y APG."}
     concordancia_df <- data.frame(
-        x = as.vector(dist_mfa),
-        y = as.vector(dist_gpa)
+      x = as.vector(dist_mfa),
+      y = as.vector(dist_gpa)
     )
     ggplot(concordancia_df) + 
       geom_point(aes(x, y), size = 3, alpha = 0.7, color = "grey30") + 
       labs(
           x = "Distancia en el plano principal de AFM",
-          y = "Distancia en el plano principal de AOG"
+          y = "Distancia en el plano principal de APG"
       )
-    
     ```
     
-    La correlacion entre las distancias en los planos principales es de 
-    `r round(cor(dist_mfa, dist_gpa), 3)`
+    El grafico nos permite ver la alta concordancia que existe entre ambas 
+    representaciones en el plano principal. La correlacion entre las distancias 
+    en los planos principales es de `r round(cor(dist_mfa, dist_gpa), 3)`, lo
+    que indica, consistentemente con el grafico, la muy alta similaridad entre
+    ambas representaciones.
     
