@@ -452,6 +452,7 @@ A) Realice el análisis de la interestructura. ¿Qué puede decir de la relació
     altura de planta, diámetro del tallo, longitud de la panoja, Días de siembra
     a botón floral y días desde siembre a floración. Es decir, aquellos individuos
     que posean valores altos de la primer componente van a tener...COMPLETAR
+
 A) ¿Existe un agrupamiento de individuos por zona?
 
     ```{r}
