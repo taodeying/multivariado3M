@@ -22,10 +22,6 @@ library(ggplot2)
 library(ggforce)
 library(ggrepel)
 library(kableExtra)
-# library(patchwork)
-# library(tidyverse)
-# library(vegan)
-# source(here::here("src", "utils.R"))
 ```
 
 ```{r}
@@ -48,425 +44,423 @@ A) En el ejercicio 7b TP Parte I, se realizó un ACP por cada ambiente. ¿Cuánt
 vale el primer autovalor de cada ACP? ¿Qué ocurriría si se hace un ACP de los 
 ambientes concatenados pero sin utilizar la ponderación del AFM?
     
-    En el caso del ambiente Pergamino el primer autovalor es 4.67, y en el caso 
-    del ambiente Ferre es 3.62.
+En el caso del ambiente Pergamino el primer autovalor es 4.67, y en el caso 
+del ambiente Ferre es 3.62.
 
-    Si concateno las matrices sin realizar la ponderacion del AFM, el ambiente
-    Pergamino va a tener mayor peso que el ambiente Ferre en la construccion de
-    un ACP de compromiso porque su primer autovalor, que representa la varianza
-    en la primer direccion principal, es mayor.
-    
-    En cambio, al ponderar a cada tabla por el inverso del primer autovalor, 
-    el primer autovalor de cada tabla ponderada es 1 y en consecuencia ambos 
-    ambientes tienen el mismo peso en el ACP global.
-    
-    Realice un AFM y responda las siguientes cuestiones: 
+Si concateno las matrices sin realizar la ponderacion del AFM, el ambiente
+Pergamino va a tener mayor peso que el ambiente Ferre en la construccion de
+un ACP de compromiso porque su primer autovalor, que representa la varianza
+en la primer direccion principal, es mayor.
+
+En cambio, al ponderar a cada tabla por el inverso del primer autovalor, 
+el primer autovalor de cada tabla ponderada es 1 y en consecuencia ambos 
+ambientes tienen el mismo peso en el ACP global.
+
+Realice un AFM y responda las siguientes cuestiones: 
   
 
-    ```{r}
-    mfa <- MFA(
-      base = datos, 
-      group = c(10, 10), 
-      type = c("s", "s"), 
-      name.group = c("Pergamino", "Ferre"),
-      graph = FALSE
-    )
-    ```  
+```{r}
+mfa <- MFA(
+  base = datos, 
+  group = c(10, 10), 
+  type = c("s", "s"), 
+  name.group = c("Pergamino", "Ferre"),
+  graph = FALSE
+)
+```  
     
-A) ¿Cuál es el porcentaje de explicación del plano principal? 
+B) ¿Cuál es el porcentaje de explicación del plano principal? 
 
-    El porcentaje de variabilidad explicada en el plano princial es 
-    `r paste0(round(mfa$eig[2, 3], 2), "%")`.
+El porcentaje de variabilidad explicada en el plano princial es 
+`r paste0(round(mfa$eig[2, 3], 2), "%")`.
 
-A) ¿Qué puede decir a partir de los coeficientes RV, Lg y Ng? Analice el gráfico 
+C) ¿Qué puede decir a partir de los coeficientes RV, Lg y Ng? Analice el gráfico 
 de los ambientes (condiciones). 
 
-    ```{r}
-    kable(
-      mfa$group$RV, 
-      digits = 3,
-      align = "c",
-      caption = "Coeficiente RV"
-    ) %>% 
-    kable_styling(font_size = 10, latex_options = "HOLD_position") %>% 
-    kable_classic_2() 
-    ```
+```{r}
+kable(
+  mfa$group$RV, 
+  digits = 3,
+  align = "c",
+  caption = "Coeficiente RV"
+) %>% 
+kable_styling(font_size = 10, latex_options = "HOLD_position") %>% 
+kable_classic_2() 
+```
 
-    ```{r}
-    kable(
-      mfa$group$Lg, 
-      digits = 3,
-      align = "c",
-      caption = "Coeficiente $L_g$",
-      format = "latex"
-    ) %>% 
-    kable_styling(font_size = 10, latex_options = "HOLD_position") %>% 
-    kable_classic_2() 
-    ```
+```{r}
+kable(
+  mfa$group$Lg, 
+  digits = 3,
+  align = "c",
+  caption = "Coeficiente $L_g$",
+  format = "latex"
+) %>% 
+kable_styling(font_size = 10, latex_options = "HOLD_position") %>% 
+kable_classic_2() 
+```
 
-    En la **Tabla 1**, vemos que el coeficiente $RV$ entre los ambientes Pergamino
-    y Ferre es de 0.57. Esto significa que las configuraciones de las variedades
-    de maiz en ambos ambientes son medianamente similares. En otras palabras,
-    si bien no hay un desentendimiento total entre estas dos configuraciones,
-    tampoco presentan estructuras homoteticas^[Si alguien nos pregunta: 
-    ¿Cuánto se parecen? Responderiamos en criollo _ni tan tan, ni muy muy_.].
-    Por otro lado, los valores del coeficiente $RV$ entre las representaciones
-    parciales de cada ambiente y la representacion promedio del AFM es de
-    0.87  para Pergamino y 0.90 para Ferre. Estos valores indican que la 
-    representacion de consenso se parece bastante a las representaciones
-    parciales de cada ambiente, siendo la configuracion en el ambiente Ferre
-    levemente mas similar a la configuracion promedio.
+En la **Tabla 1**, vemos que el coeficiente $RV$ entre los ambientes Pergamino
+y Ferre es de 0.57. Esto significa que las configuraciones de las variedades
+de maiz en ambos ambientes son medianamente similares. En otras palabras,
+si bien no hay un desentendimiento total entre estas dos configuraciones,
+tampoco presentan estructuras homoteticas^[Si alguien nos pregunta: 
+¿Cuánto se parecen? Responderiamos en criollo _ni tan tan, ni muy muy_.].
+Por otro lado, los valores del coeficiente $RV$ entre las representaciones
+parciales de cada ambiente y la representacion promedio del AFM es de
+0.87  para Pergamino y 0.90 para Ferre. Estos valores indican que la 
+representacion de consenso se parece bastante a las representaciones
+parciales de cada ambiente, siendo la configuracion en el ambiente Ferre
+levemente mas similar a la configuracion promedio.
 
-    En cuanto a la **Tabla 2**, vemos que el mayor valor del coeficiente $L_g$ lo 
-    presenta el ambiente Ferre. Esto significa que los datos en este ambiente 
-    tienen mayor riqueza, o menor redundancia, que para el ambiente Pergamino.
-    
-    El valor de los coeficiente $N_g$, es decir, la raiz cuadrada de los 
-    coeficientes $L_g$ de un grupo respecto de si mismo, son 1.12 y 1.3 para 
-    Pergamino y Ferre, respectivamente. Esto significa que el ambiente Pergamino
-    aporta casi de manera exclusiva en una sola dimension, mientras que el 
-    ambiente Ferre tiene una dimensionalidad un poco mayor a 1, por lo que 
-    aporta un poco en una segunda dimension.
-    
-    Naturalmente, la informacion obtenida mediante el coeficiente $N_g$ es 
-    redundante con lo que concluimos mediante el coeficiente $L_g$. En otras
-    palabras, en el ambiente Ferre se tiene una descripcion mas rica y 
-    menos redundante de las variedades de maiz que en el ambiente Pergamino. 
-    
-    ```{r, fig.cap="Asociacion de los ambientes con los ejes del plano principal AFM."}
-    d = as.data.frame(mfa$group$coord)[, 1:2]
-    d$ambiente = rownames(d)
-    rownames(d) = NULL
-    colnames(d) = c("x", "y", "ambiente")
-    
-    ggplot(d) +
-      geom_point(aes(x, y, color = ambiente), size = 3) + 
-      geom_label(aes(x, y, label = ambiente), nudge_x = -0.075, nudge_y = -0.075) + 
-      geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
-      geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
-      scale_color_manual(values = colores[c(1, 3)], guide = FALSE) + 
-      labs(
-        x = "Coordenada 1 (37.33%)",
-        y = "Coordenada 2 (14.58%)",
-        title = "Representacion de los ambientes"
-      ) +
-      lims(x = c(0, 1), y = c(0, 1))
-    ```
-    
-    En el grafico de los ambientes se puede ver que ambos ambientes tienen
-    relacion muy alta con la primer coordenada, y que solamente el ambiente
-    Ferre tiene relacion con la segunda coordenada. Esto es consistente con lo
-    que pudimos apreciar mediante el coeficiente $N_g$, donde vimos que la 
-    dimensionalidad del ambiente Pergamino era practicamente 1, mientras que 
-    la del ambiente Ferre era mayor.
+En cuanto a la **Tabla 2**, vemos que el mayor valor del coeficiente $L_g$ lo 
+presenta el ambiente Ferre. Esto significa que los datos en este ambiente 
+tienen mayor riqueza, o menor redundancia, que para el ambiente Pergamino.
 
-A) Analice si encuentra indicios de interacción tanto genotipo-ambiente como 
+El valor de los coeficiente $N_g$, es decir, la raiz cuadrada de los 
+coeficientes $L_g$ de un grupo respecto de si mismo, son 1.12 y 1.3 para 
+Pergamino y Ferre, respectivamente. Esto significa que el ambiente Pergamino
+aporta casi de manera exclusiva en una sola dimension, mientras que el 
+ambiente Ferre tiene una dimensionalidad un poco mayor a 1, por lo que 
+aporta un poco en una segunda dimension.
+
+Naturalmente, la informacion obtenida mediante el coeficiente $N_g$ es 
+redundante con lo que concluimos mediante el coeficiente $L_g$. En otras
+palabras, en el ambiente Ferre se tiene una descripcion mas rica y 
+menos redundante de las variedades de maiz que en el ambiente Pergamino. 
+
+```{r, fig.cap="Asociacion de los ambientes con los ejes del plano principal AFM."}
+d = as.data.frame(mfa$group$coord)[, 1:2]
+d$ambiente = rownames(d)
+rownames(d) = NULL
+colnames(d) = c("x", "y", "ambiente")
+
+ggplot(d) +
+  geom_point(aes(x, y, color = ambiente), size = 3) + 
+  geom_label(aes(x, y, label = ambiente), nudge_x = -0.075, nudge_y = -0.075) + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+  scale_color_manual(values = colores[c(1, 3)], guide = FALSE) + 
+  labs(
+    x = "Coordenada 1 (37.33%)",
+    y = "Coordenada 2 (14.58%)",
+    title = "Representacion de los ambientes"
+  ) +
+  lims(x = c(0, 1), y = c(0, 1))
+```
+
+En el grafico de los ambientes se puede ver que ambos ambientes tienen
+relacion muy alta con la primer coordenada, y que solamente el ambiente
+Ferre tiene relacion con la segunda coordenada. Esto es consistente con lo
+que pudimos apreciar mediante el coeficiente $N_g$, donde vimos que la 
+dimensionalidad del ambiente Pergamino era practicamente 1, mientras que 
+la del ambiente Ferre era mayor.
+
+D) Analice si encuentra indicios de interacción tanto genotipo-ambiente como 
 variable-ambiente. 
 
-    En la Figura 2 podemos analizar la interaccion genotipo-ambiente. Alli se
-    puede ver que muchos genotipos de maiz presentan caracterizaciones muy 
-    distintas en ambos ambientes. A simple vista, uno puede resaltar a las variedades
-    38, 90, y 22 como algunas de las variedades con mayor interaccion 
-    genotipo ambiente, ya que las configuraciones parciales difieren mucho
-    entre ellas en el plano principal. En otras palabras, para estas variedades,
-    la caracterizacion promedio que se obtiene mediante AFM no es representativa
-    de su comportamiento en ninguno de los ambientes estudiados.
-    
-    Por otro lado, tambien hay poblaciones de maiz que presentan muy poca 
-    interaccion genotipo-ambiente, como por ejemplo las variedades 44, 102, y 92.
+En la **Figura 2** podemos analizar la interaccion genotipo-ambiente. Alli se
+puede ver que muchos genotipos de maiz presentan caracterizaciones muy 
+distintas en ambos ambientes. A simple vista, uno puede resaltar a las variedades
+38, 90, y 22 como algunas de las variedades con mayor interaccion 
+genotipo ambiente, ya que las configuraciones parciales difieren mucho
+entre ellas en el plano principal. para estas variedades la caracterizacion 
+promedio que se obtiene mediante AFM no es representativa de su comportamiento 
 
-    ```{r}
-    colores_fct <- as.factor(c(rep(1:4, 7), 1:3))
-    
-    consenso <- as.data.frame(mfa$ind$coord)[1:2]
-    consenso$variedad <- rownames(consenso)
-    rownames(consenso) <- NULL
-    colnames(consenso) <- c("dim_1", "dim_2", "variedad")
-    
-    parciales <- as.data.frame(mfa$ind$coord.partiel)[1:2]
-    etiquetas <- strsplit(rownames(parciales), ".", fixed = "TRUE")
-    parciales$variedad <- sapply(etiquetas, function(x) x[[1]])
-    parciales$ambiente <- sapply(etiquetas, function(x) x[[2]])
-    parciales$colores <- rep(colores_fct, each = 2)
-    rownames(parciales) <- NULL
-    colnames(parciales) <- c("dim_1", "dim_2", "variedad", "ambiente", "colores")
-    
-    segmentos <- cbind(
-      parciales[parciales$ambiente == "Pergamino", 1:2], 
-      parciales[parciales$ambiente == "Ferre", 1:2]
+Por otro lado, tambien hay poblaciones de maiz que presentan muy poca 
+interaccion genotipo-ambiente, como por ejemplo las variedades 44, 102, y 92.
+
+```{r}
+colores_fct <- as.factor(c(rep(1:4, 7), 1:3))
+
+consenso <- as.data.frame(mfa$ind$coord)[1:2]
+consenso$variedad <- rownames(consenso)
+rownames(consenso) <- NULL
+colnames(consenso) <- c("dim_1", "dim_2", "variedad")
+
+parciales <- as.data.frame(mfa$ind$coord.partiel)[1:2]
+etiquetas <- strsplit(rownames(parciales), ".", fixed = "TRUE")
+parciales$variedad <- sapply(etiquetas, function(x) x[[1]])
+parciales$ambiente <- sapply(etiquetas, function(x) x[[2]])
+parciales$colores <- rep(colores_fct, each = 2)
+rownames(parciales) <- NULL
+colnames(parciales) <- c("dim_1", "dim_2", "variedad", "ambiente", "colores")
+
+segmentos <- cbind(
+  parciales[parciales$ambiente == "Pergamino", 1:2], 
+  parciales[parciales$ambiente == "Ferre", 1:2]
+)
+names(segmentos) <- c("x0", "y0", "x1", "y1")
+segmentos$color <- colores_fct
+
+```
+
+
+```{r, fig.width=7, fig.height=4, fig.cap="Caracterizaciones parciales y de consenso mediante AFM."}
+ggplot(parciales) + 
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+  geom_segment(
+    aes(x0, y0, xend=x1, yend=y1, color=color),
+    show.legend = FALSE,
+    data = segmentos
+  ) + 
+  geom_point(
+    aes(dim_1, dim_2, shape = ambiente, color = colores),
+    size = 1.5
+  ) + 
+  geom_point(
+    aes(dim_1, dim_2),
+    size = 0.75,
+    data = consenso
+  ) + 
+  geom_label_repel(
+    aes(dim_1, dim_2, label = variedad), 
+    min.segment.length = 0,
+    max.overlaps = 30,
+    size = 3,
+    data = consenso
+  ) + 
+  scale_color_manual(values = colores, guide = FALSE) + 
+  scale_shape_discrete(name = "Ambiente") + 
+  theme(
+    legend.position = "top",
+    axis.title = element_blank()
+  )
+```
+
+
+```{r, fig.width = 6, fig.height = 6, out.width="60%", fig.cap="Correlacion de las variables con los ejes del plano principal AFM."}
+variable <- rownames(mfa$quanti.var$cor)
+variables <- as.data.frame(mfa$quanti.var$cor[, 1:2])
+variables$x0 <- 0
+variables$y0 <- 0
+rownames(variables) <- NULL
+variables$variable <- variable
+variables$ambiente <- rep(c("Pergamino", "Ferre"), each=10)
+
+ggplot(variables) + 
+    geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+    geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+    geom_circle(
+      aes(x0 = x, y0 = y, r = r), 
+      linetype = "dashed", color = "gray30", alpha = 0.5,
+      data = data.frame(x = 0, y = 0, r = 1)
+    ) + 
+    geom_segment(
+      aes(x = x0, y = y0, xend = Dim.1, yend = Dim.2, color=ambiente),
+      arrow = arrow(length = unit(0.15, "cm"), type ="closed"),
+      size = 1.15
+    ) + 
+    geom_label_repel(
+      aes(Dim.1, Dim.2, label = variable), 
+      min.segment.length = 0,
+      max.overlaps = 30
+    ) + 
+    scale_color_manual(values = colores[c(1, 3)]) + 
+    lims(x = c(-1, 1), y = c(-1, 1)) + 
+    labs(x = "Coordenada 1", y = "Coordenada 2", color = "Ambiente") + 
+    theme(
+      legend.position = "top",
+      axis.title = element_blank()
     )
-    names(segmentos) <- c("x0", "y0", "x1", "y1")
-    segmentos$color <- colores_fct
+```
 
-    ```
-
-
-    ```{r, fig.width=7, fig.height=4, fig.cap="Caracterizaciones parciales y de consenso mediante AFM."}
-    ggplot(parciales) + 
-      geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
-      geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
-      geom_segment(
-        aes(x0, y0, xend=x1, yend=y1, color=color),
-        show.legend = FALSE,
-        data = segmentos
-      ) + 
-      geom_point(
-        aes(dim_1, dim_2, shape = ambiente, color = colores),
-        size = 1.5
-      ) + 
-      geom_point(
-        aes(dim_1, dim_2),
-        size = 0.75,
-        data = consenso
-      ) + 
-      geom_label_repel(
-        aes(dim_1, dim_2, label = variedad), 
-        min.segment.length = 0,
-        max.overlaps = 30,
-        size = 3,
-        data = consenso
-      ) + 
-      scale_color_manual(values = colores, guide = FALSE) + 
-      scale_shape_discrete(name = "Ambiente") + 
-      theme(
-        legend.position = "top",
-        axis.title = element_blank()
-      )
-    ```
+En el caso de la interaccion variable-ambiente, miramos el angulo que forman
+los dos vectores que representan a la misma variable en ambos ambientes en
+la **Figura 3**. Nuevamente, podemos concluir que hay interaccion variable-ambiente.
+Por ejemplo, tenemos que en Pergamino se da que la altura de la planta y de 
+la mazorca se relacionan positivamente con el rinde, indicando que plantas
+con mayor altura y mazorcas mas largas se asocian a rindes mayores. 
+Sin embargo, esta asociacion no sucede en Ferre, donde vemos que el 
+rendimiento de la planta no se asocia a estas variables de altura, ya que 
+forman un angulo aproximado de 90 grados.
 
 
-    ```{r, fig.width = 6, fig.height = 6, out.width="60%", fig.cap="Correlacion de las variables con los ejes del plano principal AFM."}
-    variable <- rownames(mfa$quanti.var$cor)
-    variables <- as.data.frame(mfa$quanti.var$cor[, 1:2])
-    variables$x0 <- 0
-    variables$y0 <- 0
-    rownames(variables) <- NULL
-    variables$variable <- variable
-    variables$ambiente <- rep(c("Pergamino", "Ferre"), each=10)
-  
-    ggplot(variables) + 
-        geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
-        geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
-        geom_circle(
-          aes(x0 = x, y0 = y, r = r), 
-          linetype = "dashed", color = "gray30", alpha = 0.5,
-          data = data.frame(x = 0, y = 0, r = 1)
-        ) + 
-        geom_segment(
-          aes(x = x0, y = y0, xend = Dim.1, yend = Dim.2, color=ambiente),
-          arrow = arrow(length = unit(0.15, "cm"), type ="closed"),
-          size = 1.15
-        ) + 
-        geom_label_repel(
-          aes(Dim.1, Dim.2, label = variable), 
-          min.segment.length = 0,
-          max.overlaps = 30
-        ) + 
-        scale_color_manual(values = colores[c(1, 3)]) + 
-        lims(x = c(-1, 1), y = c(-1, 1)) + 
-        labs(x = "Coordenada 1", y = "Coordenada 2", color = "Ambiente") + 
-        theme(
-          legend.position = "top",
-          axis.title = element_blank()
-        )
-    ```
-
-    En el caso de la interaccion variable-ambiente, miramos el angulo que forman
-    los dos vectores que representan a la misma variable en ambos ambientes en
-    la Figura 3. Nuevamente, podemos concluir que hay interaccion variable-ambiente.
-    Por ejemplo, tenemos que en Pergamino se da que la altura de la planta y de 
-    la mazorca se relacionan positivamente con el rinde, indicando que plantas
-    con mayor altura y mazorcas mas largas se asocian a rindes mayores. 
-    Sin embargo, esta asociacion no sucede en Ferre, donde vemos que el 
-    rendimiento de la planta no se asocia a estas variables de altura, ya que 
-    forman un angulo aproximado de 90 grados.
-
-
-A) ¿Cuáles son las poblaciones que tuvieron un comportamiento más diferenciado 
+E) ¿Cuáles son las poblaciones que tuvieron un comportamiento más diferenciado 
 entre ambos ambientes en el plano principal? (nombrar 5 para cada dimensión). 
 
-    Para realizar este trabajo vamos a obtener los valores de la inercia _within_
-    de cada individuo, para el plano principal.
+Para realizar este trabajo vamos a obtener los valores de la inercia _within_
+de cada individuo, para el plano principal.
 
-    ```{r}
-    inercias_dentro <- as.data.frame(mfa$ind$within.inertia)
-    mayor_inercia_dim1 <- inercias_dentro[order(inercias_dentro[1], decreasing = TRUE)[1:5], 1, drop=FALSE]
-    mayor_inercia_dim2 <- inercias_dentro[order(inercias_dentro[2], decreasing = TRUE)[1:5], 1, drop=FALSE]
-    ```
+```{r}
+inercias_dentro <- as.data.frame(mfa$ind$within.inertia)
+mayor_inercia_dim1 <- inercias_dentro[order(inercias_dentro[1], decreasing = TRUE)[1:5], 1, drop=FALSE]
+mayor_inercia_dim2 <- inercias_dentro[order(inercias_dentro[2], decreasing = TRUE)[1:5], 1, drop=FALSE]
+```
 
-    ```{r}
-    kable(
-        list(mayor_inercia_dim1, mayor_inercia_dim2), 
-        col.names = "Inercia",
-        digits = 3,
-        align = "c",
-        caption = "Poblaciones de maiz con mayor inercia en cada dimension del plano principal"
-    ) %>% 
-    kable_styling(font_size = 12, latex_options = "HOLD_position") %>% 
-    kable_classic_2() 
-    ```
+```{r}
+kable(
+    list(mayor_inercia_dim1, mayor_inercia_dim2), 
+    col.names = "Inercia",
+    digits = 3,
+    align = "c",
+    caption = "Poblaciones de maiz con mayor inercia en cada dimension del plano principal"
+) %>% 
+kable_styling(font_size = 12, latex_options = "HOLD_position") %>% 
+kable_classic_2() 
+```
 
-    A la izquierda, tenemos los valores de inercia para la primer dimension,
-    y al a derecha, los valores de inercia para la segunda dimension. Las
-    poblaciones de maiz que se incluyen son aquellas 5 con mayor inercia en 
-    cada dimension. 
-    
-    En otras palabras, las 5 poblaciones con mayor diferencia en el comportamiento
-    entre ambientes en terminos de la primera dimension son las 90, 12, 21, 38
-    y 22. Para la segunda dimension, son las poblaciones 22, 3, 38, 86 y 47.
+A la izquierda, tenemos los valores de inercia para la primer dimension,
+y al a derecha, los valores de inercia para la segunda dimension. Las
+poblaciones de maiz que se incluyen son aquellas 5 con mayor inercia en 
+cada dimension. 
 
-A) ¿Cuáles son las variables que más contribuyen a la determinación de los ejes? 
-  
-    Para determinar que variables presentan la mayor contribucion con los ejes 
-    vamos a tomar como referencia a la maxima correlacion y nos quedamos con 
-    aquellas variables cuya correlacion sea al menos dos tercios de esta cantidad. 
-    
-    En la **Tabla 4** podemos ver que las variables mas asociadas con la primer
-    dimension son el diametro de mazorca, la cantidad de granos por metro,
-    el peso de 1000 granos, y el rendimiento, para ambos ambientes. 
-    
-    El hecho de que para ambos ambientes tengamos las mismas variables altamente 
-    correlacionadas con la primera dimension nos indica que la relacion entre 
-    estas variables es consistente en ambos ambientes.
+En limpio, las 5 poblaciones con mayor diferencia en el comportamiento
+entre ambientes en terminos de la primera dimension son las 90, 12, 21, 38
+y 22. Para la segunda dimension, son las poblaciones 22, 3, 38, 86 y 47.
 
-    En cuanto al segundo eje, vemos que esta asociado de manera negativa con el
-    ancho del grano en ambos ambientes, y de manera positiva con la altura de 
-    la planta y la altura de la mazorca en el ambiente Ferre. 
-    
-    Que esta dimension este principalmente asociada con variables del ambiente
-    Ferre es consistente con lo que observamos en el **item C** de este ejercicio, 
-    donde vimos que la dimensionalidad para el ambiente Ferre era mayor que para
-    el ambiente Pergamino. Esto se da, principalmente, porque en el ambiente
-    Pergamino las variables altura de mazorca y altura de planta estan muy
-    correlacionadas positivamente con variables tales como el rendimiento,
-    mientras que en el ambiente Ferre son practicamente independientes,
-    requiriendo mas de una dimension para reflejar la riqueza de los datos.
+F) ¿Cuáles son las variables que más contribuyen a la determinación de los ejes? 
 
-    ```{r}
-    variables <- rownames(mfa$quanti.var$coord)
-    coord <- as.data.frame(mfa$quanti.var$coord[, 1:2])
-    rownames(coord) <- NULL
-    coord$ambiente <- rep(c("Pergamino", "Ferre"), each = 10)
-    coord$variable <- variables
-    ```
-    
-    ```{r}
-    max_dim1 <- max(abs(coord$Dim.1))
-    max_dim2 <- max(abs(coord$Dim.2))
-    t1 <- coord[abs(coord$Dim.1) > 0.75 * max_dim1, c("Dim.1", "ambiente", "variable")]
-    t1 <- t1[c("variable", "ambiente", "Dim.1")]
-    t2 <- coord[abs(coord$Dim.2) > 0.75 * max_dim2, c("Dim.2", "ambiente", "variable")]
-    t2 <- t2[c("variable", "ambiente", "Dim.2")]
-    ```
+Para determinar que variables presentan la mayor contribucion con los ejes 
+vamos a tomar como referencia a la maxima correlacion y nos quedamos con 
+aquellas variables cuya correlacion sea al menos dos tercios de esta cantidad. 
 
-    ```{r}
-    kable(
-        t1, 
-        col.names = c("Variable", "Ambiente", "Correlacion"),
-        digits = 3,
-        row.names = FALSE,
-        align = "c",
-        caption = "Correlacion entre variables y el primer eje"
-    ) %>% 
-    kable_styling(font_size = 12, full_width = FALSE, latex_options = "HOLD_position") %>% 
-    kable_classic_2() 
-    ```
-    
-    
-    ```{r}
-    kable(
-        t2, 
-        col.names = c("Variable", "Ambiente", "Correlacion"),
-        digits = 3,
-        row.names = FALSE,
-        align = "c",
-        caption = "Correlacion entre variables y el segundo eje"
-    ) %>% 
-    kable_styling(font_size = 12, latex_options = "HOLD_position") %>% 
-    kable_classic_2() 
-    ```
-    
-A) Busque en el Help de R el comando HCPC. Utilícelo con los datos de este 
+En la **Tabla 4** podemos ver que las variables mas asociadas con la primer
+dimension son el diametro de mazorca, la cantidad de granos por metro,
+el peso de 1000 granos, y el rendimiento, para ambos ambientes. 
+
+El hecho de que para ambos ambientes tengamos las mismas variables altamente 
+correlacionadas con la primera dimension nos indica que la relacion entre 
+estas variables es consistente en ambos ambientes.
+
+En cuanto al segundo eje, vemos que esta asociado de manera negativa con el
+ancho del grano en ambos ambientes, y de manera positiva con la altura de 
+la planta y la altura de la mazorca en el ambiente Ferre. 
+
+Que esta dimension este principalmente asociada con variables del ambiente
+Ferre es consistente con lo que observamos en el **item C** de este ejercicio, 
+donde vimos que la dimensionalidad para el ambiente Ferre era mayor que para
+el ambiente Pergamino. Esto se da, principalmente, porque en el ambiente
+Pergamino las variables altura de mazorca y altura de planta estan muy
+correlacionadas positivamente con variables tales como el rendimiento,
+mientras que en el ambiente Ferre son practicamente independientes,
+requiriendo mas de una dimension para reflejar la riqueza de los datos.
+
+```{r}
+variables <- rownames(mfa$quanti.var$coord)
+coord <- as.data.frame(mfa$quanti.var$coord[, 1:2])
+rownames(coord) <- NULL
+coord$ambiente <- rep(c("Pergamino", "Ferre"), each = 10)
+coord$variable <- variables
+```
+
+```{r}
+max_dim1 <- max(abs(coord$Dim.1))
+max_dim2 <- max(abs(coord$Dim.2))
+t1 <- coord[abs(coord$Dim.1) > 0.75 * max_dim1, c("Dim.1", "ambiente", "variable")]
+t1 <- t1[c("variable", "ambiente", "Dim.1")]
+t2 <- coord[abs(coord$Dim.2) > 0.75 * max_dim2, c("Dim.2", "ambiente", "variable")]
+t2 <- t2[c("variable", "ambiente", "Dim.2")]
+```
+
+```{r}
+kable(
+    t1, 
+    col.names = c("Variable", "Ambiente", "Correlacion"),
+    digits = 3,
+    row.names = FALSE,
+    align = "c",
+    caption = "Correlacion entre variables y el primer eje"
+) %>% 
+kable_styling(font_size = 12, full_width = FALSE, latex_options = "HOLD_position") %>% 
+kable_classic_2() 
+```
+
+
+```{r}
+kable(
+    t2, 
+    col.names = c("Variable", "Ambiente", "Correlacion"),
+    digits = 3,
+    row.names = FALSE,
+    align = "c",
+    caption = "Correlacion entre variables y el segundo eje"
+) %>% 
+kable_styling(font_size = 12, latex_options = "HOLD_position") %>% 
+kable_classic_2() 
+```
+
+G) Busque en el Help de R el comando HCPC. Utilícelo con los datos de este 
 ejercicio y comente el resultado (Usar UPGMA). 
 
-    ```{r, echo=TRUE}
-    hcpc <- HCPC(mfa, nb.clust = 4, method = "average", graph = FALSE)
-    ```
+```{r, echo=TRUE}
+hcpc <- HCPC(mfa, nb.clust = 4, method = "average", graph = FALSE)
+```
 
-A) Arme grupos de individuos y realice una caracterización. 
+H) Arme grupos de individuos y realice una caracterización. 
 
-    Los cuatro grupos de individuos pueden verse en la **Figura 5**. 
-    El primero que se destaca, es el grupo numero 1, que contiene solamente a 
-    la variedad 44 de maiz. Esta variedadresalta en ambos ambientes por su bajisimo 
-    rinde y otras caracteristicas no deseables para una variedad de maiz como pueden 
-    ser los granos pequeños y livianos. 
-    
-    El grupo 2 presenta variedades de maiz cuyo rendimiento es mas bajo que el 
-    promedio. Estas variedades ademas presentan granos livianos y mediciones 
-    morfologicas mas tirando a bajas que medias. Excepcionalmente, alguna
-    de las variedades de este grupo, como puede ser la 47 y 17, estan asociadas
-    a plantas y mazorcas altas en el ambiente Ferre. Pero como mencionamos 
-    anteriormente, esto no se asocia a mejor rinde.
-    
-    Por otro lado, el grupo numero 3 se compone de variedades que en ambos ambientes
-    presentan granos anchos y rendimientos cercanos al promedio, o incluso
-    mas bajos que el promedio (esto se da particularmente para la variedad 62). 
-    Tambien notamos que las variedades de este grupo presentan plantas y 
-    mazorcas mas bajas que el promedio para el ambiente Ferre. 
-    
-    Finalmente, el grupo 4. Estas variedades se asocian principalmente con rindes altos,
-    granos pesados, y muchos granos por metros. Esto es consistente con que 
-    estas variedades no estan asociadas a granos anchos, por ejemplo.
-    
+Los cuatro grupos de individuos pueden verse en la **Figura 5**. 
+El primero que se destaca, es el grupo numero 1, que contiene solamente a 
+la variedad 44 de maiz. Esta variedad resalta en ambos ambientes por su bajisimo 
+rinde y otras caracteristicas no deseables para una variedad de maiz como pueden 
+ser los granos pequeños y livianos. 
 
-    ```{r, fig.width=6, fig.height=3.25, fig.cap="Agrupamiento basado en HCPC."}
-    fviz_cluster(hcpc) + 
-      geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
-      geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
-      scale_y_continuous(expand = c(0.1, 0.1)) + 
-      scale_fill_manual(values = colores) + 
-      scale_color_manual(values = colores) +
-      scale_shape_discrete(guide = FALSE) +
-      theme(
-        #legend.position = "top",
-        title = element_blank()
-      )
-    ```
+El grupo 2 presenta variedades de maiz cuyo rendimiento es mas bajo que el 
+promedio. Estas variedades ademas presentan granos livianos y mediciones 
+morfologicas mas tirando a bajas que medias. Excepcionalmente, alguna
+de las variedades de este grupo, como puede ser la 47 y 17, estan asociadas
+a plantas y mazorcas altas en el ambiente Ferre. Pero como mencionamos 
+anteriormente, esto no se asocia a mejor rinde.
+
+Por otro lado, el grupo numero 3 se compone de variedades que en ambos ambientes
+presentan granos anchos y rendimientos cercanos al promedio, o incluso
+mas bajos que el promedio (esto se da particularmente para la variedad 62). 
+Tambien notamos que las variedades de este grupo presentan plantas y 
+mazorcas mas bajas que el promedio para el ambiente Ferre. 
+
+Finalmente, el grupo 4. Estas variedades se asocian principalmente con rindes altos,
+granos pesados, y muchos granos por metros. Esto es consistente con que 
+estas variedades no estan asociadas a granos anchos, por ejemplo.
 
 
-A) Obtenga la matriz de distancias euclídeas entre individuos en el plano 
+```{r, fig.width=6, fig.height=3.25, fig.cap="Agrupamiento basado en HCPC."}
+fviz_cluster(hcpc) + 
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+  scale_y_continuous(expand = c(0.1, 0.1)) + 
+  scale_fill_manual(values = colores) + 
+  scale_color_manual(values = colores) +
+  scale_shape_discrete(guide = FALSE) +
+  theme(
+    #legend.position = "top",
+    title = element_blank()
+  )
+```
+
+
+I) Obtenga la matriz de distancias euclídeas entre individuos en el plano 
 principal del AFM. Compare dicha matriz con la obtenida a partir de APG. 
 
-    ```{r}
-    dist_mfa <- dist(mfa$ind$coord[, 1:2])
-    ```
+```{r}
+dist_mfa <- dist(mfa$ind$coord[, 1:2])
+```
 
-    ```{r}
-    acp_m1 <- PCA(datos_m1, ncp = 10, graph = FALSE)
-    acp_m2 <- PCA(datos_m2, ncp = 10, graph = FALSE)
-    df <- data.frame(cbind(acp_m1$ind$coord, acp_m2$ind$coord))
-    gpa <- GPA(df, group = c(10, 10), name.group = c("Pergamino", "Ferrre"),
-    graph = FALSE)
-    dist_gpa <- dist(gpa$consensus[, 1:2])
-    ```
+```{r}
+acp_m1 <- PCA(datos_m1, ncp = 10, graph = FALSE)
+acp_m2 <- PCA(datos_m2, ncp = 10, graph = FALSE)
+df <- data.frame(cbind(acp_m1$ind$coord, acp_m2$ind$coord))
+gpa <- GPA(df, group = c(10, 10), name.group = c("Pergamino", "Ferrre"),
+graph = FALSE)
+dist_gpa <- dist(gpa$consensus[, 1:2])
+```
 
 
-    ```{r, fig.cap="Comparacion de distancias en el plano principal para AFM y APG."}
-    concordancia_df <- data.frame(
-      x = as.vector(dist_mfa),
-      y = as.vector(dist_gpa)
-    )
-    ggplot(concordancia_df) + 
-      geom_point(aes(x, y), size = 3, alpha = 0.7, color = "grey30") + 
-      labs(
-          x = "Distancia en el plano principal de AFM",
-          y = "Distancia en el plano principal de APG"
-      )
-    ```
-    
-    El grafico nos permite ver la alta concordancia que existe entre ambas 
-    representaciones en el plano principal. La correlacion entre las distancias 
-    en los planos principales es de `r round(cor(dist_mfa, dist_gpa), 3)`, lo
-    que indica, consistentemente con el grafico, la muy alta similaridad entre
-    ambas representaciones.
-    
+```{r, fig.cap="Comparacion de distancias en el plano principal para AFM y APG."}
+concordancia_df <- data.frame(
+  x = as.vector(dist_mfa),
+  y = as.vector(dist_gpa)
+)
+ggplot(concordancia_df) + 
+  geom_point(aes(x, y), size = 3, alpha = 0.7, color = "grey30") + 
+  labs(
+      x = "Distancia en el plano principal de AFM",
+      y = "Distancia en el plano principal de APG"
+  )
+```
+
+El grafico nos permite ver la alta concordancia que existe entre ambas 
+representaciones en el plano principal. La correlacion entre las distancias 
+en los planos principales es de `r round(cor(dist_mfa, dist_gpa), 3)`, lo
+que indica, consistentemente con el grafico, la muy alta similaridad entre
+ambas representaciones.

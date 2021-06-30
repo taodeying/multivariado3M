@@ -192,26 +192,10 @@ agrupamientos, no hay una tendencia clara en las configuraciones de consenso.
 
 C) ¿Qué puede decir sobre la similitud de los sitios en las distintas estaciones?
 
-```{r, fig.width=7, fig.height=5, fig.cap="Grafico de individuos: Consenso y Parciales"}
-fviz_mfa(mfa, repel = TRUE) + 
-  labs(x = "Coordenada 1 (44.2%)", y = "Coordenada 2 (19.7%)") +
-  scale_linetype_manual(values = rep("solid", 4)) + 
-  scale_color_manual(values = colores) + 
-  labs(
-    x = "Coordenada 1 (44.17%)", 
-    y = "Coordenada 2 (19.68%)", 
-    color = "Estacion",
-    title = "Grafico de individuos: Consenso y Parciales"
-  ) + 
-  guides(linetype = FALSE) + 
-  theme_grey() + 
-  theme(legend.position = "top")
-```
-
 Visualmente, se observa que existe mucha variabilidad de las estaciones alredor 
 de la "configuración de consenso" o coordenadas globales. En otoño y
 primavera, tiende a existir más similitud entre los sitios cercanos al origen de
-coordenadas.
+coordenadas (**Figura 3**).
 
 D) Analice los cocientes de inercia por eje (1 y 2) y por individuo.
 
@@ -228,6 +212,22 @@ kable(
 
 Como puede verse en la tabla del cociente de inercia, los puntos parciales están
 más concentrados sobre el primer eje que sobre el segundo eje.
+
+```{r, fig.width=7, fig.height=5, fig.cap="Grafico de individuos: Consenso y Parciales"}
+fviz_mfa(mfa, repel = TRUE) + 
+  labs(x = "Coordenada 1 (44.2%)", y = "Coordenada 2 (19.7%)") +
+  scale_linetype_manual(values = rep("solid", 4)) + 
+  scale_color_manual(values = colores) + 
+  labs(
+    x = "Coordenada 1 (44.17%)", 
+    y = "Coordenada 2 (19.68%)", 
+    color = "Estacion",
+    title = "Grafico de individuos: Consenso y Parciales"
+  ) + 
+  guides(linetype = FALSE) + 
+  theme_grey() + 
+  theme(legend.position = "top")
+```
 
 ```{r}
 kable(
@@ -280,7 +280,7 @@ Finalmente, el género EP posee un comportamiento similar a AL.
 
 Nótese que si se grafican las correlaciones, se obtienen los mismos resultados:
 
-```{r}
+```{r, fig.width = 4.5, fig.height = 4.5, out.width="50%"}
 
 aux <- mfa$global.pca$var$cor
 aux <- aux[grepl("BO", rownames(aux)) | grepl("CL", rownames(aux)) | grepl("AL", rownames(aux)) | grepl("EP", rownames(aux)),]
@@ -314,10 +314,7 @@ ggplot(mfa_partial_axes_data) +
     lims(x = c(-1, 1), y = c(-1, 1)) + 
     labs(x = "Coordenada 1", y = "Coordenada 2", color = "Grupo") + 
     theme(legend.position = "top")
-
 ```
-
-
 
 F) Caracterice las principales asociaciones entre las distintas condiciones 
 consideradas (zona, sistema de cultivo, estación y géneros).
