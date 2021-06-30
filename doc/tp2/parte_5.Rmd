@@ -1,0 +1,118 @@
+---
+title: "Ejercicio 5"
+output: 
+  pdf_document:
+    extra_dependencies: ["float"]
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center",
+  fig.pos = "H", out.extra = "", fig.height = 3.5, fig.width = 5
+)
+colores <- c("#003f5c", "#7a5195", "#ef5675", "#ffa600")
+
+set.seed(1234)
+
+```
+
+
+Retome los datos del archivo MAIZ.csv. Realice un análisis STATIS y obtenga la matriz de distancias euclídeas entre individuos en el plano principal. Compare dicha matriz con las obtenidas a partir de AFM y APG.
+
+
+
+```{r}
+library(ade4)
+library(FactoMineR)
+library(ggplot2)
+
+```
+
+```{r echo=T}
+# Datos
+datos_m1 <- read.csv2(
+  here::here("data", "raw", "MAIZ1.csv"), 
+  row.names = 1, 
+  stringsAsFactors = FALSE
+)
+
+datos_m2 <- read.csv2(
+  here::here("data", "raw", "MAIZ2.csv"), 
+  row.names = 1, 
+  stringsAsFactors = FALSE
+)
+
+datos <- cbind(datos_m1, datos_m2)
+
+```
+
+
+```{r echo=T}
+# STATIS
+bloques <- as.integer(c(10,10))
+nombres <- c("Amb1", "Amb2")
+names(bloques) <- nombres
+k <- ktab.data.frame(data.frame(scale(datos, center = T, scale = T)),bloques)
+s <- statis(k, scannf = F, nf=2, tol=1e-07)
+dist_statis <- dist(s$C.li,method = "euclidean")
+```
+
+
+```{r echo=T}
+# AFM
+mfa <- MFA(
+      base = datos, 
+      group = c(10, 10), 
+      type = c("s", "s"), 
+      name.group = c("Pergamino", "Ferre"),
+      graph = FALSE
+    )
+dist_mfa <- dist(mfa$ind$coord[, 1:2])
+```
+
+
+```{r echo=T}
+# APG.
+acp_m1 <- PCA(datos_m1, ncp = 10, graph = FALSE)
+acp_m2 <- PCA(datos_m2, ncp = 10, graph = FALSE)
+df <- data.frame(cbind(acp_m1$ind$coord, acp_m2$ind$coord))
+gpa <- GPA(df, group = c(10, 10), name.group = c("Pergamino", "Ferrre"), graph = FALSE)
+dist_gpa <- dist(gpa$consensus[, 1:2])
+```
+
+
+```{r}
+print(cor( as.vector(dist_gpa),as.vector(dist_statis)))
+
+concordancia_df <- data.frame(
+      x = as.vector(dist_gpa),
+      y = as.vector(dist_statis)
+    )
+    ggplot(concordancia_df) + 
+      geom_point(aes(x, y), size = 3, alpha = 0.7, color = "grey30") + 
+      labs(
+          x = "Distancia en el plano principal de APG",
+          y = "Distancia en el plano principal de STATIS"
+      )
+
+print(cor(dist_gpa,dist_statis))
+```
+
+```{r}
+
+concordancia_df <- data.frame(
+      x = as.vector(dist_mfa),
+      y = as.vector(dist_statis)
+    )
+    ggplot(concordancia_df) + 
+      geom_point(aes(x, y), size = 3, alpha = 0.7, color = "grey30") + 
+      labs(
+          x = "Distancia en el plano principal de AFM",
+          y = "Distancia en el plano principal de STATIS"
+      )
+
+print(cor(as.vector(dist_mfa),as.vector(dist_statis)))
+```
+

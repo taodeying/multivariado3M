@@ -18,8 +18,6 @@ set.seed(1234)
 
 ```
 
-## R Markdown
-
 Los datos del archivo hongos.csv se refieren a 8 sitios (primera vía) que 
 corresponden a chacras identificadas por zona (centro/este del Alto Valle de 
 Río Negro) y por sistema de cultivo (orgánico/tradicional), caracterizadas a 
