@@ -166,10 +166,7 @@ ggplot(mfa_partial_axes_data) +
     scale_color_manual(values = colores) + 
     lims(x = c(-1, 1), y = c(-1, 1)) + 
     labs(x = "Coordenada 1", y = "Coordenada 2", color = "Grupo") + 
-    theme(
-      legend.position = "top",
-      axis.title = element_blank()
-    )
+    theme(legend.position = "top")
 ```
 
 B) ¿Hay un agrupamiento de los sitios por zona o sistema de cultivo?
@@ -195,9 +192,20 @@ agrupamientos, no hay una tendencia clara en las configuraciones de consenso.
 
 C) ¿Qué puede decir sobre la similitud de los sitios en las distintas estaciones?
 
-```{r}
-
-fviz_mfa(mfa, repel = T)
+```{r, fig.width=7, fig.height=5, fig.cap="AGREGAR"}
+fviz_mfa(mfa, repel = TRUE) + 
+  labs(x = "Coordenada 1 (44.2%)", y = "Coordenada 2 (19.7%)") +
+  scale_linetype_manual(values = rep("solid", 4)) + 
+  scale_color_manual(values = colores) + 
+  labs(
+    x = "Coordenada 1 (44.17%)", 
+    y = "Coordenada 2 (19.68%)", 
+    color = "Estacion",
+    title = "Grafico de individuos consenso y parciales"
+  ) + 
+  guides(linetype = FALSE) + 
+  theme_grey() + 
+  theme(legend.position = "top")
 ```
 
 Visualmente, se observa que existe mucha variabilidad de las estaciones alredor 
