@@ -413,7 +413,7 @@ A) Realice el análisis de la interestructura. ¿Qué puede decir de la relació
       labs(
         x = "Coordenada 1 (22.98%)",
         y = "Coordenada 2 (20.55%)",
-        title = "Representacion de las Variables"
+        title = "Representacion de los Grupos"
       ) +
       lims(x = c(0, 1), y = c(0, 1))
     ```
@@ -453,9 +453,11 @@ A) Realice el análisis de la interestructura. ¿Qué puede decir de la relació
 
     Todas las variables cuantitativas contribuyen a la construccion del primer
     eje. El grupo de variables que mas contribuye es el de medidas morfologicas
-    de la planta. Los otros dos grupos, de medidas morfologicas de la hoja
-    y de caracteristicas temporales, contribuyen de menor manera. Esto nos
-    permite decir que individuos que presenten valores altos en la primer 
+    de la planta (Altura de planta, diámetro del tallo), longitud de la panoja y 
+    las caracteristicas temporales (Días de siembra a boton floral y dias desde
+    siembra a floracion). Las medidas morfologicas de la hoja contribuyen de menor 
+    manera. 
+    Esto nos permite decir que individuos que presenten valores altos en la primer 
     componente van a ser de plantas y hojas grandes, pero que demoran mas en
     presentar el boton floral, en florecer y madurar fisiologicamente.
     
@@ -573,10 +575,10 @@ A) Caracterice los grupos de individuos a través de todas las variables.
     Las accesiones VA466 y VA465 que conforman el primer grupo, se 
     caracterizan por tener el color de las estrias y de la panoja a fin de antesis
     de color púrpura. Además, estas accesiones tienen un comportamiento en torno 
-    al promedio con respecto a las variables cuantitativas que más aportan a la 
-    fomración del Eje 1: Altura de planta, diámetro del tallo y longitud de la 
-    panoja (características morfológicas) y días de siembra a botón floral y días 
-    desde siembra a floración (características temporales)
+    al promedio con respecto a las variables cuantitativas, es decir, son de plantas 
+    y hojas moderadas, y el tiempo que demoran en presentar el boton floral, en 
+    florecer y madurar fisiologicamente también es moderado.
+    
     
     El segundo grupo, conformado por las restantes accesiones procedentes de Valles 
     de Altura, comparten las mismas características en cuanto a la morfología y 
@@ -585,13 +587,12 @@ A) Caracterice los grupos de individuos a través de todas las variables.
     estrías y panoja a fin de antesis de color púrpura. 
     
     El tercer grupo, ubicado en la esquina inferior izquierda se caracteriza por 
-    poseer medidas morfológicas y temporales pequeñas, y al igual que el grupo 2,
-    no poseen estrías y panoja a fin de antesis de color púrpura.
+    poseer plantas y hojas pequeñas, pero de rápida floración y maduración fisiológica.
+    Al igual que el grupo 2, no poseen estrías y panoja a fin de antesis de color púrpura.
     
     El cuarto grupo, Valles Húmedos y Secos, comparten las mismas características 
     cualitativas que el segundo y tercer grupo, pero en cuanto a sus características
-    morfológicas y temporales podemos observar que este grupo presenta valores más 
-    bien altos.
-    
-    
+    morfológicas y temporales podemos decir que este grupo presenta valores más 
+    bien altos, es decir tienden a ser plantas grandes, y la floracion
+    y maduracion fisiologica tiende a ser lenta.
         
