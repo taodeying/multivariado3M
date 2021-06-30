@@ -133,7 +133,7 @@ de los ambientes (condiciones).
     palabras, en el ambiente Ferre se tiene una descripcion mas rica y 
     menos redundante de las variedades de maiz que en el ambiente Pergamino. 
     
-    ```{r, fig.cap="Caracterizacion de los ambientes en el plano principal AFM."}
+    ```{r, fig.cap="Asociacion de los ambientes con los ejes del plano principal AFM."}
     d = as.data.frame(mfa$group$coord)[, 1:2]
     d$ambiente = rownames(d)
     rownames(d) = NULL
@@ -235,7 +235,7 @@ variable-ambiente.
     ```
 
 
-    ```{r, fig.width = 6, fig.height = 6, out.width="60%", fig.cap="Caracterizacion de las variables en el plano principal AFM."}
+    ```{r, fig.width = 6, fig.height = 6, out.width="60%", fig.cap="Correlacion de las variables con los ejes del plano principal AFM."}
     variable <- rownames(mfa$quanti.var$cor)
     variables <- as.data.frame(mfa$quanti.var$cor[, 1:2])
     variables$x0 <- 0

@@ -10,12 +10,18 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center",
-  fig.pos = "H", out.extra = "", fig.height = 3.5, fig.width = 5
+  fig.pos = "H", out.extra = "", fig.height = 3.5, fig.width = 6
 )
 colores <- c("#003f5c", "#7a5195", "#ef5675", "#ffa600")
-
 set.seed(1234)
 
+library(dplyr)
+library(FactoMineR)
+library(factoextra)
+library(ggplot2)
+library(ggforce)
+library(ggrepel)
+library(kableExtra)
 ```
 
 Los datos del archivo hongos.csv se refieren a 8 sitios (primera vía) que 
@@ -25,49 +31,33 @@ través del recuento de hongos por género (en unidades formadoras de colonias
 por metro de aire) (segunda vía) y a lo largo de las cuatro estaciones 
 (tercer vía).
 
-
-
-```{r}
-library(FactoMineR)
-library(factoextra)
-library(ggplot2)
-library(ggforce)
-library(ggrepel)
-library(kableExtra)
-library(tidyverse)
-```
-
 ```{r}
 datos <- read.csv2(
-    here::here("data","raw","hongos.csv"),
+    here::here("data", "raw", "hongos.csv"),
     row.names = 1
 )
 ```
 
 ```{r}
 mfa <- MFA(
-    datos
-    , group = c(12, 12, 10, 11)
-    , type = c("f","f","f","f")
-    , ncp=2
-    , name.group = c(
-        "invierno"
-        , "verano"
-        , "primavera"
-        , "otoño"
-        )
-    , graph = F
-    )
+  datos, 
+  group = c(12, 12, 10, 11), 
+  type = c("f", "f", "f", "f"), 
+  ncp = 2, 
+  name.group = c(
+    "invierno", 
+    "verano",
+    "primavera",
+    "otoño"
+  ),
+  graph = FALSE
+)
 ```
-
-
 
 A) Interprete los coeficientes Lg, Rv y Ng. Analice el gráfico de las 
 condiciones y el de ejes parciales.
 
-
 ```{r}
-
 kable(
   mfa$group$Lg,
   digits = 3,
@@ -77,42 +67,39 @@ kable(
 ) %>%
   kable_styling(font_size = 10, latex_options = "HOLD_position") %>%
   kable_classic_2()
-
 ```
 
-El coeficiente Lg demustra que entre otoño e invierno, comparten mucha inercia. 
+El coeficiente $L_g$ demustra que entre otoño e invierno, comparten mucha inercia. 
 Por el contrario entre otoño y verano se observa el menor valor, por lo cual 
 habrían de compartir la menor estructura. 
 
 ```{r}
-Ng = as.matrix(sqrt(diag(mfa$group$Lg)))
+Ng <- as.matrix(sqrt(diag(mfa$group$Lg)))
 kable(
   Ng,
   digits = 2,
   align = "c",
   format = "latex",
-  caption = "Coeficiente Ng"
+  caption = "Coeficiente $N_g$"
 ) %>%
   kable_styling(font_size = 10, latex_options = "HOLD_position") %>%
   kable_classic_2()
-
 ```
 
-El coeficiente Ng demuestra que los grupos de verano y primavera se los puede 
+El coeficiente $N_g$ demuestra que los grupos de verano y primavera se los puede 
 pensar como unidemsional, mientras que invierno y otoño requieren una mayor 
 dimensión en su representación.
 
-
 ```{r}
-
-kable(mfa$group$RV,
-      digits = 3,
-      align = "c",
-      format = "latex",
-      caption = "Coeficiente RV") %>%
+kable(
+  mfa$group$RV,
+  digits = 3,
+  align = "c",
+  format = "latex",
+  caption = "Coeficiente RV"
+) %>%
   kable_styling(font_size = 10, latex_options = "HOLD_position") %>%
   kable_classic_2()
-
 ```
 
 Al analizar la tabla RV, la cual estandariza los coeficientes, se observa que 
@@ -122,33 +109,78 @@ relación entre verano y otoño es aquella que más se destaca ya que es la de
 menor similaridad, al igual que la de otoño primavera por ser aquella mas 
 intensa.
 
-
 En el gráfico de las condiciones se observa aquello que se intuía en las tablas 
 anteriores: primavera y verano tienen un componente casi exclusivo de la 
 dimensión 1, mientras que invierno necesita de ambas dimensiones. Otoño poseé 
 un comportamiento un poco más intermedio, aunque cercano a primavera-verano.
 
 ```{r}
-plot.MFA(
-  mfa
-  , choix = "group"
-)
+mfa_groups_data <- as.data.frame(mfa$group$coord)[, 1:2]
+mfa_groups_data$temporada <- rownames(mfa_groups_data)
+rownames(mfa_groups_data) = NULL
+colnames(mfa_groups_data) = c("x", "y", "temporada")
+
+ggplot(mfa_groups_data, aes(x, y)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+  geom_point(aes(color = temporada), size = 3) + 
+  geom_text_repel(aes(label = temporada)) + 
+  scale_color_manual(values = colores, guide = FALSE) + 
+  labs(
+    x = "Coordenada 1 (44.17%)",
+    y = "Coordenada 2 (19.68%)",
+    title = "Representacion de los Grupos"
+  ) +
+  lims(x = c(0, 1), y = c(0, 1))
 ```
 
 En el gráfico de ejes parciales se observa que otoño y primavera comparten su 
 representación, y en cambio invierno y verano tienden a tener un comportamiento 
 propio.
 
-```{r}
-fviz_mfa_axes(mfa)
-```
+```{r, fig.width = 6, fig.height = 6, out.width="60%", fig.cap="AGREGAR"}
+mfa_partial_axes_data <- as.data.frame(mfa$partial.axes$coord)
+colnames(mfa_partial_axes_data) <- c("x1", "y1")
+mfa_partial_axes_data$x0 <- 0
+mfa_partial_axes_data$y0 <- 0
+mfa_partial_axes_data$etiqueta <- rownames(mfa_partial_axes_data)
+color <- strsplit(rownames(mfa_partial_axes_data), ".", fixed = TRUE)
+mfa_partial_axes_data$grupo <- sapply(color, `[[`, 2)
 
+ggplot(mfa_partial_axes_data) + 
+    geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+    geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+    geom_circle(
+      aes(x0 = x, y0 = y, r = r), 
+      linetype = "dashed", color = "gray30", alpha = 0.5,
+      data = data.frame(x = 0, y = 0, r = 1)
+    ) + 
+    geom_segment(
+      aes(x = x0, y = y0, xend = x1, yend = y1, color = grupo),
+      arrow = arrow(length = unit(0.15, "cm"), type ="closed"),
+      size = 1.15
+    ) + 
+    geom_text_repel(
+      aes(x1, y1, label = etiqueta)
+    ) + 
+    scale_color_manual(values = colores) + 
+    lims(x = c(-1, 1), y = c(-1, 1)) + 
+    labs(x = "Coordenada 1", y = "Coordenada 2", color = "Grupo") + 
+    theme(legend.position = "top")
+```
 
 B) ¿Hay un agrupamiento de los sitios por zona o sistema de cultivo?
 
-```{r}
+```{r, fig.cap="AGREGAR"}
+mfa_ind_data <- as.data.frame(mfa$ind$coord)
+mfa_ind_data$etiqueta <- rownames(mfa_ind_data)
 
-fviz_mfa_ind(mfa, repel = T)
+ggplot(mfa_ind_data, aes(Dim.1, Dim.2)) + 
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+  geom_point(size = 2.5, color = colores[1]) +
+  geom_text_repel(aes(label = etiqueta))   +
+  labs(x = "Coordenada 1", y = "Coordenada 2")
 ```
 
 Al analizar a los individuos en función de su configuración de concenso se 
@@ -158,12 +190,22 @@ a derecha el sistema de cultuvo orgánico de 1 a 4 y el segundo componente orden
 de abajo a arriba el sistema de cultivo tradicional de 1 a 4. Respecto a los
 agrupamientos, no hay una tendencia clara en las configuraciones de consenso.
 
-
 C) ¿Qué puede decir sobre la similitud de los sitios en las distintas estaciones?
 
-```{r}
-
-fviz_mfa(mfa, repel = T)
+```{r, fig.width=7, fig.height=5, fig.cap="AGREGAR"}
+fviz_mfa(mfa, repel = TRUE) + 
+  labs(x = "Coordenada 1 (44.2%)", y = "Coordenada 2 (19.7%)") +
+  scale_linetype_manual(values = rep("solid", 4)) + 
+  scale_color_manual(values = colores) + 
+  labs(
+    x = "Coordenada 1 (44.17%)", 
+    y = "Coordenada 2 (19.68%)", 
+    color = "Estacion",
+    title = "Grafico de individuos consenso y parciales"
+  ) + 
+  guides(linetype = FALSE) + 
+  theme_grey() + 
+  theme(legend.position = "top")
 ```
 
 Visualmente, se observa que existe mucha variabilidad de las estaciones alredor 
@@ -174,11 +216,12 @@ coordenadas.
 D) Analice los cocientes de inercia por eje (1 y 2) y por individuo.
 
 ```{r}
-kable(mfa$inertia.ratio,
-      digits = 3,
-      align = "c",
-      format = "latex",
-      caption = "Ratio de Inercia") %>%
+kable(
+  mfa$inertia.ratio,
+  digits = 3,
+  align = "c",
+  caption = "Ratio de Inercia"
+) %>%
   kable_styling(font_size = 10, latex_options = "HOLD_position") %>%
   kable_classic_2()
 ```
@@ -187,11 +230,12 @@ Como puede verse en la tabla del cociente de inercia, los puntos parciales está
 más concentrados sobre el primer eje que sobre el segundo eje.
 
 ```{r}
-kable(mfa$ind$within.inertia,
-      digits = 3,
-      align = "c",
-      format = "latex",
-      caption = "Inercia por Individuo") %>%
+kable(
+  mfa$ind$within.inertia,
+  digits = 3,
+  align = "c",
+  caption = "Inercia por Individuo"
+) %>%
   kable_styling(font_size = 10, latex_options = "HOLD_position") %>%
   kable_classic_2()
 ```
@@ -201,13 +245,26 @@ Respecto de la inercia de los individuos, Trad2_ZonaEste y Trad4_ZonaCentro pose
 E) Analice el comportamiento de los géneros de hongos CL, BO, AL y EP en las 
 distintas estaciones.
 
-```{r}
-plot.MFA(
-    mfa
-    , choix = "freq"
-    , invisible = "ind"
-    , 
-    )
+
+```{r, fig.width=8, fig.height=4, fig.cap="AGREGAR"}
+estaciones <- c("o" = "otoño", "i" = "invierno", "p" = "primavera", "v" = "verano")
+mfa_freq_data <- as.data.frame(mfa$freq$coord)
+mfa_freq_data$genero <- substr(rownames(mfa_freq_data), 1, 2)
+mfa_freq_data$estacion <- estaciones[substr(rownames(mfa_freq_data), 3, 3)]
+
+ggplot(mfa_freq_data, aes(Dim.1, Dim.2)) + 
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+  geom_point(aes(color = estacion), size=2) +
+  geom_text_repel(
+    aes(label = genero)
+  ) + 
+  scale_color_manual(values = colores) + 
+  labs(x = "Coordenada 1 (44.17%)", y = "Coordenada 2 (19.68%)", color = "Estacion") + 
+  theme(
+    legend.position = "top",
+    axis.title = element_blank()
+  )
 ```
 
 El género de hongos BO posee notable variedad a lo largo de las estaciones, su 
@@ -218,11 +275,8 @@ cerca del origen. El género AL posee considerable variación y se encuentra en
 el cuadrante superior izquierdo. Finalmente, EP posee un comportamiento similar 
 a AL 
 
-
 F) Caracterice las principales asociaciones entre las distintas condiciones 
 consideradas (zona, sistema de cultivo, estación y géneros).
-
-
 
 
 ```{r}
