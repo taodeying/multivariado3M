@@ -260,8 +260,8 @@ de individuos provistas por ambas técnicas en el plano principal.
     Las variables que mas aportan a la formacion de la Dimension 1 son Color de 
     las estrias, Color de panoja a fin de antesis y Color de tallo. Esta contribucion
     se da de manera practicamente exclusiva, ya que no se observa contribucion 
-    en la segunda dimension. Por otro lado, tipo de panojy el color de la panoja
-    a la cosecha y a son las que mas contribuyen a la Dimension 2. Esta ultima
+    en la segunda dimension. Por otro lado, tipo de panoja y el color de la panoja
+    a la cosecha son las que mas contribuyen a la Dimension 2. Esta ultima
     variable tambien contribuye moderadamente a la primera dimension. 
     
     Finalmente notamos que la presencia de ramas, la forma de la panoja, y la 
@@ -460,23 +460,25 @@ A) ¿Existe un agrupamiento de individuos por zona?
     ```
 
     Al observar la figura VER NUMERO Q CORRESPONDE podemos referenciar algunos 
-    agrupamientos según la zona de procedencia. El primer grupo es el conformado 
-    por las variedades VA466 y VA465, procedentes de Valles de Altura; el resto
-    de las variedades de Valles de Altura pueden asociarse en un segundo grupo.
-    El tercer grupo que puede identificarse está conformado por las variedades 
-    procedentes de Altiplano; y por último, el cuarto agrupamiento se compone por 
-    las que son procedentes de Valles Húmedos y Secos. 
-    Cabe descatar que hay dos "individuos", VS414 y VH458, que se alejan del cuarto
-    agrupamiento. Es muy probable que estos valores extremos se deban a que presenten 
-    valores más altos en la configuración Cualitativa.
+    agrupamientos según la zona de procedencia. El primer grupo que podemos mencio-
+    nar es el conformado por las variedades VA466 y VA465, ambas procedentes de 
+    Valles de Altura; el resto de las variedades de Valles de Altura pueden 
+    asociarse en un segundo grupo. El tercer grupo que puede identificarse está 
+    conformado por las variedades procedentes de Altiplano; y por último, el cuarto 
+    agrupamiento se compone por las que son procedentes de Valles Húmedos y Secos,
+    no pudiendo distinguir entre estas dos zonas. 
+    
+    Cabe descatar que hay dos accesiones, VS414 y VH458, que se alejan del cuarto
+    agrupamiento; probablemente se deba a que presenten valores más altos en la 
+    configuración Cualitativa que el resto de las Quinoas procedentes de su misma zona .
 
     ```{r}
     plot.MFA(afm, choix = "ind", invisible = "quali", habillage = "group", partial = "all")
     ```
     
-    Con este grafico confirmamos lo anterior, VS414 y VH458 poseen valores mas 
-    altos de cualitativas q el resto, es por ello q se apartan del grupo. 
-    REDACTAR MEJOR!  
+    A través de la figura N se puede confirmar lo comentado anteriormente; los 
+    individuos VS414 y VH458 se apartan del grupo conformado por Valles Húmedos y
+    Secos ya que poseen valores mas altos de la configuración cualitativa.
 
     ```{r}
     plot.MFA(afm, choix = "ind", invisible = "ind")
@@ -484,11 +486,28 @@ A) ¿Existe un agrupamiento de individuos por zona?
 
 A) Caracterice los grupos de individuos a través de todas las variables.
 
-    Las variedades VA466 y VA465, las cuales conforman el primer grupo, se 
+    Las accesiones VA466 y VA465 que conforman el primer grupo, se 
     caracterizan por tener el color de las estrias y de la panoja a fin de antesis
-    de color púrpura. Además, estas variedades tienen un comportamiento promedio
-    con respecto a las variables cuantitativas 
+    de color púrpura. Además, estas accesiones tienen un comportamiento en torno 
+    al promedio con respecto a las variables cuantitativas que más aportan a la 
+    fomración del Eje 1: Altura de planta, diámetro del tallo y longitud de la 
+    panoja (características morfológicas) y días de siembra a botón floral y días 
+    desde siembra a floración (características temporales)
     
+    El segundo grupo, conformado por las restantes accesiones procedentes de Valles 
+    de Altura, comparten las mismas características en cuanto a la morfología y 
+    medidas temporales, pero se diferencian de las procedentes de su misma zona 
+    por tener características cualitativas distintas, principalmente por no poseer
+    estrías y panoja a fin de antesis de color púrpura. 
+    
+    El tercer grupo, ubicado en la esquina inferior izquierda se caracteriza por 
+    poseer medidas morfológicas y temporales pequeñas, y al igual que el grupo 2,
+    no poseen estrías y panoja a fin de antesis de color púrpura.
+    
+    El cuarto grupo, Valles Húmedos y Secos, comparten las mismas características 
+    cualitativas que el segundo y tercer grupo, pero en cuanto a sus características
+    morfológicas y temporales podemos observar que este grupo presenta valores más 
+    bien altos.
     
     
         
