@@ -16,19 +16,14 @@ colores <- c("#003f5c", "#7a5195", "#ef5675", "#ffa600")
 
 set.seed(1234)
 
-```
-
-
-Retome los datos del archivo MAIZ.csv. Realice un análisis STATIS y obtenga la matriz de distancias euclídeas entre individuos en el plano principal. Compare dicha matriz con las obtenidas a partir de AFM y APG.
-
-
-
-```{r}
 library(ade4)
 library(FactoMineR)
 library(ggplot2)
-
 ```
+
+Retome los datos del archivo MAIZ.csv. Realice un análisis STATIS y obtenga la
+matriz de distancias euclídeas entre individuos en el plano principal. Compare 
+dicha matriz con las obtenidas a partir de AFM y APG.
 
 ```{r echo=T}
 # Datos
