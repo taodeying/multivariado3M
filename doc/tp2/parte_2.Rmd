@@ -51,7 +51,7 @@ A) Realice un ACP con las variables cuantitativas.
     pca <- PCA(cuanti, ncp = 2, graph = FALSE)
     ```
 
-    ```{r, fig.width=9, fig.height=4.5, fig.cap="Izquierda: porcentaje de varianza retenido por cada componente. Derecha: Correlacion de las variables con los componentes."}
+    ```{r, fig.width=9, fig.height=4.5, fig.cap="Izquierda: porcentaje de varianza retenido por cada componente. Derecha: Correlacion de las variables con los componentes del plano principal."}
     autovalores_vector <- as.vector(prop.table(pca$eig[, 1]))
         autovalores <- data.frame(
           x = 1:10,
@@ -131,10 +131,12 @@ A) Realice un ACP con las variables cuantitativas.
     En relacion a las variables que mas aportan a la formacion de las
     componentes, podemos decir que todas las variables contribuyen de forma 
     positiva a la primer componente, y que longitud del glomérulo es quien 
-    lo hace en  menor medida. Con respecto a la segunda componente, se puede 
-    notar que las variables que mas aportan son Longitud y Ancho de la hoja
-    (de forma positiva) y días desde siembra a botón floral y a floración 
-    (de forma negativa).
+    lo hace en  menor medida. Con respecto a la segunda componente, no se cuenta
+    con variables con correlaciones muy altas, pero si se puede notar que hay
+    dos grupos que se asocian a este componente de manera moderada. Por un lado, 
+    longitud, ancho de hoja y longitud del peciolo (de forma positiva) y días 
+    desde siembra hasta la aparicion del botón floral, hasta la floración, y 
+    hasta la madurez fisiológica (de forma negativa).
     
     El panel derecho de la **Figura 1** tambien nos permite identificar grupos
     de variables segun su correlacion. Podemos identificar a los siguientes tres
@@ -191,8 +193,8 @@ A) Realice un ACP con las variables cuantitativas.
       geom_point(aes(pc1, pc2), size = 4, color = "gray30") + 
       geom_label_repel(aes(pc1, pc2, label = IND), size=2.75) + 
       labs(
-        x = "Coordenada Principal 1",
-        y = "Coordenada Principal 2"
+        x = "Coordenada 1",
+        y = "Coordenada 2"
       )
     ```    
 
@@ -253,7 +255,7 @@ de individuos provistas por ambas técnicas en el plano principal.
       geom_text_repel(aes(label = etiquetas)) + 
       geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
       geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
-      labs(x = "Dimension 1 (27.87%)", y = "Dimension 2 (14.52%)") + 
+      labs(x = "Coordenada 1 (27.87%)", y = "Coordenada 2 (14.52%)") + 
       lims(x = c(0, 1), y = c(0, 1))
     ```
  
@@ -268,25 +270,34 @@ de individuos provistas por ambas técnicas en el plano principal.
     presencia de axilas tienen muy poca contribucion a la formacion de cualquiera
     de los dos ejes.
     
-    ```{r, fig.width=7, fig.height=4, fig.cap="Configuracion de los individuos en el plano principal de ACM."}
-    eje1 <- acm$ind$coord[,1]
-    eje2 <- acm$ind$coord[,2]
-    etiquetas <- rownames(acm$ind$coord)
-    datos_acm <- as.data.frame(cbind(etiquetas, eje1, eje2))
-    colnames(datos_acm) <- c("IND","EJE1", "EJE2")
-    
-    ggplot(datos_acm) + 
-      geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+    ```{r,fig.width=7, fig.height=4, fig.cap="Representacion de individuos en el plano principal de ACM"}
+    datos_acm <- as.data.frame(acm$ind$coord[, 1:2])
+    datos_acm$etiqueta <- rownames(datos_acm)
+    datos_acm$color <- substr(datos_acm$etiqueta, 1, 2)
+    rownames(datos_acm) <- NULL
+    colnames(datos_acm) <- c("x", "y", "etiqueta", "color")
+
+    ggplot(datos_acm, aes(x, y)) +
       geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
-      geom_point(aes(eje1, eje2), size = 4, color = "gray30") + 
-      geom_label_repel(aes(eje1, eje2, label = IND), size=2.75) + 
+      geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+      geom_point(aes(color = color), size = 2.5) +
+      geom_label_repel(
+        aes(label = etiqueta),
+        min.segment.length = 0,
+        max.overlaps = 30
+      ) + 
+      scale_color_manual(values = colores, guide = FALSE) + 
+      lims(
+        x = c(-1, 2.5)
+      ) +
       labs(
-        x = "Eje Principal 1",
-        y = "Eje Principal 2"
+        x = "Coordenada 1 (27.87%)",
+        y = "Coordenada 2 (14.52%)",
+        title = "Representacion de los Individuos"
       )
     ``` 
 
-    Se nota en la **Figura 4** que en el analisis AFM basado en las variables
+    Se nota en la **Figura 4** que en el analisis ACM basado en las variables
     cualitativas no permite formar agrupamientos en terminos del ambiente en 
     el plano principal, a diferencia de lo que sucedio con el analisis ACP 
     basado en variables cuantitativas.
@@ -295,22 +306,19 @@ de individuos provistas por ambas técnicas en el plano principal.
     tecnicas realizadas, podemos concluir que las mismas parecen no ser 
     homogeneas, ya que, como se pudo observar, una tecnica logra una 
     diferenciacion por ambientes mientras que la otra no.
+    
+    ```{r}
+    dist_acp <- dist(pca$ind$coord[,1:2])
+    dist_acm <- dist(acm$ind$coord[,1:2])                
+    ```
+    
+    En la **Figura 5** podemos ver que las representaciones sobre el plano 
+    principal no son para nada concordantes. La correlacion entre las distancias 
+    en los planos principales es de `r round(cor(dist_acp, dist_acm), 3)`, lo
+    que indica, consistentemente con el grafico, la discrepancia entre
+    ambas representaciones.
 
-    Con alguna tecnica numerica podriamos realizar esa comparacion:
-    Para poder comparar, siempre en el plano principal, en acp, se podría buscar 
-    una matriz de distancias euclideas entre individuos, lo mismo puedo tmb hacer
-    para acm. Luego, puedo comparar esas matrices de distancia, medir el "acuerdo", 
-    a traves de una corr de matrices de distancias(tiene que dar un valor bajo)
-
-
-```{r}
-dist_acp <- dist(pca$ind$coord[,1:2])
-dist_acm <- dist(acm$ind$coord[,1:2])                
-
-```
-
-
-```{r, fig.cap="Comparacion de distancias en el plano principal para ACP y ACM."}
+    ```{r, fig.cap="Comparacion de distancias en el plano principal para ACP y ACM."}
     concordancia_df <- data.frame(
       x = as.vector(dist_acp),
       y = as.vector(dist_acm)
@@ -323,15 +331,8 @@ dist_acm <- dist(acm$ind$coord[,1:2])
       )
     ```
     
-    El grafico nos permite ver que las representaciones sobre el plano principal
-    no son concordantes. La correlacion entre las distancias 
-    en los planos principales es de `r round(cor(dist_acp, dist_acm), 3)`, lo
-    que indica, consistentemente con el grafico, la discrepancia entre
-    ambas representaciones.
-    
 
-
-Realice un AFM considerando como grupos a ambos tipos de variables:
+    Realice un AFM considerando como grupos a ambos tipos de variables:
 
     ```{r}
     afm <- MFA(
@@ -348,10 +349,11 @@ A) Realice el análisis de la interestructura. ¿Qué puede decir de la relació
 
     ```{r}
     kable(
-          afm$group$Lg, 
-          digits = 2,
-          align = "c",
-          caption = "Coeficiente Lg"
+      afm$group$Lg, 
+      digits = 2,
+      align = "c",
+      caption = "Coeficiente $L_g$",
+      format = "latex"
     ) %>% 
       kable_styling(font_size = 10, latex_options = "HOLD_position") %>% 
       kable_classic_2() 
@@ -369,7 +371,8 @@ A) Realice el análisis de la interestructura. ¿Qué puede decir de la relació
         sqrt(afm$group$Lg), 
         digits = 2,
         align = "c",
-        caption = "Coeficiente Ng"
+        caption = "Coeficiente $N_g$",
+        format = "latex"
     ) %>% 
       kable_styling(font_size = 10, latex_options = "HOLD_position") %>% 
       kable_classic_2() 
@@ -402,10 +405,10 @@ A) Realice el análisis de la interestructura. ¿Qué puede decir de la relació
     colnames(d) = c("x", "y", "ambiente")
     
     ggplot(d) +
-      geom_point(aes(x, y, color = ambiente), size = 3) + 
-      geom_label(aes(x, y, label = ambiente), nudge_x = -0.075, nudge_y = -0.075) + 
       geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
       geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+      geom_point(aes(x, y, color = ambiente), size = 3) + 
+      geom_label(aes(x, y, label = ambiente), nudge_x = -0.075, nudge_y = -0.075) + 
       scale_color_manual(values = colores[c(1, 3)], guide = FALSE) + 
       labs(
         x = "Coordenada 1 (22.98%)",
@@ -415,7 +418,7 @@ A) Realice el análisis de la interestructura. ¿Qué puede decir de la relació
       lims(x = c(0, 1), y = c(0, 1))
     ```
 
-    Si observamos el grafico anterior, podemos ver que las variables 
+    Si observamos la **Figura 6**, podemos ver que las variables 
     Cuantitativas contribuyen unicamente a la formacion de la Coordenada 1,
     mientras que las Cualitativas son las que contribuyen a la formacion de la 
     Coordenada 2 del Analisis Factorial Multiple. Estas ultimas, presentan
@@ -434,8 +437,8 @@ A) Realice el análisis de la interestructura. ¿Qué puede decir de la relació
       kable_classic_2()
     ```
 
-    Las variables Cualitativas que más aportan en la formación del eje 2 son Color
-    de Estrías y de Panoja a fin de antesis Púrpura
+    Las variables Cualitativas que más aportan en la formación del eje 2 son 
+    Color de Estrías y de Panoja a fin de antesis Púrpura.
     
     ```{r}
     kable(
@@ -448,38 +451,124 @@ A) Realice el análisis de la interestructura. ¿Qué puede decir de la relació
       kable_classic_2()
     ```
 
-    Las variables cuantitativas que más aportan en la formación del eje 1 son: 
-    altura de planta, diámetro del tallo, longitud de la panoja, Días de siembra
-    a botón floral y días desde siembre a floración. Es decir, aquellos individuos
-    que posean valores altos de la primer componente van a tener...COMPLETAR
+    Todas las variables cuantitativas contribuyen a la construccion del primer
+    eje. El grupo de variables que mas contribuye es el de medidas morfologicas
+    de la planta. Los otros dos grupos, de medidas morfologicas de la hoja
+    y de caracteristicas temporales, contribuyen de menor manera. Esto nos
+    permite decir que individuos que presenten valores altos en la primer 
+    componente van a ser de plantas y hojas grandes, pero que demoran mas en
+    presentar el boton floral, en florecer y madurar fisiologicamente.
+    
+    En cambio, solo las variables morfologicas de la hoja contribuyen a la 
+    segunda componente (LONGHO, ANCHOHO y LONGPEC).
+      
+
 A) ¿Existe un agrupamiento de individuos por zona?
 
     ```{r}
-    # individuos conseso, permite ver si hay agrupamientos por zona
-    plot.MFA(afm, choix = "ind", invisible = "quali", habillage = "group")
+    datos_afm <- as.data.frame(afm$ind$coord)
+    datos_afm$etiqueta <- rownames(datos_afm)
+    datos_afm$color <- substr(datos_afm$etiqueta, 1, 2)
+    rownames(datos_afm) <- NULL
+    colnames(datos_afm) <- c("x", "y", "etiqueta", "color")
     ```
-
-    Al observar la figura VER NUMERO Q CORRESPONDE podemos referenciar algunos 
-    agrupamientos según la zona de procedencia. El primer grupo que podemos mencio-
-    nar es el conformado por las variedades VA466 y VA465, ambas procedentes de 
+    
+    ```{r, fig.width=7, fig.height=4, fig.cap="Representacion de individuos consenso en el plano principal de AFM"}
+    ggplot(datos_afm, aes(x, y)) +
+      geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+      geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+      geom_point(aes(color = color), size = 2.5) +
+      geom_label_repel(
+        aes(label = etiqueta),
+        min.segment.length = 0,
+        max.overlaps = 30
+      ) + 
+      scale_color_manual(values = colores, guide = FALSE) + 
+      lims(
+        x = c(-2, 2), 
+        y = c(-1.5, 3)
+      ) + 
+      labs(
+        x = "Coordenada 1 (22.98%)",
+        y = "Coordenada 2 (20.55%)",
+        title = "Representacion de los Individuos consenso"
+      )
+    ```
+    
+    ```{r}
+    color_fct <- as.factor(rep(1:4, 6))
+    consenso <- as.data.frame(afm$ind$coord)[1:2]
+    consenso$etiqueta <- rownames(consenso)
+    rownames(consenso) <- NULL
+    colnames(consenso) <- c("dim_1", "dim_2", "etiqueta")
+    
+    parciales <- as.data.frame(afm$ind$coord.partiel)[1:2]
+    etiquetas <- strsplit(rownames(parciales), ".", fixed = "TRUE")
+    parciales$etiqueta <- sapply(etiquetas, function(x) x[[1]])
+    parciales$tipo <- sapply(etiquetas, function(x) x[[2]])
+    parciales$color <- rep(color_fct, each = 2)
+    rownames(parciales) <- NULL
+    colnames(parciales) <- c("dim_1", "dim_2", "etiqueta", "tipo", "color")
+    
+    segmentos <- cbind(
+      parciales[parciales$tipo == "Cuantitativas", 1:2], 
+      parciales[parciales$tipo == "Cualitativas", 1:2]
+    )
+    names(segmentos) <- c("x0", "y0", "x1", "y1")
+    segmentos$color <- color_fct
+    ```
+  
+  
+    ```{r, fig.width=7, fig.height=4, fig.cap="Caracterizaciones parciales y de consenso mediante AFM."}
+    ggplot(parciales) + 
+      geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+      geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+      geom_segment(
+        aes(x0, y0, xend=x1, yend=y1, color=color),
+        show.legend = FALSE,
+        data = segmentos
+      ) + 
+      geom_point(
+        aes(dim_1, dim_2, shape = tipo, color = color),
+        size = 2
+      ) + 
+      geom_point(
+        aes(dim_1, dim_2),
+        size = 0.75,
+        data = consenso
+      ) + 
+      geom_label_repel(
+        aes(dim_1, dim_2, label = etiqueta), 
+        min.segment.length = 0,
+        max.overlaps = 30,
+        size = 2.5,
+        data = consenso
+      ) + 
+      scale_color_manual(values = colores, guide = FALSE) + 
+      scale_shape_discrete(name = "Datos") + 
+      theme(
+        legend.position = "top",
+        axis.title = element_blank()
+      )
+    ```
+  
+    Al observar la **Figura 7** podemos referenciar algunos agrupamientos según 
+    la zona de procedencia. El primer grupo que podemos mencionar es el 
+    conformado por las variedades VA466 y VA465, ambas procedentes de 
     Valles de Altura; el resto de las variedades de Valles de Altura pueden 
     asociarse en un segundo grupo. El tercer grupo que puede identificarse está 
     conformado por las variedades procedentes de Altiplano; y por último, el cuarto 
     agrupamiento se compone por las que son procedentes de Valles Húmedos y Secos,
     no pudiendo distinguir entre estas dos zonas. 
-    
+  
     Cabe descatar que hay dos accesiones, VS414 y VH458, que se alejan del cuarto
     agrupamiento; probablemente se deba a que presenten valores más altos en la 
     configuración Cualitativa que el resto de las Quinoas procedentes de su misma zona .
 
-    ```{r}
-    plot.MFA(afm, choix = "ind", invisible = "quali", habillage = "group", partial = "all")
-    ```
-    
-    A través de la figura N se puede confirmar lo comentado anteriormente; los 
+    A través de la **Figura 8** se puede confirmar lo comentado anteriormente; los 
     individuos VS414 y VH458 se apartan del grupo conformado por Valles Húmedos y
     Secos ya que poseen valores mas altos de la configuración cualitativa.
-
+    
     ```{r}
     plot.MFA(afm, choix = "ind", invisible = "ind")
     ```
