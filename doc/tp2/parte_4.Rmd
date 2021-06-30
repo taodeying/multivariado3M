@@ -1,0 +1,251 @@
+---
+title: "Ejercicio 4"
+output: 
+  pdf_document:
+    extra_dependencies: ["float"]
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center",
+  fig.pos = "H", out.extra = "", fig.height = 3.5, fig.width = 5
+)
+colores <- c("#003f5c", "#7a5195", "#ef5675", "#ffa600")
+
+set.seed(1234)
+
+```
+
+## R Markdown
+
+Los datos del archivo hongos.csv se refieren a 8 sitios (primera vía) que 
+corresponden a chacras identificadas por zona (centro/este del Alto Valle de 
+Río Negro) y por sistema de cultivo (orgánico/tradicional), caracterizadas a 
+través del recuento de hongos por género (en unidades formadoras de colonias 
+por metro de aire) (segunda vía) y a lo largo de las cuatro estaciones 
+(tercer vía).
+
+
+
+```{r}
+library(FactoMineR)
+library(factoextra)
+library(ggplot2)
+library(ggforce)
+library(ggrepel)
+library(kableExtra)
+library(tidyverse)
+```
+
+```{r}
+datos <- read.csv2(
+    here::here("data","raw","hongos.csv"),
+    row.names = 1
+)
+```
+
+```{r}
+mfa <- MFA(
+    datos
+    , group = c(12, 12, 10, 11)
+    , type = c("f","f","f","f")
+    , ncp=2
+    , name.group = c(
+        "invierno"
+        , "verano"
+        , "primavera"
+        , "otoño"
+        )
+    , graph = F
+    )
+```
+
+
+
+A) Interprete los coeficientes Lg, Rv y Ng. Analice el gráfico de las 
+condiciones y el de ejes parciales.
+
+
+```{r}
+
+kable(
+  mfa$group$Lg,
+  digits = 3,
+  align = "c",
+  caption = "Coeficiente $L_g$",
+  format = "latex"
+) %>%
+  kable_styling(font_size = 10, latex_options = "HOLD_position") %>%
+  kable_classic_2()
+
+```
+
+El coeficiente Lg demustra que entre otoño e invierno, comparten mucha inercia. 
+Por el contrario entre otoño y verano se observa el menor valor, por lo cual 
+habrían de compartir la menor estructura. 
+
+```{r}
+Ng = as.matrix(sqrt(diag(mfa$group$Lg)))
+kable(
+  Ng,
+  digits = 2,
+  align = "c",
+  format = "latex",
+  caption = "Coeficiente Ng"
+) %>%
+  kable_styling(font_size = 10, latex_options = "HOLD_position") %>%
+  kable_classic_2()
+
+```
+
+El coeficiente Ng demuestra que los grupos de verano y primavera se los puede 
+pensar como unidemsional, mientras que invierno y otoño requieren una mayor 
+dimensión en su representación.
+
+
+```{r}
+
+kable(mfa$group$RV,
+      digits = 3,
+      align = "c",
+      format = "latex",
+      caption = "Coeficiente RV") %>%
+  kable_styling(font_size = 10, latex_options = "HOLD_position") %>%
+  kable_classic_2()
+
+```
+
+Al analizar la tabla RV, la cual estandariza los coeficientes, se observa que 
+ningún grupo es tán similar al otro. Aunque existe un grado de similaridad, 
+esta no es tan fuerte entre las variables, aunque tampoco despreciable. La 
+relación entre verano y otoño es aquella que más se destaca ya que es la de 
+menor similaridad, al igual que la de otoño primavera por ser aquella mas 
+intensa.
+
+
+En el gráfico de las condiciones se observa aquello que se intuía en las tablas 
+anteriores: primavera y verano tienen un componente casi exclusivo de la 
+dimensión 1, mientras que invierno necesita de ambas dimensiones. Otoño poseé 
+un comportamiento un poco más intermedio, aunque cercano a primavera-verano.
+
+```{r}
+plot.MFA(
+  mfa
+  , choix = "group"
+)
+```
+
+En el gráfico de ejes parciales se observa que otoño y primavera comparten su 
+representación, y en cambio invierno y verano tienden a tener un comportamiento 
+propio.
+
+```{r}
+fviz_mfa_axes(mfa)
+```
+
+
+B) ¿Hay un agrupamiento de los sitios por zona o sistema de cultivo?
+
+```{r}
+
+fviz_mfa_ind(mfa, repel = T)
+```
+
+Al analizar a los individuos en función de su configuración de concenso se 
+oberva que la primera dimensión permitiría separar aquellas zonas centro de las 
+zonas este. Un análisis más atento denota que el primer eje ordena de izquierda 
+a derecha el sistema de cultuvo orgánico de 1 a 4 y el segundo componente ordena
+de abajo a arriba el sistema de cultivo tradicional de 1 a 4. Respecto a los
+agrupamientos, no hay una tendencia clara en las configuraciones de consenso.
+
+
+C) ¿Qué puede decir sobre la similitud de los sitios en las distintas estaciones?
+
+```{r}
+
+fviz_mfa(mfa, repel = T)
+```
+
+Visualmente, se observa que existe mucha variabilidad de las estaciones alredor 
+al rededor de la "configuración de consenso" o coordenadas globales. En otoño y
+primavera, tiende a existir más similitud entre los sitios cercanos al origen de
+coordenadas.
+
+D) Analice los cocientes de inercia por eje (1 y 2) y por individuo.
+
+```{r}
+kable(mfa$inertia.ratio,
+      digits = 3,
+      align = "c",
+      format = "latex",
+      caption = "Ratio de Inercia") %>%
+  kable_styling(font_size = 10, latex_options = "HOLD_position") %>%
+  kable_classic_2()
+```
+
+Como puede verse en la tabla del cociente de inercia, los puntos parciales están
+más concentrados sobre el primer eje que sobre el segundo eje.
+
+```{r}
+kable(mfa$ind$within.inertia,
+      digits = 3,
+      align = "c",
+      format = "latex",
+      caption = "Inercia por Individuo") %>%
+  kable_styling(font_size = 10, latex_options = "HOLD_position") %>%
+  kable_classic_2()
+```
+
+Respecto de la inercia de los individuos, Trad2_ZonaEste y Trad4_ZonaCentro poseen una representación equilibrada de consenso. Org1_ZonaEste, Org4_ZonaCentro y Trad3_ZonaCentro poseen mayor variabilidad a lo largo del primer componente. Finalmente, Org2_ZonaEste, Org3_ZonaCentro y Trad1_ZonaEste poseen mayor variabilidad a lo largo del segundo componente.
+
+E) Analice el comportamiento de los géneros de hongos CL, BO, AL y EP en las 
+distintas estaciones.
+
+```{r}
+plot.MFA(
+    mfa
+    , choix = "freq"
+    , invisible = "ind"
+    , 
+    )
+```
+
+El género de hongos BO posee notable variedad a lo largo de las estaciones, su 
+aunque su emplazamiento en las coordenadas es marcado ya que se localiza en el
+extremo derecho del gráfico, sobre los valores  positivos de la dimensión 1. 
+El género CL posee poca variación a lo largo de las estaciones y se concentra 
+cerca del origen. El género AL posee considerable variación y se encuentra en 
+el cuadrante superior izquierdo. Finalmente, EP posee un comportamiento similar 
+a AL 
+
+
+F) Caracterice las principales asociaciones entre las distintas condiciones 
+consideradas (zona, sistema de cultivo, estación y géneros).
+
+
+
+
+```{r}
+# # Plot de los géneros de hongos
+# 
+# plot.MFA(
+#     fit
+#     , choix = "freq"
+#     , invisible = "ind"
+#     )
+# 
+# 
+# # Inciso a) interstructura
+# fit$group
+# 
+# # Inciso b) individuos
+# # individuos medios y parciales lindo
+# fviz_mfa(fit, repel = T)
+# 
+# fit$inertia.ratio
+# fit$ind$within.inertia
+```
+
+
