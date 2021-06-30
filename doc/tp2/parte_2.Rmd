@@ -461,7 +461,6 @@ A) Realice el análisis de la interestructura. ¿Qué puede decir de la relació
     
     En cambio, solo las variables morfologicas de la hoja contribuyen a la 
     segunda componente (LONGHO, ANCHOHO y LONGPEC).
-      
 
 A) ¿Existe un agrupamiento de individuos por zona?
 
