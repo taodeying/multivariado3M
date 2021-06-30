@@ -69,9 +69,9 @@ kable(
   kable_classic_2()
 ```
 
-El coeficiente $L_g$ demustra que entre otoño e invierno, comparten mucha inercia. 
+El coeficiente $L_g$ demustra que otoño e invierno, comparten mucha inercia. 
 Por el contrario entre otoño y verano se observa el menor valor, por lo cual 
-habrían de compartir la menor estructura. 
+habrían de compartir menor estructura. 
 
 ```{r}
 Ng <- as.matrix(sqrt(diag(mfa$group$Lg)))
@@ -86,8 +86,8 @@ kable(
   kable_classic_2()
 ```
 
-El coeficiente $N_g$ demuestra que los grupos de verano y primavera se los puede 
-pensar como unidemsional, mientras que invierno y otoño requieren una mayor 
+El coeficiente $N_g$ demuestra que a los grupos de verano y primavera se los puede 
+pensar como unidimensional, mientras que invierno y otoño requieren una mayor 
 dimensión en su representación.
 
 ```{r}
@@ -103,10 +103,10 @@ kable(
 ```
 
 Al analizar la tabla RV, la cual estandariza los coeficientes, se observa que 
-ningún grupo es tán similar al otro. Aunque existe un grado de similaridad, 
-esta no es tan fuerte entre las variables, aunque tampoco despreciable. La 
-relación entre verano y otoño es aquella que más se destaca ya que es la de 
-menor similaridad, al igual que la de otoño primavera por ser aquella mas 
+ningún grupo es tán similar al otro. Aunque existe un grado de similaridad no 
+despreciable, esta no es tan fuerte entre las variables. La 
+relación entre verano y otoño se destaca ya que es la de 
+menor similaridad, al igual que la de otoño primavera por ser la más 
 intensa.
 
 En el gráfico de las condiciones se observa aquello que se intuía en las tablas 
@@ -138,7 +138,7 @@ En el gráfico de ejes parciales se observa que otoño y primavera comparten su
 representación, y en cambio invierno y verano tienden a tener un comportamiento 
 propio.
 
-```{r, fig.width = 6, fig.height = 6, out.width="60%", fig.cap="AGREGAR"}
+```{r, fig.width = 6, fig.height = 6, out.width="60%", fig.cap="Ejes Parciales"}
 mfa_partial_axes_data <- as.data.frame(mfa$partial.axes$coord)
 colnames(mfa_partial_axes_data) <- c("x1", "y1")
 mfa_partial_axes_data$x0 <- 0
@@ -171,7 +171,7 @@ ggplot(mfa_partial_axes_data) +
 
 B) ¿Hay un agrupamiento de los sitios por zona o sistema de cultivo?
 
-```{r, fig.cap="AGREGAR"}
+```{r, fig.cap="Configuración de Concenso"}
 mfa_ind_data <- as.data.frame(mfa$ind$coord)
 mfa_ind_data$etiqueta <- rownames(mfa_ind_data)
 
@@ -186,13 +186,13 @@ ggplot(mfa_ind_data, aes(Dim.1, Dim.2)) +
 Al analizar a los individuos en función de su configuración de concenso se 
 oberva que la primera dimensión permitiría separar aquellas zonas centro de las 
 zonas este. Un análisis más atento denota que el primer eje ordena de izquierda 
-a derecha el sistema de cultuvo orgánico de 1 a 4 y el segundo componente ordena
+a derecha el sistema de cultivo orgánico de 1 a 4 y el segundo componente ordena
 de abajo a arriba el sistema de cultivo tradicional de 1 a 4. Respecto a los
 agrupamientos, no hay una tendencia clara en las configuraciones de consenso.
 
 C) ¿Qué puede decir sobre la similitud de los sitios en las distintas estaciones?
 
-```{r, fig.width=7, fig.height=5, fig.cap="AGREGAR"}
+```{r, fig.width=7, fig.height=5, fig.cap="Grafico de individuos: Consenso y Parciales"}
 fviz_mfa(mfa, repel = TRUE) + 
   labs(x = "Coordenada 1 (44.2%)", y = "Coordenada 2 (19.7%)") +
   scale_linetype_manual(values = rep("solid", 4)) + 
@@ -201,7 +201,7 @@ fviz_mfa(mfa, repel = TRUE) +
     x = "Coordenada 1 (44.17%)", 
     y = "Coordenada 2 (19.68%)", 
     color = "Estacion",
-    title = "Grafico de individuos consenso y parciales"
+    title = "Grafico de individuos: Consenso y Parciales"
   ) + 
   guides(linetype = FALSE) + 
   theme_grey() + 
@@ -246,7 +246,7 @@ E) Analice el comportamiento de los géneros de hongos CL, BO, AL y EP en las
 distintas estaciones.
 
 
-```{r, fig.width=8, fig.height=4, fig.cap="AGREGAR"}
+```{r, fig.width=8, fig.height=4, fig.cap="Comportamiento de los Géneros"}
 estaciones <- c("o" = "otoño", "i" = "invierno", "p" = "primavera", "v" = "verano")
 mfa_freq_data <- as.data.frame(mfa$freq$coord)
 mfa_freq_data$genero <- substr(rownames(mfa_freq_data), 1, 2)
@@ -267,37 +267,70 @@ ggplot(mfa_freq_data, aes(Dim.1, Dim.2)) +
   )
 ```
 
-El género de hongos BO posee notable variedad a lo largo de las estaciones, su 
+El género de hongos BO posee notable variedad a lo largo de las estaciones, 
 aunque su emplazamiento en las coordenadas es marcado ya que se localiza en el
 extremo derecho del gráfico, sobre los valores  positivos de la dimensión 1. 
 El género CL posee poca variación a lo largo de las estaciones y se concentra 
 cerca del origen. El género AL posee considerable variación y se encuentra en 
 el cuadrante superior izquierdo. Finalmente, EP posee un comportamiento similar 
-a AL 
+a AL. Notese que si se grafican las correlaciones, se obtienen los mismos resultados:
+
+```{r}
+
+aux <- mfa$global.pca$var$cor
+aux <- aux[grepl("BO", rownames(aux)) | grepl("CL", rownames(aux)) | grepl("AL", rownames(aux)) | grepl("EP", rownames(aux)),]
+
+
+mfa_partial_axes_data <- as.data.frame(aux)
+colnames(mfa_partial_axes_data) <- c("x1", "y1")
+mfa_partial_axes_data$x0 <- 0
+mfa_partial_axes_data$y0 <- 0
+mfa_partial_axes_data$etiqueta <- rownames(aux)
+color <- substr(rownames(aux),3,3)
+mfa_partial_axes_data$grupo <- color
+
+ggplot(mfa_partial_axes_data) + 
+    geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+    geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+    geom_circle(
+      aes(x0 = x, y0 = y, r = r), 
+      linetype = "dashed", color = "gray30", alpha = 0.5,
+      data = data.frame(x = 0, y = 0, r = 1)
+    ) + 
+    geom_segment(
+      aes(x = x0, y = y0, xend = x1, yend = y1, color = grupo),
+      arrow = arrow(length = unit(0.15, "cm"), type ="closed"),
+      size = 1.15
+    ) + 
+    geom_text_repel(
+      aes(x1, y1, label = etiqueta)
+    ) + 
+    scale_color_manual(values = colores) + 
+    lims(x = c(-1, 1), y = c(-1, 1)) + 
+    labs(x = "Coordenada 1", y = "Coordenada 2", color = "Grupo") + 
+    theme(legend.position = "top")
+
+```
+
+
 
 F) Caracterice las principales asociaciones entre las distintas condiciones 
 consideradas (zona, sistema de cultivo, estación y géneros).
 
-
-```{r}
-# # Plot de los géneros de hongos
-# 
-# plot.MFA(
-#     fit
-#     , choix = "freq"
-#     , invisible = "ind"
-#     )
-# 
-# 
-# # Inciso a) interstructura
-# fit$group
-# 
-# # Inciso b) individuos
-# # individuos medios y parciales lindo
-# fviz_mfa(fit, repel = T)
-# 
-# fit$inertia.ratio
-# fit$ind$within.inertia
-```
-
+En función de los resultados anteriores, se puede establecer que invierno presenta
+una estructura tanto más rica en términos de frecuencias resultantes que el resto de las estaciones
+para con los hongos, siendo primavera y verano aquellas mas sencillas de caracterizar. 
+En cuanto a las locaciones, es posible utilizar la primer coordenada para diferenciar
+la zona centro de la este. A su vez, se se proyectaran los datos los 
+establecimientos de método tradicional de cultivo, las frecuencias de los establecimientos
+establecerían un gradiente que coincide con la numeración del mismo. Lo mismo
+sucede que fuera a proyectarse los datos de los cultivos con métodos orgánicos sobre 
+el eje dos, con lo cual se insta a estudiar con mayor profundidad el criterio de
+selección de los establecimientos productivos. Respecto a las variedades de hongos,
+se nota que existe una gran variabilidad de resultados en las frecuencias a medida
+que cambian las estaciones. Cabe destacar los resultados de la variedad BO, ya que
+presentó una fuerte concordancia en sus resultados a lo largo de las estaciones, y 
+se espera que se adapte bien a aquellos establecimientos con métodos de cultivos
+orgánicos. Se espera que los establecimientos de la zona centro puedan aprovechar específicamente 
+dicha variedad.
 
