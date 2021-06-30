@@ -209,7 +209,7 @@ fviz_mfa(mfa, repel = TRUE) +
 ```
 
 Visualmente, se observa que existe mucha variabilidad de las estaciones alredor 
-al rededor de la "configuración de consenso" o coordenadas globales. En otoño y
+de la "configuración de consenso" o coordenadas globales. En otoño y
 primavera, tiende a existir más similitud entre los sitios cercanos al origen de
 coordenadas.
 
@@ -240,7 +240,9 @@ kable(
   kable_classic_2()
 ```
 
-Respecto de la inercia de los individuos, Trad2_ZonaEste y Trad4_ZonaCentro poseen una representación equilibrada de consenso. Org1_ZonaEste, Org4_ZonaCentro y Trad3_ZonaCentro poseen mayor variabilidad a lo largo del primer componente. Finalmente, Org2_ZonaEste, Org3_ZonaCentro y Trad1_ZonaEste poseen mayor variabilidad a lo largo del segundo componente.
+Respecto de la inercia de los individuos, Trad2_ZonaEste y Trad4_ZonaCentro poseen una representación equilibrada de consenso. 
+Con respecto a la primer componente, podemos observar que Org1_ZonaEste, Org4_ZonaCentro y Trad3_ZonaCentro poseen mayor variabilidad a lo largo de la misma.
+Luego, puede comentarse que Org2_ZonaEste, Org3_ZonaCentro y Trad1_ZonaEste poseen mayor variabilidad a lo largo del segundo componente. 
 
 E) Analice el comportamiento de los géneros de hongos CL, BO, AL y EP en las 
 distintas estaciones.
@@ -267,13 +269,16 @@ ggplot(mfa_freq_data, aes(Dim.1, Dim.2)) +
   )
 ```
 
-El género de hongos BO posee notable variedad a lo largo de las estaciones, 
+El género de hongos BO posee notable variabilidad a lo largo de las estaciones, 
 aunque su emplazamiento en las coordenadas es marcado ya que se localiza en el
 extremo derecho del gráfico, sobre los valores  positivos de la dimensión 1. 
-El género CL posee poca variación a lo largo de las estaciones y se concentra 
-cerca del origen. El género AL posee considerable variación y se encuentra en 
-el cuadrante superior izquierdo. Finalmente, EP posee un comportamiento similar 
-a AL. Notese que si se grafican las correlaciones, se obtienen los mismos resultados:
+Por otra parte, puede observarse que el género CL posee poca variación a lo largo
+de las estaciones y, además, se concentra cerca del origen. 
+Con respecto al género AL, puede decirse que el mismo posee considerable variación 
+y se encuentra en el cuadrante superior izquierdo. 
+Finalmente, el género EP posee un comportamiento similar a AL. 
+
+Nótese que si se grafican las correlaciones, se obtienen los mismos resultados:
 
 ```{r}
 
@@ -321,16 +326,17 @@ En función de los resultados anteriores, se puede establecer que invierno prese
 una estructura tanto más rica en términos de frecuencias resultantes que el resto de las estaciones
 para con los hongos, siendo primavera y verano aquellas mas sencillas de caracterizar. 
 En cuanto a las locaciones, es posible utilizar la primer coordenada para diferenciar
-la zona centro de la este. A su vez, se se proyectaran los datos los 
+la zona centro de la este. A su vez, si se proyectaran los datos de los 
 establecimientos de método tradicional de cultivo, las frecuencias de los establecimientos
 establecerían un gradiente que coincide con la numeración del mismo. Lo mismo
 sucede que fuera a proyectarse los datos de los cultivos con métodos orgánicos sobre 
 el eje dos, con lo cual se insta a estudiar con mayor profundidad el criterio de
-selección de los establecimientos productivos. Respecto a las variedades de hongos,
-se nota que existe una gran variabilidad de resultados en las frecuencias a medida
-que cambian las estaciones. Cabe destacar los resultados de la variedad BO, ya que
-presentó una fuerte concordancia en sus resultados a lo largo de las estaciones, y 
-se espera que se adapte bien a aquellos establecimientos con métodos de cultivos
-orgánicos. Se espera que los establecimientos de la zona centro puedan aprovechar específicamente 
+selección de los establecimientos productivos. 
+Respecto a las variedades de hongos, se nota que existe una gran variabilidad de
+resultados en las frecuencias a medida que cambian las estaciones. 
+Cabe destacar los resultados de la variedad BO, ya que presentó una fuerte concordancia 
+en sus resultados a lo largo de las estaciones, y se espera que la misma se adapte
+bien a aquellos establecimientos con métodos de cultivos orgánicos. Por último, se espera 
+que los establecimientos de la zona centro puedan aprovechar específicamente 
 dicha variedad.
 
