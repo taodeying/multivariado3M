@@ -567,10 +567,6 @@ A) ¿Existe un agrupamiento de individuos por zona?
     A través de la **Figura 8** se puede confirmar lo comentado anteriormente; los 
     individuos VS414 y VH458 se apartan del grupo conformado por Valles Húmedos y
     Secos ya que poseen valores mas altos de la configuración cualitativa.
-    
-    ```{r}
-    plot.MFA(afm, choix = "ind", invisible = "ind")
-    ```
 
 A) Caracterice los grupos de individuos a través de todas las variables.
 
