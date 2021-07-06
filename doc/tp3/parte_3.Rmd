@@ -1,0 +1,162 @@
+---
+title: "Ejercicio 3"
+output: 
+  pdf_document:
+    extra_dependencies: ["float"]
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center",
+  fig.pos = "H", out.extra = "", fig.height = 3.5, fig.width = 5
+)
+colores <- c("#003f5c", "#7a5195", "#ef5675", "#ffa600")
+```
+
+```{r}
+library(cluster)
+library(FactoMineR)
+library(ggplot2)
+library(ggrepel)
+library(patchwork)
+```
+
+```{r}
+datos <- read.csv2(
+  here::here("data", "raw", "PANOJA.csv"), 
+  row.names = 1, 
+  na.strings = " "
+)
+
+datos_c <- datos[1:9]
+datos_q <- datos[10:11] 
+```
+
+El archivo PANOJA contiene datos provenientes de la evaluación 
+morfológica-fisiológica de planta y panoja de 125 poblaciones nativas de maíz 
+del Banco de Germoplasma de la EEA INTA Pergamino. Los caracteres evaluados 
+corresponden a 9 variables cuantitativas y 2 cualitativas que se describen a 
+continuación
+
+* DFLORMASC: Días a la floración masculina 
+* DFLORFEM: Días a la floración femenina 
+* ALTPLA: Altura de la planta (cm) 
+* ALTMAZ: Altura de la mazorca (cm) 
+* NROHJAS: Número total de hojas 
+* NRHOJARR: Número de hojas arriba de la mazorca 
+* ANCHHOJMAZ: Ancho de la hoja de la mazorca (cm) 
+* LARGOHOJMAZ: Largo de la hoja de la mazorca (cm) 
+* DIAMTALLO: Diámetro del tallo (mm) 
+* COLTALL: Color del tallo (1 Verde, 2 Púrpura diluido, 3 Púrpura, 4 Rojo sol 
+  diluido, 7 Rojo) 
+* POSHOJ: Posición de las hojas (1 Semivolcada, 2 Normal, 3 Semierguida) 
+
+El objetivo del trabajo más que caracterizar y clasificar a los individuos fue 
+describir la asociación entre caracteres cuantitativos y cualitativos. 
+
+**a)** Aplicando una medida de distancia y/o similaridad adecuada a ambos 
+conjuntos de variables cuantificar el grado de asociación entre los caracteres 
+cualitativos y cuantitativos. 
+
+```{r}
+distancia_c <- dist(scale(datos_c), diag = TRUE)
+datos_q_fct <- as.data.frame(unclass(datos_q), stringsAsFactors = TRUE)
+distancia_q <- daisy(datos_q_fct, metric = "gower")
+```
+
+```{r}
+concordancia_df <- data.frame(
+  x = as.vector(distancia_c),
+  y = as.vector(distancia_q)
+)
+corr <- cor(distancia_c, distancia_q) 
+ggplot(concordancia_df) + 
+  geom_point(aes(x, y), size = 3, alpha = 0.7, color = "grey30") + 
+  labs(
+      x = "Distancia con variables cuantitativas",
+      y = "Distancia con variables cualitativas",
+      title = sprintf("Correlacion: %s", round(corr, 4))
+  )
+```
+
+
+**pregunta** en la clase usa 
+
+```
+CUALI.SM2 <- 1 - CUALI.SM ** 2
+```
+
+pero daisy ya nos da la distancia, o no?
+
+**b)** Recurra a la discretización de Escofier sobre las variables cuantitativas
+para poder aplicar Análisis de Correspondencias Múltiples y en función de los 
+resultados obtenidos concluya sobre la relación entre los distintos niveles de 
+las variables cualitativas y las variables cuantitativas. 
+
+
+```{r}
+discretizacion_escofier <- function(df) {
+  cols <- names(df)[sapply(df, is.numeric)]
+  mm <- matrix(NA, nrow = nrow(df), ncol = length(cols) * 2)
+  for (i in seq(cols)) {
+    x_j <- scale(df[cols[i]])
+    mm[, i * 2 - 1] <- (1 - x_j) / 2
+    mm[, i * 2] <- (1 + x_j) / 2
+  }
+  mm <- as.data.frame(mm)
+  colnames(mm) <- paste(rep(cols, each = 2), c("-", "+"))
+  rownames(mm) <- rownames(df)
+  mm
+}
+
+tabla_disyuntiva <- function(df) {
+  # Contribucion numericas
+  df_num <- discretizacion_escofier(datos)
+  # Contribucion categoricas
+  df_cuali <- df[sapply(df, function(x) is.character(x) | is.factor(x))]
+  df_cuali <- fastDummies::dummy_columns(df_cuali, remove_selected_columns = TRUE)
+  cbind(df_num, df_cuali)
+}
+tabla <- tabla_disyuntiva(datos)
+```
+
+```{r}
+acs <- CA(tabla, graph = FALSE)
+```
+
+
+```{r}
+vars <- as.data.frame(acs$col$coord[, 1:2])
+vars$label <- rownames(vars)
+
+inds <- as.data.frame(acs$row$coord[, 1:2])
+inds$label <- rownames(inds)
+```
+
+
+```{r, fig.height=14, fig.width=10}
+p1 <- ggplot(vars) + 
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+  geom_point(aes(`Dim 1`, `Dim 2`)) + 
+  geom_text_repel(aes(`Dim 1`, `Dim 2`, label = label), max.overlaps = 100) + 
+  theme(axis.title = element_blank())
+
+p2 <- ggplot(inds) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+  geom_text(aes(`Dim 1`, `Dim 2`, label = label)) +
+  theme(axis.title = element_blank())
+
+result <- p1 / p2
+gt <- patchwork::patchworkGrob(result)
+gridExtra::grid.arrange(
+  gt, 
+  left = "Coordenada 2 (8.31%)" ,
+  bottom = "Coordenada 1 (45.39%)"
+)
+```
+
+**INTERPRETAR**

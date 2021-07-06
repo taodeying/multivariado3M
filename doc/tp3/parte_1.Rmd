@@ -114,7 +114,6 @@ df$tipo <- substr(df$variedad, 1, 1)
 ggplot(df) + 
   geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
   geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
-  geom_point(aes(X1, X2, color = tipo), size = 2.5) + 
   geom_text_repel(aes(X1, X2, label = variedad)) +
   scale_color_manual(values = colores, name = "Tipo de fruto") + 
   labs(

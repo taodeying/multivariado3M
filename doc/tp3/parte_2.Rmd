@@ -1,0 +1,154 @@
+---
+title: "Ejercicio 2"
+output: 
+  pdf_document:
+    extra_dependencies: ["float"]
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center",
+  fig.pos = "H", out.extra = "", fig.height = 3.5, fig.width = 5
+)
+colores <- c("#003f5c", "#7a5195", "#ef5675", "#ffa600")
+```
+
+```{r}
+library(cluster)
+library(ggplot2)
+source(here::here("src", "utils.R"))
+```
+
+```{r}
+datos <- read.csv2(
+  here::here("data", "raw", "GOWER.csv"), 
+  row.names = 1, 
+  na.strings = " "
+)
+```
+
+Con el objetivo de tipificar los establecimientos frutícolas del Alto Valle de 
+Río Negro en función de factores socio-económicos, tecnológicos y productivos, 
+se seleccionó una muestra aleatoria de 86 chacras de la región. Recolectándose 
+información acerca a 40 puntos de una encuesta frutícola que corresponden tanto
+a variables dicotómicas, cualitativas como cuantitativas. Además, se presenta el 
+inconveniente de contar con información faltante, hecho que complica la 
+utilización de la mayoría de las estrategias clásicas de caracterización. Por 
+ello se decidió aplicar el coeficiente de similaridad de Gower que por otro lado 
+permite asignar diferente importancia a los caracteres a través de ponderaciones, 
+alternativa válida para eliminar pesos espurios en encuestas donde sobre una 
+misma temática se emplea un mayor número de preguntas respecto a otras. 
+
+**a)** Aplique el coeficiente de similaridad de Gower para cuantificar la 
+semejanza entre unidades productivas considerando que se debe asignar igual 
+importancia (1/6) a cada grupo de variables. Tenga en cuenta además que las 
+variables 5.2 y 5.3 miden un único concepto que es el tipo de conducción, 
+las variables 5.4, 5.5, 5.6 y 5.7 también cuantifican una sola característica 
+que es el tipo de defensa contra heladas, y por último las variables 6.2, 6.3 y
+6.4 miden el estado de la plantación (se podría haber puesto una 
+multinomial con niveles Bueno, Regular y Malo, pero se perdería información) 
+
+
+```{r}
+pesos <- c(
+  rep(1 / 54, 9),
+  rep(1 / 18, 3),
+  rep(1 / 42, 7),
+  rep(1 / 48, 8),
+  1 / 30,
+  1 / 60,
+  1 / 60,
+  rep(1 / 120, 4),
+  1 / 30,
+  1 / 30,
+  1 / 12,
+  rep(1 / 36, 3)
+)
+```
+
+
+```{r}
+datos_fct <- as.data.frame(unclass(datos), stringsAsFactors = TRUE)
+distancia <- daisy(datos_fct, metric = "gower", weights = pesos)
+similaridad <- 1 - distancia
+```
+
+
+
+**b)** Sobre la matriz de similaridad hallada aplique Análisis de Coordenadas 
+Principales y conforme grupos de explotaciones agrícolas según la primer 
+coordenada y subgrupos en función de la segunda coordenada. 
+
+```{r}
+# Coordenadas principales / escalamiento multidimensional
+distancia_sqrt <- sqrt(distancia)
+mds <- cmdscale(distancia_sqrt, eig = TRUE, k = 2)
+```
+
+
+```{r, fig.height=4, fig.width=7, fig.cap="Caracterizacion las variedades de pepino en el plano principal."}
+df <- data.frame(mds$points)
+df$chacra <- rownames(datos)
+
+ggplot(df) + 
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+  geom_text(aes(X1, X2, label = chacra)) +
+  labs(
+    x = "Coordenada principal 1",
+    y = "Coordenada principal 2"
+  )
+```
+
+**c)** Caracterice grupos y subgrupos en forma descriptiva y somera en función 
+de las variables originales 
+
+Encontrar en que se parecen los individuos de la derecha, y en que se parecen
+los individuos de la izquierda (viendo variables originales)
+
+**pregunta**: que esta dado por las iniciales? se puede usar para colorear?
+
+**d)** Verifique si encuentra esos grupos en un cluster UPGMA realizado a partir
+de la matriz de similaridad de Gower
+
+```{r}
+cluster_upgma <- hclust(distancia, method = "average")
+dendro_data <- dendro_data_k(cluster_upgma, k = 4)
+dendro_data$labels$label <- df$chacra[as.numeric(dendro_data$labels$label)]
+```
+
+
+```{r, fig.height=9, fig.width=6, fig.cap="Dendograma ultrametrico con ligamiento UPGMA."}
+
+ggplot(dendro_data$segments) + 
+  geom_segment(
+    aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(clust)),
+    size = 1,
+    lineend = "round"
+  ) + 
+  geom_text(
+    aes(x = x, y = y - 0.025, label = label, color = as.factor(clust)), 
+    data = dendro_data$labels,
+    size = 2.6
+  ) + 
+  coord_flip() + 
+  labs(
+    y = "Distancia"
+  ) + 
+  scale_colour_manual(
+    values = c("grey30", colores)
+  ) + 
+  theme(
+    panel.grid.minor = element_blank(),
+    axis.title.x = element_text(size = 14), 
+    axis.title.y = element_blank(), 
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_blank(), 
+    axis.line = element_blank(), 
+    axis.ticks.y = element_blank(),
+    plot.title = element_text(hjust = 0.5),
+    legend.position = "none"
+  )
+```
