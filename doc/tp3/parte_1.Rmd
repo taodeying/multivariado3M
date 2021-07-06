@@ -1,0 +1,203 @@
+---
+title: "Ejercicio 1"
+output: 
+  pdf_document:
+    extra_dependencies: ["float"]
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center",
+  fig.pos = "H", out.extra = "", fig.height = 3.5, fig.width = 5
+)
+colores <- c("#003f5c", "#7a5195", "#ef5675", "#ffa600")
+```
+
+```{r}
+library(cluster)
+library(FactoMineR)
+library(ggplot2)
+library(ggrepel)
+library(kableExtra)
+source(here::here("src", "utils.R"))
+```
+
+```{r}
+datos_q <- read.csv2(
+  here::here("data", "raw", "CUALITATIVAS.csv"), 
+  row.names = 1, 
+  stringsAsFactors = FALSE, 
+  na.strings = "-1"
+)
+
+datos_c <- read.csv2(
+  here::here("data", "raw", "CUANTITATIVAS.csv"), 
+  row.names = 1, 
+  stringsAsFactors = FALSE
+)
+
+datos <- cbind(datos_q, datos_c)
+```
+
+Para obtener una única caracterización agronómica incluyendo toda la información
+brindada en los archivos CUALITATIVAS y CUANTITATIVAS vistos en el TP Parte I, 
+una alternativa válida es trabajar con el Coeficiente General de Similaridad de
+Gower que permite considerar variables cuantitativas y cualitativas en forma 
+simultánea. 
+
+A) Calcule a mano este coeficiente para medir el grado de asociación entre las 
+variedades A1 y A2, y F4 y F5 (filas 1, 2, 12 y 13 respectivamente). 
+
+```{r}
+coeficiente_gower <- function(individuos, datos) {
+  numerador = 0
+  denominador = 0
+  
+  # Contribucion categoricos
+  datos_c <- datos[sapply(datos, is.character)]
+  x <- datos_c[individuos[1], ]
+  y <- datos_c[individuos[2], ]
+  numerador <- numerador + sum(x == y, na.rm = TRUE)
+  denominador <- denominador + sum(!is.na(x == y))
+  
+  # Contribucion numericos
+  datos_n <- datos[sapply(datos, is.numeric)]
+  rangos <- sapply(datos_n, function(x) {
+    r = range(x, na.rm = TRUE)
+    r[2] - r[1]
+  })
+  x <- datos_n[individuos[1], ]
+  y <- datos_n[individuos[2], ]
+  numerador <- numerador + sum(1 - abs(x - y) / rangos)
+  denominador <- denominador + ncol(datos_n)
+  
+  # Resultado
+  numerador / denominador
+}
+
+round(coeficiente_gower(c("A1", "A2"), datos), 4)
+round(coeficiente_gower(c("F4", "F5"), datos), 4)
+```
+
+Estan bien, chequeados con la clase.
+
+**Interpretar**
+
+De todo lo que hemos medido, cuantitativo o cuantitativo, los individuos 1 y 2 
+comparten el X% de los caracteres observados.
+
+B) Recurra al software para encontrar la matriz de similaridad de Gower entre 
+todos los individuos. 
+
+```{r, echo=TRUE}
+datos_fct <- as.data.frame(unclass(datos), stringsAsFactors = TRUE)
+distancia <- daisy(datos_fct, metric = "gower")
+similaridad <- 1 - distancia
+```
+
+C) Aplique Análisis de Coordenadas Principales para obtener la configuración 
+conjunta cuali-cuantitativa de las variedades de pepino 
+
+```{r}
+# Coordenadas principales / escalamiento multidimensional
+distancia_sqrt <- sqrt(distancia) 
+mds <- cmdscale(distancia_sqrt, eig = TRUE, k = 2)
+```
+
+```{r, fig.height=4, fig.width=7, fig.cap="Caracterizacion las variedades de pepino en el plano principal."}
+df <- data.frame(mds$points)
+df$variedad <- rownames(datos)
+df$tipo <- substr(df$variedad, 1, 1)
+
+ggplot(df) + 
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+  geom_point(aes(X1, X2, color = tipo), size = 2.5) + 
+  geom_text_repel(aes(X1, X2, label = variedad)) +
+  scale_color_manual(values = colores, name = "Tipo de fruto") + 
+  labs(
+    x = "Coordenada principal 1",
+    y = "Coordenada principal 2"
+  )
+```
+
+
+D) Halle un cluster con encadenamiento UPGMA en función de la distancia de Gower 
+
+```{r}
+cluster_upgma <- hclust(distancia, method = "average")
+dendro_data <- dendro_data_k(cluster_upgma, k = 4)
+```
+
+
+```{r, fig.height=6.5, fig.width=6, fig.cap="Dendograma ultrametrico con ligamiento UPGMA."}
+dendro_data$labels$label <- df$variedad[as.numeric(dendro_data$labels$label)]
+ggplot(dendro_data$segments) + 
+  geom_segment(
+    aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(clust)),
+    size = 1.2,
+    lineend = "round"
+  ) + 
+  geom_text(
+    aes(x = x, y = y - 0.025, label = label, color = as.factor(clust)), 
+    data = dendro_data$labels
+  ) + 
+  coord_flip() + 
+  labs(
+    y = "Distancia"
+  ) + 
+  scale_colour_manual(
+    values = c("grey30", colores)
+  ) + 
+  theme(
+    panel.grid.minor = element_blank(),
+    axis.title.x = element_text(size = 14), 
+    axis.title.y = element_blank(), 
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_blank(), 
+    axis.line = element_blank(), 
+    axis.ticks.y = element_blank(),
+    plot.title = element_text(hjust = 0.5),
+    legend.position = "none"
+  )
+```
+
+
+Me discrimina bien los 4 grupos, solamente con lo cuantitativo y lo cualitativo.
+
+E) Compare resultados de (c) con los hallados en ejercicio 4 de Parte I. 
+Cuantifique la relación con la configuración de consenso (bidimensional) 
+encontrada con APG
+
+```{r}
+apg <- readRDS(
+  here::here("doc", "tp1", "shared", "parte_4", "morfologica_gpa.rds")
+)
+
+apg_dist <- dist(apg$consensus, diag = TRUE) / 33
+mds_dist <- dist(mds$points, diag = TRUE) / 33
+correlacion <- cor(apg_dist, mds_dist) # esta bien!!
+```
+
+```{r}
+concordancia_df <- data.frame(
+  x = as.vector(apg_dist),
+  y = as.vector(mds_dist)
+)
+model = lm(y ~ x, concordancia_df)
+intercept = coef(model)[1]
+slope = coef(model)[2]
+
+ggplot(concordancia_df) + 
+  geom_abline(slope = slope, intercept = intercept, size = 1) +
+  geom_point(aes(x, y), size = 3, alpha = 0.7, color = "grey30") + 
+  labs(
+      x = "Distancia en el plano principal de APG",
+      y = "Distancia en el plano principal de MDS"
+  )
+```
+
+Relacion del 98% entre el dibujito de APG y el dibujito de MDS/coords principales
+aplicado sobre la matriz de Gower. Practicamente igual. Datos consistentes.
