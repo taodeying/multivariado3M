@@ -50,13 +50,18 @@ simultánea.
 A) Calcule a mano este coeficiente para medir el grado de asociación entre las 
 variedades A1 y A2, y F4 y F5 (filas 1, 2, 12 y 13 respectivamente). 
 
-```{r}
+Definimos la siguiente funcion para calcular el coeficiente de Gower. El primer
+argumento, `individuos`, recibe un vector de longitud 2 con los dos individuos
+para los cuales se quiere computar el coeficiente de Gower. El segundo argumento,
+`datos`, es un data frame con las variables a utilizar.
+
+```{r, echo=TRUE}
 coeficiente_gower <- function(individuos, datos) {
-  numerador = 0
-  denominador = 0
+  numerador <- 0
+  denominador <- 0
   
   # Contribucion categoricos
-  datos_c <- datos[sapply(datos, is.character)]
+  datos_c <- datos[sapply(datos, function(x) is.character(x) | is.factor(x))]
   x <- datos_c[individuos[1], ]
   y <- datos_c[individuos[2], ]
   numerador <- numerador + sum(x == y, na.rm = TRUE)
@@ -65,8 +70,7 @@ coeficiente_gower <- function(individuos, datos) {
   # Contribucion numericos
   datos_n <- datos[sapply(datos, is.numeric)]
   rangos <- sapply(datos_n, function(x) {
-    r = range(x, na.rm = TRUE)
-    r[2] - r[1]
+    max(x, na.rm = TRUE) - min(x, na.rm = TRUE)
   })
   x <- datos_n[individuos[1], ]
   y <- datos_n[individuos[2], ]
@@ -76,20 +80,30 @@ coeficiente_gower <- function(individuos, datos) {
   # Resultado
   numerador / denominador
 }
-
-round(coeficiente_gower(c("A1", "A2"), datos), 4)
-round(coeficiente_gower(c("F4", "F5"), datos), 4)
 ```
 
-Estan bien, chequeados con la clase.
+Luego, simplemente hacemos
 
-**Interpretar**
+```{r, echo=TRUE}
+gwr1 <- coeficiente_gower(c("A1", "A2"), datos)
+gwr2 <- coeficiente_gower(c("F4", "F5"), datos)
+```
 
-De todo lo que hemos medido, cuantitativo o cuantitativo, los individuos 1 y 2 
-comparten el X% de los caracteres observados.
+El coeficiente de Gower para los individuos `"A1"` y `"A2"` es `r round(gwr1, 4)`.
+Esto quiere decir que de todas aquellas variables medidas, ya sean cuantiativas
+o cualitativas, los individuos `"A1"` y `"A2"` comparten el 
+`r paste0(round(gwr1 * 100, 2), "%")` de los caracteres observados. Por otro 
+lado, para los individuos `"F4"` y `"F5"` este coeficiente es del 
+`r round(gwr2, 4)`. El mismo indica que los individuos `"F4"` y `"F5"` se parecen
+bastante, aunque no tanto como `"A1"` y `"A2"`.
+
+\pagebreak
 
 B) Recurra al software para encontrar la matriz de similaridad de Gower entre 
 todos los individuos. 
+
+**Nota:** `daisy()` no funciona con variables de tipo `"character"`, por lo que 
+las convertimos a tipo `"factor"`.
 
 ```{r, echo=TRUE}
 datos_fct <- as.data.frame(unclass(datos), stringsAsFactors = TRUE)
@@ -114,16 +128,49 @@ df$tipo <- substr(df$variedad, 1, 1)
 ggplot(df) + 
   geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
   geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
-  geom_text_repel(aes(X1, X2, label = variedad)) +
+  geom_point(aes(X1, X2, color=tipo), size = 4) + 
+  geom_label_repel(
+    aes(X1, X2, label = variedad), 
+    label.padding = 0.1, 
+    max.overlaps = 30
+  ) +
   scale_color_manual(values = colores, name = "Tipo de fruto") + 
+  lims(
+    x = c(-0.5, 0.5),
+    y = c(-0.35, 0.35)
+  ) +
   labs(
     x = "Coordenada principal 1",
     y = "Coordenada principal 2"
   )
 ```
 
+En la **Figura 1** se puede ver que el analisis de correspondencias principales
+convserva de muy buena manera el agrupamiento para los tipos de pepino alpha-beta
+(A) y holandes (H) en el plano principal. Por otro lado, no se puede obtener un
+agrupamiento tan claro para los pepinos de tipos frances (F) y pepinillo (P).
+Es posible ver que los pepinillos tienden a tener mayor valor en la primera 
+coordenada que los franceses. Sin embargo, sino fuera por los colores que 
+distinguen a los tipos de pepino, uno agruparia a los pepinos franceses y 
+pepillinos en una misma clase.
+
+Ahora comparamos este resultado con el analisis de procrustes del Ejercicio 6 del
+primer trabajo practico. Podemos concluir que esta configuracion en el plano
+principal y la configuracion de consenso en el plano principal de APG logran 
+ordenamientos similares. Sin embargo, el ordenamiento de consenso del APG 
+funciona un poco mejor ya que logra diferenciar mas claramente a los pepinillos
+de los franceses.
 
 D) Halle un cluster con encadenamiento UPGMA en función de la distancia de Gower 
+
+En la **Figura 2** se observan los agrupamientos resultantes del cluster con 
+encadenamiento UPGMA. Este metodo logra discriminar de manera perfecta a los 
+individuos por tipo de fruto. Es esperable que este agrupamiento discrimine mejor 
+que el agrupamiento obtenido en el plano principal de ACP ya que se enriquece de 
+las  distancias en el espacio original, mientras que el plano principal en la 
+**Figura 1** es una proyeccion de una configuracion en un espacio de mayor 
+dimensionalidad.
+
 
 ```{r}
 cluster_upgma <- hclust(distancia, method = "average")
@@ -131,7 +178,7 @@ dendro_data <- dendro_data_k(cluster_upgma, k = 4)
 ```
 
 
-```{r, fig.height=6.5, fig.width=6, fig.cap="Dendograma ultrametrico con ligamiento UPGMA."}
+```{r, fig.height=6.5, fig.width=6, fig.cap="Dendograma ultrametrico con ligamiento UPGMA en función de la distancia de Gower ."}
 dendro_data$labels$label <- df$variedad[as.numeric(dendro_data$labels$label)]
 ggplot(dendro_data$segments) + 
   geom_segment(
@@ -164,8 +211,6 @@ ggplot(dendro_data$segments) +
 ```
 
 
-Me discrimina bien los 4 grupos, solamente con lo cuantitativo y lo cualitativo.
-
 E) Compare resultados de (c) con los hallados en ejercicio 4 de Parte I. 
 Cuantifique la relación con la configuración de consenso (bidimensional) 
 encontrada con APG
@@ -180,7 +225,13 @@ mds_dist <- dist(mds$points, diag = TRUE) / 33
 correlacion <- cor(apg_dist, mds_dist) # esta bien!!
 ```
 
-```{r}
+En la **Figura 3** se observa la alta relacion entre las configuraciones de
+consenso bidimensional encontrada con APG y la configuracion de consenso 
+obtenida mediante ACP, que se observa en la **Figura 1**. La correlacion entre
+ambas configuraciones es `r round(correlacion, 4)`. Es decir que ambos analisis 
+son altisimamente consistentes.
+
+```{r, fig.cap="Concordancia entre las distancias segun APG y ACP. La linea negra representa a la regresion lineal entre ambas distancias."}
 concordancia_df <- data.frame(
   x = as.vector(apg_dist),
   y = as.vector(mds_dist)
@@ -198,5 +249,4 @@ ggplot(concordancia_df) +
   )
 ```
 
-Relacion del 98% entre el dibujito de APG y el dibujito de MDS/coords principales
-aplicado sobre la matriz de Gower. Practicamente igual. Datos consistentes.
+**NOTA:** Que les parece si borramos este grafico para ahorrar espacio?
