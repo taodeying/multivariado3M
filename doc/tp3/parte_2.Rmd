@@ -17,6 +17,7 @@ colores <- c("#003f5c", "#7a5195", "#ef5675", "#ffa600")
 
 ```{r}
 library(cluster)
+library(ggforce)
 library(ggplot2)
 source(here::here("src", "utils.R"))
 ```
@@ -51,7 +52,7 @@ que es el tipo de defensa contra heladas, y por último las variables 6.2, 6.3 y
 multinomial con niveles Bueno, Regular y Malo, pero se perdería información) 
 
 
-```{r}
+```{r, echo=TRUE}
 pesos <- c(
   rep(1 / 54, 9),
   rep(1 / 18, 3),
@@ -66,41 +67,55 @@ pesos <- c(
   1 / 12,
   rep(1 / 36, 3)
 )
-```
 
-
-```{r}
 datos_fct <- as.data.frame(unclass(datos), stringsAsFactors = TRUE)
 distancia <- daisy(datos_fct, metric = "gower", weights = pesos)
 similaridad <- 1 - distancia
 ```
 
-
-
 **b)** Sobre la matriz de similaridad hallada aplique Análisis de Coordenadas 
 Principales y conforme grupos de explotaciones agrícolas según la primer 
 coordenada y subgrupos en función de la segunda coordenada. 
 
-```{r}
-# Coordenadas principales / escalamiento multidimensional
+```{r, echo=TRUE}
 distancia_sqrt <- sqrt(distancia)
 mds <- cmdscale(distancia_sqrt, eig = TRUE, k = 2)
 ```
 
 
-```{r, fig.height=4, fig.width=7, fig.cap="Caracterizacion las variedades de pepino en el plano principal."}
+```{r}
+x_breaks <- c(-0.2, 0)
+y_breaks <- c(0)
+
 df <- data.frame(mds$points)
 df$chacra <- rownames(datos)
+
+df$grupo <- "grupo3"
+df[df$X1 > 0 & df$X2 > 0, "grupo"] <- "grupo1"
+df[df$X1 > 0 & df$X2 < 0, "grupo"] <- "grupo2"
+df[df$X1 < -0.2 & df$X2 > 0, "grupo"] <- "grupo4"
+df[df$X1 < -0.2 & df$X2 < 0, "grupo"] <- "grupo5"
+```
+
+
+
+```{r, fig.height=6, fig.width=10, fig.cap="Caracterizacion las variedades de pepino en el plano principal."}
 
 ggplot(df) + 
   geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
   geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+  geom_mark_ellipse(aes(x=X1, y=X2, fill = grupo)) + 
   geom_text(aes(X1, X2, label = chacra)) +
+  scale_fill_manual(
+    values = c("#264653", "#2A9D8F", "#E9C46A", "#F4A261", "#E76F51")
+  ) + 
   labs(
-    x = "Coordenada principal 1",
-    y = "Coordenada principal 2"
+    x = "Coordenada principal 1 (24.6%)",
+    y = "Coordenada principal 2 (7.6%)",
+    fill = "Grupo"
   )
 ```
+
 
 **c)** Caracterice grupos y subgrupos en forma descriptiva y somera en función 
 de las variables originales 
@@ -118,7 +133,6 @@ cluster_upgma <- hclust(distancia, method = "average")
 dendro_data <- dendro_data_k(cluster_upgma, k = 4)
 dendro_data$labels$label <- df$chacra[as.numeric(dendro_data$labels$label)]
 ```
-
 
 ```{r, fig.height=9, fig.width=6, fig.cap="Dendograma ultrametrico con ligamiento UPGMA."}
 
