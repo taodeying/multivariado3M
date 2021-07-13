@@ -1,5 +1,5 @@
 ---
-title: "Ejercicio 1"
+title: "Ejercicio 4"
 output: 
   pdf_document:
     extra_dependencies: ["float"]
@@ -24,17 +24,7 @@ library(kableExtra)
 library(ade4)
 source(here::here("src", "utils.R"))
 ```
-
-```{r}
-datos_q <- read.csv2(
-  here::here("data", "raw", "CUALITATIVAS.csv"), 
-  row.names = 1, 
-  stringsAsFactors = FALSE, 
-  na.strings = "-1"
-)
-
-```
-  
+ 
   
 **a)** Podría en función de esta información determinar un gradiente de similaridad entre los tres individuos?
 

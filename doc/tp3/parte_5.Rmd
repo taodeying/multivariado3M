@@ -1,0 +1,115 @@
+---
+title: "Ejercicio 5"
+output: 
+  pdf_document:
+    extra_dependencies: ["float"]
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center",
+  fig.pos = "H", out.extra = "", fig.height = 3.5, fig.width = 5
+)
+colores <- c("#003f5c", "#7a5195", "#ef5675", "#ffa600")
+```
+
+```{r}
+library(cluster)
+library(FactoMineR)
+library(ggplot2)
+library(ggrepel)
+library(kableExtra)
+library(ade4)
+library(adegenet)
+source(here::here("src", "utils.R"))
+```
+
+Para poder establecer un gradiente de distancias, de manera intuitiva, entre los
+individuos se utiliza la notacion brindanda, en la cual se presentan las frecuencias
+relativas asociadas a los alelos  $A_1$ y $A_2$ por locus
+
+```{r}
+ind1 <- c(1,   0, 1,    0)
+ind2 <- c(1/2, 1/2, 1/2, 1/2)
+ind3 <- c(0,    1, 1,    0)
+data <- rbind(ind1, ind2, ind3)
+colnames(data) = c("Locus1.1","Locus1.2", "Locus2.1", "Locus2.2")
+
+kable(data) %>%
+      kable_styling(font_size = 8, latex_options = "HOLD_position")
+    
+```
+
+Para ello se calcula la distancia euclidea entre los pares de individuos para cada 
+uno de los Locus.
+
+
+* Individuo 1 vs Individuo 2: $d_{12}$ = 1
+* Individuo 1 vs Individuo 3: $d_{13}$ = 1.414 
+* Individuo 2 vs Individuo 3: $d_{23}$ = 1
+
+Observando los resultados obtenidos podemos establecer,
+$d_{12}$ = $d_{23}$ < $d_{13}$
+
+
+Luego, se calculan las distancias entre los individuos 1-2 y 1-3 utilizando distancias 
+genéticas (Nei, Cuerda, Rogers y Prevosti).
+
+```{r}
+
+n <- c(0.35, 0.69)
+c <- c(0.76, 1)
+r <- c(0.707, 0.707)
+p <- c(0.707, 0.707)
+dist <- rbind( n, c, r, p)
+colnames(dist) = c("Individuo 1 vs Individuo 2", "Individuo 2 vs Individuo 3" )
+rownames(dist) = c("Nei", "Cuerda", "Rogers", "Prevosti")
+
+kable(dist) %>%
+      kable_styling(font_size = 8, latex_options = "HOLD_position")
+
+```
+
+
+Corroboramos los resultados obtenidos utilizando la funcion _dist.genpop_ del paquete
+_adegenet_
+
+```{r}
+datos <- as.genpop(data*2)
+
+nei <- dist.genpop(datos, method = 1, diag = FALSE, upper = FALSE)
+nei12 <- nei[1]
+nei13 <- nei[2]
+dist_nei <- cbind(nei12, nei13)
+
+cuerda <-  dist.genpop(datos, method = 2, diag = FALSE, upper = FALSE)*sqrt(2)
+cuerda12 <- cuerda[1]
+cuerda13 <- cuerda[2]
+dist_cuerda <- cbind(cuerda12, cuerda13)
+
+
+rogers <- dist.genpop(datos, method = 4, diag = FALSE, upper = FALSE)*sqrt(2)
+rogers12 <- rogers[1]
+rogers13 <- rogers[2]
+dist_rogers <- cbind(rogers12, rogers13)
+
+
+prevosti <- dist.genpop(datos, method = 5, diag = FALSE, upper = FALSE)*sqrt(2)
+prevosti12 <- prevosti[1]
+prevosti13 <- prevosti[2]
+dist_prevosti <- cbind(prevosti12, prevosti13)
+
+
+dist <- rbind( dist_nei, dist_cuerda, dist_rogers, dist_prevosti)
+colnames(dist) = c("Individuo 1 vs Individuo 2", "Individuo 2 vs Individuo 3" )
+rownames(dist) = c("Nei", "Cuerda", "Rogers", "Prevosti")
+
+kable(dist) %>%
+      kable_styling(font_size = 8, latex_options = "HOLD_position")
+
+```
+
+
+ACA PONER QUE COINCIDE CON LO VISTO AL PRINCIPIO!!!!
