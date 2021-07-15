@@ -1,0 +1,86 @@
+---
+title: "Ejercicio 3"
+output: 
+  pdf_document:
+    extra_dependencies: ["float"]
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center",
+  fig.pos = "H", out.extra = "", fig.height = 3.5, fig.width = 5
+)
+colores <- c("#003f5c", "#7a5195", "#ef5675", "#ffa600")
+```
+
+```{r}
+library(cluster)
+library(FactoMineR)
+library(ggplot2)
+library(ggrepel)
+library(patchwork)
+library(adagenet)
+```
+
+Sobre 15 poblaciones locales de maíz (Zea mays) de las provincias de Buenos Aires y Santa Fe, más tres variedades mejoradas de polinización abierta (VM1, VM2 y VM3 las cuales se utilizaron como testigos) y una línea endocriada (LE), se realizó una caracterización molecular por la técnica de Microsatélites. Cada población estuvo representada por 25 individuos y se registró la frecuencia alélica
+absoluta para 6 microsatélites. En el archivo MICROSATELITES se encuentra la información donde en las filas la misma letra indica las alternativas alélicas para cada uno de los loci microsatélites. Este archivo se encuentra con el formato que fue entregado por el propietario de los datos.
+
+a) Adecuar el archivo MICROSATELITES para poder trabajar sobre el con la sentencia dist.genpop
+
+
+```{r echo=TRUE}
+datos_ <- readxl::read_excel(
+  here::here("data", "raw", "MICROSATELITES.xlsx")
+)
+
+datos <- t(datos_[,-1])
+colnames(datos) <- unlist(datos_[,1])
+
+rm(datos_); gc()
+```
+
+
+
+b) Hallar la distancia genética de Prevosti entre poblaciones con dist.genpoo.
+
+```{r}
+y <- as.genpop(datos)
+prevosti<- dist.genpop(y, method=5, diag= FALSE, upper=FALSE)
+print(round(prevosti,2))
+```
+
+
+c) Sobre la matriz de distancia hallada aplique Análisis de Coordenadas Principales para conformar grupos
+de poblaciones de Maíz según su semejanza (puede ayudarse haciendo un clúster UPGMA sobre las
+distancias euclídeas observadas en el plano principal).
+d) Encontrar la distancia de Manhattan acotada y comparar con lo hallado en (b)
+e) Podría aplicar el coeficiente de similaridad SM en este problema ? Porque ?
+
+
+A)
+
+A)
+
+
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
