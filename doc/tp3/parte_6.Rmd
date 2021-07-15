@@ -1,0 +1,401 @@
+---
+title: "Ejercicio 6"
+output: 
+  pdf_document:
+    extra_dependencies: ["float"]
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center",
+  fig.pos = "H", out.extra = "", fig.height = 3.5, fig.width = 5
+)
+colores <- c("#003f5c", "#7a5195", "#ef5675", "#ffa600")
+```
+
+```{r}
+library(cluster)
+library(FactoMineR)
+library(ggplot2)
+library(ggrepel)
+library(kableExtra)
+library(ade4)
+library(adegenet)
+source(here::here("src", "utils.R"))
+```
+
+
+**a)** Calcular las matrices de distancias y/o similaridades correspondientes a
+las medidas de asociacion SM, Jaccard, Rao, Nei, Cuerda, Prevosti y Rogers, en caso
+de utilizacion de un marcador codominante (dos alelos alternativos, $A_1$ asociado 
+con A y $A_2$ asociado con a)
+
+**SIMILARIDADES**
+```{r}
+datos_s_cod <- read.csv2(
+  here::here("data", "raw", "COD2.csv"), 
+  row.names = 1, 
+  stringsAsFactors = FALSE, 
+  na.strings = "-1"
+)
+
+#Similaridades
+sm_cod <- 1 - (dist.binary(datos_s_cod, method = 2, diag = FALSE, upper = FALSE))**2
+j_cod <- 1 - (dist.binary(datos_s_cod, method = 1, diag = FALSE, upper = FALSE))**2
+rr_cod <- 1 - (dist.binary(datos_s_cod, method = 10, diag = FALSE, upper = FALSE))**2
+
+ind<-rep(1:15)
+
+kable(head(as.matrix(round(sm_cod,2))), caption = "SM", row.names = ind) %>%
+      kable_styling(font_size = 8, latex_options = "HOLD_position"
+                )
+
+
+```
+
+
+```{r}
+kable(head(as.matrix(round(j_cod,2))), caption = "JACCARD", row.names = ind) %>%
+      kable_styling(font_size = 8, latex_options = "HOLD_position"
+                )
+
+```
+
+```{r}
+
+kable(head(as.matrix(round(rr_cod,2))), caption = "RAO", row.names = ind) %>%
+      kable_styling(font_size = 8, latex_options = "HOLD_position"
+                )
+
+```
+
+**DISTANCIAS**
+```{r}
+#Distancias
+
+datos_d_cod <- read.csv2(
+  here::here("data", "raw", "COD3.csv"), 
+  stringsAsFactors = FALSE, 
+  na.strings = "-1"
+)
+
+datos_d_cod <- as.genpop(datos_d_cod)
+
+n_cod <- dist.genpop(datos_d_cod, method = 1, diag = FALSE, upper = FALSE)
+c_cod <- dist.genpop(datos_d_cod, method = 2, diag = FALSE, upper = FALSE)
+p_cod <- dist.genpop(datos_d_cod, method = 5, diag = FALSE, upper = FALSE)
+r_cod <- dist.genpop(datos_d_cod, method = 4, diag = FALSE, upper = FALSE)
+
+
+kable(head(as.matrix(round(n_cod,2))), caption = "NEI") %>%
+      kable_styling(font_size = 8, latex_options = "HOLD_position"
+                )
+
+```
+
+
+```{r}
+kable(head(as.matrix(round(c_cod,2))), caption = "CUERDA", row.names = ind) %>%
+      kable_styling(font_size = 8, latex_options = "HOLD_position"
+                )
+
+```
+
+
+```{r}
+
+kable(head(as.matrix(round(p_cod,2))), caption = "PREVOSTI", row.names = ind) %>%
+      kable_styling(font_size = 8, latex_options = "HOLD_position"
+                )
+
+```
+
+
+```{r}
+kable(head(as.matrix(round(r_cod,2))), caption = "ROGERS", row.names = ind) %>%
+      kable_styling(font_size = 8, latex_options = "HOLD_position"
+                )
+
+
+```
+
+
+**b** Analizar la relacion entre las distintas medidas de distancias/similaridad 
+recurriendo a correlacion entre matrices. Comentar al respecto y sacar conclusiones
+
+```{r}
+cor_cod <- matrix(0, 7, 7)
+names <- c("SM", "JACCARD", "RAO", "NEI", "CUERDA", "PREVOSTI", "ROGERS")
+colnames(cor_cod) <- names
+row.names(cor_cod) <- names
+
+for (i in 1:nrow(cor_cod)) {
+    cor_cod[i,i] <- 1
+}
+
+cor_cod[1,2] <- round(cor(sm_cod, j_cod),3)
+cor_cod[1,3] <- round(cor(sm_cod, rr_cod),3)
+cor_cod[1,4] <- round(cor(sm_cod, n_cod),3)
+cor_cod[1,5] <- round(cor(sm_cod, c_cod),3)
+cor_cod[1,6] <- round(cor(sm_cod, p_cod),3)
+cor_cod[1,7] <- round(cor(sm_cod, r_cod),3)
+
+cor_cod[2,3] <- round(cor(j_cod,rr_cod),3)
+cor_cod[2,4] <- round(cor(j_cod,n_cod),3)
+cor_cod[2,5] <- round(cor(j_cod,c_cod),3)
+cor_cod[2,6] <- round(cor(j_cod,p_cod),3)
+cor_cod[2,7] <- round(cor(j_cod,r_cod),3)
+
+cor_cod[3,4] <- round(cor(rr_cod,n_cod),3)
+cor_cod[3,5] <- round(cor(rr_cod,c_cod),3)
+cor_cod[3,6] <- round(cor(rr_cod,p_cod),3)
+cor_cod[3,7] <- round(cor(rr_cod,r_cod),3)
+
+cor_cod[4,5] <- round(cor(n_cod,c_cod),3)
+cor_cod[4,6] <- round(cor(n_cod,p_cod),3)
+cor_cod[4,7] <- round(cor(n_cod,r_cod),3)
+
+cor_cod[5,6] <- round(cor(c_cod,p_cod),3)
+cor_cod[5,7] <- round(cor(c_cod,r_cod),3)
+
+cor_cod[6,7] <- round(cor(p_cod,r_cod),3)
+
+```
+
+
+
+```{r}
+plot_correlacion <- function(x) {
+  # x es matriz de correlacion
+  ggcorrplot::ggcorrplot(
+    x,
+    method = "square", 
+    type = "upper",
+    outline.col = "black",
+    ggtheme = ggplot2::theme_gray,
+    legend.title = "Correlacion",
+    colors = c(tail(colores, 1), "#ffffff", colores[1]),
+    lab = TRUE
+  ) +
+  guides(fill = "none")
+}
+```
+
+```{r, fig.width=5, fig.height=4.25, fig.cap="Correlacion entre las medidas de asociacion", out.width="50%"}
+plot_correlacion(cor_cod) +
+  labs(title = "Marcadores Codominantes") +
+  guides(fill = guide_colorbar(barheight = grid::unit(0.75, "npc"))) 
+```
+
+Para poder evaluar y comparar las distintas medidas de distancias y similaridad se
+obtiene una matriz de correlaciones, la cual nos va a permitir comprender de manera
+mas sencilla cuales son las medidas que tienen un comportamiento analogo o semejante
+y cuales son las que mas difieren. 
+Dentro de las medidas de similaridades calculadas podemos decir que las tres son 
+bastente similar, ya que presentan correlaciones mayores a 0.87, pero las medidas
+Jaccard y Simple Matching son las que mas se asemejan, siendo practicamente iguales.
+Considerando ahora solo las medidas de distancias, tambien podemos observar que 
+todas son muy parecidas, siendo la de Rogers analoga con la de Prevosti. 
+
+Por otra parte, cabe destacar que la medida Simple Matching coincide con las medidas
+de distancias de Rogers y Prevosti. Luego, dada la complejidad en el calculo de las 
+ultimas dos es preferible trabajar con Simple Matching, ya que su formula es mas 
+sencilla y se obtendra el mismo resultado.
+
+Otro aspecto importante a destacar es que la medida de Rao es la que mas difiere 
+del resto, tanto para las medidas de similaridad como para las de distancias.
+
+
+**c)** Repetir el ejercicio suponiendo la utilización de un marcador dominante.
+
+
+
+**SIMILARIDADES**
+
+```{r}
+datos_s_dom<- read.csv2(
+  here::here("data", "raw", "COD4.csv"), 
+  row.names = 1, 
+  stringsAsFactors = FALSE, 
+  na.strings = "-1"
+)
+
+#Similaridades
+sm_dom <- 1 - (dist.binary(datos_s_dom, method = 2, diag = FALSE, upper = FALSE))**2
+j_dom <- 1 - (dist.binary(datos_s_dom, method = 1, diag = FALSE, upper = FALSE))**2
+rr_dom <- 1 - (dist.binary(datos_s_dom, method = 10, diag = FALSE, upper = FALSE))**2
+
+ind<-rep(1:15)
+
+kable(head(as.matrix(round(sm_dom,2))), caption = "SM", row.names = ind) %>%
+      kable_styling(font_size = 8, latex_options = "HOLD_position"
+                )
+
+
+```
+
+
+```{r}
+kable(head(as.matrix(round(j_dom,2))), caption = "JACCARD", row.names = ind) %>%
+      kable_styling(font_size = 8, latex_options = "HOLD_position"
+                )
+
+```
+
+```{r}
+
+kable(head(as.matrix(round(rr_dom,2))), caption = "RAO", row.names = ind) %>%
+      kable_styling(font_size = 8, latex_options = "HOLD_position"
+                )
+
+```
+
+**DISTANCIAS**
+
+```{r}
+#Distancias
+
+datos_d_dom <- read.csv2(
+  here::here("data", "raw", "COD5.csv"), 
+  row.names = 1, 
+  stringsAsFactors = FALSE, 
+  na.strings = "-1"
+)
+
+datos_d_dom <- as.genpop(datos_d_dom)
+
+n_dom <- dist.genpop(datos_d_dom, method = 1, diag = FALSE, upper = FALSE)
+c_dom <- dist.genpop(datos_d_dom, method = 2, diag = FALSE, upper = FALSE)
+p_dom <- dist.genpop(datos_d_dom, method = 5, diag = FALSE, upper = FALSE)
+r_dom <- dist.genpop(datos_d_dom, method = 4, diag = FALSE, upper = FALSE)
+
+
+kable(head(as.matrix(round(n_dom,2))), caption = "NEI", row.names = ind) %>%
+      kable_styling(font_size = 8, latex_options = "HOLD_position"
+                )
+
+```
+
+
+```{r}
+kable(head(as.matrix(round(c_dom,2))), caption = "CUERDA", row.names = ind) %>%
+      kable_styling(font_size = 8, latex_options = "HOLD_position"
+                )
+
+```
+
+
+```{r}
+
+kable(head(as.matrix(round(p_dom,2))), caption = "PREVOSTI", row.names = ind) %>%
+      kable_styling(font_size = 8, latex_options = "HOLD_position"
+                )
+
+```
+
+
+```{r}
+kable(head(as.matrix(round(r_dom,2))), caption = "ROGERS", row.names = ind) %>%
+      kable_styling(font_size = 8, latex_options = "HOLD_position"
+                )
+
+
+```
+
+
+ 
+
+```{r}
+cor_dom <- matrix(0, 7, 7)
+colnames(cor_dom) <- names
+row.names(cor_dom) <- names
+
+for (i in 1:nrow(cor_dom)) {
+    cor_dom[i,i] <- 1
+}
+
+cor_dom[1,2] <- round(cor(sm_dom, j_dom),3)
+cor_dom[1,3] <- round(cor(sm_dom, rr_dom),3)
+cor_dom[1,4] <- round(cor(sm_dom, n_dom),3)
+cor_dom[1,5] <- round(cor(sm_dom, c_dom),3)
+cor_dom[1,6] <- round(cor(sm_dom, p_dom),3)
+cor_dom[1,7] <- round(cor(sm_dom, r_dom),3)
+
+cor_dom[2,3] <- round(cor(j_dom,rr_dom),3)
+cor_dom[2,4] <- round(cor(j_dom,n_dom),3)
+cor_dom[2,5] <- round(cor(j_dom,c_dom),3)
+cor_dom[2,6] <- round(cor(j_dom,p_dom),3)
+cor_dom[2,7] <- round(cor(j_dom,r_dom),3)
+
+cor_dom[3,4] <- round(cor(rr_dom,n_dom),3)
+cor_dom[3,5] <- round(cor(rr_dom,c_dom),3)
+cor_dom[3,6] <- round(cor(rr_dom,p_dom),3)
+cor_dom[3,7] <- round(cor(rr_dom,r_dom),3)
+
+cor_dom[4,5] <- round(cor(n_dom,c_dom),3)
+cor_dom[4,6] <- round(cor(n_dom,p_dom),3)
+cor_dom[4,7] <- round(cor(n_dom,r_dom),3)
+
+cor_dom[5,6] <- round(cor(c_dom,p_dom),3)
+cor_dom[5,7] <- round(cor(c_dom,r_dom),3)
+
+cor_dom[6,7] <- round(cor(p_dom,r_dom),3)
+
+```
+
+
+
+```{r, fig.width=5, fig.height=4.25, fig.cap="Correlacion entre las medidas de asociacion ", out.width="50%"}
+plot_correlacion(cor_dom) +
+  labs(title = "Marcadores dominantes") +
+  guides(fill = guide_colorbar(barheight = grid::unit(0.75, "npc"))) 
+```
+
+Al utilizar marcadores moleculares dominantes podemos obervar algunos cambios
+en la matriz de correlacion con respecto a la calculada con marcadores dominantes.
+
+Las medidas de similaridad presentan mas discrepancias entre ellas, si bien siguen 
+presentando altas correlaciones, observamos que las mismas son menores en comparacion
+a la primera codificacion utilizada.
+
+Por el contrario, si nos centramos en las medidas de distancias observamos que las
+correlaciones son aun mas fuertes, asemejandose aun mas Nei con Rogers y Prevosti. 
+
+Nuevamente, es notable que la medida de similaridad de Rao es la que mas difiere
+del resto de las medidas, tanto de distancias como de similaridad. 
+
+
+
+
+
+**d)** Analizar para cada una de las distancias/similaridades estudiadas la correlación 
+entre los resultados obtenidos para marcadores codominantes y dominantes.
+
+
+```{r}
+cod_dom <- matrix(0, 7,1)
+colnames(cod_dom) = c("Codominante vs Dominante")
+rownames(cod_dom) = names
+cod_dom[1] <- cor(sm_cod, sm_dom)
+cod_dom[2] <- cor(j_cod, j_dom)
+cod_dom[3] <- cor(rr_cod, rr_dom)
+cod_dom[4] <- cor(n_cod, n_dom)
+cod_dom[5] <- cor(c_cod, c_dom)
+cod_dom[6] <- cor(p_cod, p_dom)
+cod_dom[7] <- cor(r_cod, r_dom)
+
+kable(round(cod_dom,2), caption = "Correlacion ") %>%
+      kable_styling(font_size = 8, latex_options = "HOLD_position"
+                )
+
+```
+
+
+Al realizar la correlacion de las medidas obtenidas a traves de las dos codificaciones
+propuestas, podemos observar que el comportamiento de las distintas medidas varia
+de acuerdo a la codificacion que se este utilzando. La medida de similaridad Simple
+Matching y las de distancias Prevosti y Rogers son las que presentan correlacion mas
+alta, mientras que la medida de similaridad de Rao es la que presenta la correlacion
+mas baja. 

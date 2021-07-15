@@ -42,6 +42,8 @@ kable(data) %>%
     
 ```
 
+Nuevamente, al igual que en el ejercicio anterior es necesario especificar como
+vamos a medir la distancia entre los individuos.
 Para ello se calcula la distancia euclidea entre los pares de individuos para cada 
 uno de los Locus.
 
@@ -109,7 +111,30 @@ rownames(dist) = c("Nei", "Cuerda", "Rogers", "Prevosti")
 kable(dist) %>%
       kable_styling(font_size = 8, latex_options = "HOLD_position")
 
+
+
 ```
 
 
-ACA PONER QUE COINCIDE CON LO VISTO AL PRINCIPIO!!!!
+Observando las distancias obtenidas entre los pares de individuos de interes, podemos
+ver que las mismas difieren de una a otra segun el metodo utilizado. 
+
+Si nos centramos en las distancias halladas para los individuos 1 y 2 observamos 
+que la distancias de Rogers y Prevosti son practicamente el doble de la distancia 
+calculada a traves de la medida de Nei.
+
+Luego, otro aspecto importante a destacar es que si consideramos las medidas del tipo
+angular, en este caso la de Nei y la de la Cuerda observamos que la distancia entre 
+el individuo 1 y 2 es menor que la distancia calculada para los individuos 2 y 3. 
+Por otra parte, si nos centramos en las distancias estadisticas (Rogers y Prevosti)
+observamos que, tal como es de esperar, ambas medidas igualan a los individuos. 
+
+Cabe destacar que las medidas de Rogers y Prevosti coinciden con la
+distancia subjetiva establecida en el punto anterior, donde para poder construir
+el gradiente consideramos la distancia euclidea entre los individuos. Esto se corresponde
+a que, tal como se menciono antes, estos criterios utilizan una distancia estadistica,
+considerando es su formula la distancia euclidea.
+
+
+
+
