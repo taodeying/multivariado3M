@@ -1,0 +1,487 @@
+---
+title: "Ejercicio 8"
+output: 
+  pdf_document:
+    extra_dependencies: ["float"]
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center",
+  fig.pos = "H", out.extra = "", fig.height = 3.5, fig.width = 5
+)
+colores <- c("#003f5c", "#7a5195", "#ef5675", "#ffa600")
+```
+
+```{r}
+
+#library(devtools)
+#install_github("thibautjombart/adegenet")
+# 
+#library(cluster)
+library(FactoMineR)
+library(ggplot2)
+library(ggrepel)
+library(ggforce)
+library(vegan)
+library(kableExtra)
+#source(here::here("src", "utils.R"))
+
+```
+
+
+Ejercicio 8: El archivo LACAR contiene la caracterización de 29 sitios de la cuenca binacional Lacar - Hua
+Hum (San Martín de los Andes, Provincia de Neuquén) en función de la abundancia (en frecuencia) de 36
+familias macroinvertebrados que sirven como bioindicadores de contaminación orgánica. Por otra parte, se
+registraron 9 variables fisicoquímicos in situ y de hábitat, para determinar la calidad ambiental del lugar.
+
+```{r}
+LACAR <- read.csv2(
+  here::here("data", "raw", "LACAR.csv"),
+  row.names = 1
+)
+X<-LACAR[,2:10]
+Y<-LACAR[,11:46]
+
+```
+
+
+a) Realizar un Análisis de Correspondencia para caracterizar los sitios en función de la abundancia de
+Lacar, macroinvertebrados y de Componentes Principales para ver la misma caracterización en función de
+variables ambientales. A través de la configuración de ambas caracterizaciones puede ver algún tipo de
+asociación entre las familias de macroinvertebrados y las variables ambientales ?
+
+```{r}
+ca_y <- CA(Y,graph=F)
+pca_x <- PCA(X,graph=F) 
+```
+
+A partir de una análisis de componentes principales sobre las variables ambientales
+se pueden establecer cuatro grupos de clusters, fuertemente asociados con la primera 
+dimensión que absorbe más de a mitad de la varianza.
+
+
+```{r, fig.height=4.5, fig.width=10, fig.cap="PCA de Var. Ambientales"}
+x_breaks <- c(-0.2, 0)
+y_breaks <- c(0)
+
+df <- data.frame(pca_x$ind$coord[,1:2])
+colnames(df) <- c("X1", "X2")
+
+grupos <- cutree(hclust(dist(df), method = "average"),4)
+df$grupo <- grupos
+df$grupo <- paste("grupo",df$grupo , sep="_")
+
+df$sitio <- rownames(Y)
+df$cuenca <- paste("grupo",LACAR$cuenca , sep="_")
+
+
+ggplot(df) + 
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+  geom_point(aes(x=X1, y=X2)) +  
+  geom_mark_ellipse(aes(x=X1, y=X2, fill = grupo)) +
+  geom_label_repel(
+    aes(X1, X2, label = sitio), 
+    label.padding = 0.1, 
+    max.overlaps = 30
+  ) +
+  scale_fill_manual(
+    values = c("#264653", "#2A9D8F", "#E9C46A", "#F4A261", "#E76F51")
+  ) + 
+  labs(
+    x = "Dim 1 (53.56%)",
+    y = "Dim 2 (17.17%)",
+    fill = "Grupo"
+  )
+```
+
+Mediante un análisis de correspondencia sobre las variables de abundancia, se
+pueden obtener dos grupos bien diferenciados de sitios, siendo suficiente el primer
+componente para explicar la fuente diferenciación. El grupo de la izquierda está conformado por el grupo 1 y 3 descubierto a partir de las variables ambientales y el de la derecha posee los grupos 2, 3 y 4.
+
+
+
+
+
+```{r, fig.height=4.5, fig.width=10, fig.cap="AC de Abundancia"}
+x_breaks <- c(-0.2, 0)
+y_breaks <- c(0)
+
+df <- data.frame(ca_y$row$coord[,1:2])
+colnames(df) <- c("X1", "X2")
+
+grupo_2 <-  cutree(hclust(dist(df), method = "average"),2)
+df$grupo_sp <-  grupo_2
+df$grupo_sp <- paste("G_sp",df$grupo_sp , sep="_")
+
+
+df$grupo_amb <-  grupos
+df$grupo_amb <- paste("G_amb",df$grupo_amb , sep="_")
+
+df$sitio <- rownames(Y)
+
+df$cuenca <- paste("grupo",LACAR$cuenca , sep="_")
+
+
+
+ggplot(df) + 
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+  geom_point(aes(x=X1, y=X2, color = grupo_amb, pch=grupo_sp)) +  
+  geom_label_repel(
+    aes(X1, X2, label = sitio), 
+    label.padding = 0.1, 
+    max.overlaps = 30
+  ) +
+  scale_fill_manual(
+    values = c("#264653", "#2A9D8F", "#E9C46A", "#F4A261", "#E76F51")
+  ) + 
+  labs(
+    x = "Dim 1 (28.66%)",
+    y = "Dim 2 (13.68%)",
+    fill = "Grupo"
+  )
+```
+
+Al analizar las variables de frecuencias de macroinvertebrados, es fácil ver que 
+un grupo específicas de ellas están están fuertemente relacionadas con los grupos de sitios de Abundancia anteriormente descriptos.
+
+
+```{r, fig.height=4.5, fig.width=10, fig.cap="AC de Abundancia"}
+x_breaks <- c(-0.2, 0)
+y_breaks <- c(0)
+
+df <- data.frame(ca_y$col$coord[,1:2])
+colnames(df) <- c("X1", "X2")
+
+grupo_3 <-  cutree(hclust(dist(df), method = "average"),2)
+df$var_sp <-  grupo_3
+df$var_sp <- paste("V_sp",df$var_sp , sep="_")
+
+df$sitio <- colnames(Y)
+
+
+
+
+ggplot(df) + 
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+  geom_point(aes(x=X1, y=X2, color = var_sp)) +  
+  geom_label_repel(
+    aes(X1, X2, label = sitio), 
+    label.padding = 0.1, 
+    max.overlaps = 30
+  ) +
+  scale_fill_manual(
+    values = c("#264653", "#2A9D8F", "#E9C46A", "#F4A261", "#E76F51")
+  ) + 
+  labs(
+    x = "Dim 1 (28.66%)",
+    y = "Dim 2 (13.68%)",
+    fill = "Grupo"
+  )
+```
+
+
+b) Cuantificar la relación entre los planos principales de las dos configuraciones halladas en (a)
+
+```{r}
+dist_ca_y <- dist(ca_y$row$coord[,1:2])
+dist_pca_x <- dist(pca_x$ind$coord[,1:2])
+
+```
+
+
+La correlación entre ambas distancias es 
+
+```{r echo=TRUE}
+cor(dist_pca_x, dist_ca_y)
+```
+Aunque dicha correlación no es despreciable, distan de ser equivalentes como se 
+observa en el gráfico:
+
+```{r fig.height=4.5, fig.width=10, fig.cap="Relación entre los planos principales"}
+ggplot(data.frame("x"=c(dist_pca_x), "y"=c(dist_ca_y))) + 
+  geom_point(aes(x,y)) + 
+  xlab("distancia de config de PCA") +
+  ylab("distancia de config de CA")
+```
+
+
+c) Recurrir a AFM para caracterizar brevemente los sitios en función de la abundancia de
+macroinvertebrados y gradientes de las variables ambientales
+
+```{r}
+yx <- cbind(Y,X)
+
+mfa <- MFA(yx, group = c(36,9), type = c("f", "s"), ncp = 2,
+                name.group = c("SP","AMB"), graph = F)
+
+```
+
+Al analizar los datos con MFA, lo primero que se nota es que la relación entre 
+las variables ambientales y las variables de abundancia posen una relación mayor que 
+.5 en términos de RV.
+
+```{r}
+kable(
+  mfa$group$RV,
+  digits = 3,
+  align = "c",
+  format = "latex",
+  caption = "Coeficiente RV"
+) %>%
+  kable_styling(font_size = 10, latex_options = "HOLD_position") %>%
+  kable_classic_2()
+```
+
+Ambos grupos de variables están fuertemente relacionadas con la primer dimensión
+la cual explica un 32.6% y un tanto menos con la segunda, la cual explica un 14.7%s
+
+```{r fig.height=3, fig.width = 3}
+mfa_groups_data <- as.data.frame(mfa$group$coord)[, 1:2]
+mfa_groups_data$temporada <- rownames(mfa_groups_data)
+rownames(mfa_groups_data) = NULL
+colnames(mfa_groups_data) = c("x", "y", "temporada")
+
+ggplot(mfa_groups_data, aes(x, y)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+  geom_point(aes(color = temporada), size = 3) + 
+  geom_text_repel(aes(label = temporada)) + 
+  scale_color_manual(values = colores, guide = FALSE) + 
+  labs(
+    x = "Coordenada 1 (32.62%)",
+    y = "Coordenada 2 (14.17%)",
+    title = "Representacion de los Grupos"
+  ) +
+  lims(x = c(0, 1), y = c(0, 1))
+```
+Como puede observarse el bajo valor explicativo de las dimensiones latentes tiene 
+que ver con la poca congruencia entre las dimensiones individuales de abundancia
+y ambiente.
+
+```{r, fig.width = 3, fig.height = 3, fig.cap="Ejes Parciales"}
+mfa_partial_axes_data <- as.data.frame(mfa$partial.axes$coord)
+colnames(mfa_partial_axes_data) <- c("x1", "y1")
+mfa_partial_axes_data$x0 <- 0
+mfa_partial_axes_data$y0 <- 0
+mfa_partial_axes_data$etiqueta <- rownames(mfa_partial_axes_data)
+color <- strsplit(rownames(mfa_partial_axes_data), ".", fixed = TRUE)
+mfa_partial_axes_data$grupo <- sapply(color, `[[`, 2)
+
+ggplot(mfa_partial_axes_data) + 
+    geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+    geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+    geom_circle(
+      aes(x0 = x, y0 = y, r = r), 
+      linetype = "dashed", color = "gray30", alpha = 0.5,
+      data = data.frame(x = 0, y = 0, r = 1)
+    ) + 
+    geom_segment(
+      aes(x = x0, y = y0, xend = x1, yend = y1, color = grupo),
+      arrow = arrow(length = unit(0.15, "cm"), type ="closed"),
+      size = 1.15
+    ) + 
+    geom_text_repel(
+      aes(x1, y1, label = etiqueta)
+    ) + 
+    scale_color_manual(values = colores) + 
+    lims(x = c(-1, 1), y = c(-1, 1)) + 
+    labs(x = "Coordenada 1", y = "Coordenada 2", color = "Grupo") + 
+    theme(legend.position = "top")
+```
+
+
+
+```{r, fig.width = 10, fig.height = 4.5, fig.cap="Configuración de Concenso"}
+mfa_ind_data <- as.data.frame(mfa$ind$coord)
+mfa_ind_data$etiqueta <- rownames(mfa_ind_data)
+
+mfa_ind_data$grupo_amb <-  grupos
+mfa_ind_data$grupo_amb <- paste("G_amb",mfa_ind_data$grupo_amb , sep="_")
+mfa_ind_data$grupo_sp <-  grupo_2
+mfa_ind_data$grupo_sp <- paste("G_sp",mfa_ind_data$grupo_sp , sep="_")
+
+
+
+ggplot(mfa_ind_data, aes(Dim.1, Dim.2,grupo_sp, grupo_amb)) + 
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+  geom_point(size = 2.5, aes(Dim.1, Dim.2,color =grupo_amb,pch=grupo_sp)) +
+  geom_text_repel(aes(label = etiqueta))   +
+  labs(    
+      x = "Coordenada 1 (32.62%)",
+      y = "Coordenada 2 (14.17%)"
+      )
+```
+
+A pesar de no absorber mucha variabilidad, la primera dimensión alcanza para explicar los resultados observados en el punto a) en términos de abundancia y condiciones ambientales de los sitios (y por tanto la diferencia de frecuencias). En dicha dimensión se pueden separar los 4 grupos de sitios ambientales al mismo tiempo 
+que extraer los dos grupos de abundancia.
+
+d) Con Análisis de Redundancia profundizar sobre el estudio de asociación entre abundancia de familias
+de macroinvertebrados y variables ambientales. Relacionar (si es posible) con los grupos de sitios que venía estableciendo.
+
+```{r}
+stdY <- decostand(Y, method = "hellinger")
+stdX <- decostand(X, method = "standardize")
+
+rda_ <- rda(stdY~.,data=stdX)
+
+rda_
+
+```
+
+<!-- ```{r include=FALSE} -->
+<!-- a<-plot(rda_,scaling=3) -->
+<!-- write.csv(a$sites,here::here("doc", "tp3","aux_parte_8", "rda_sites.csv")) -->
+<!-- write.csv(a$species,here::here("doc", "tp3","aux_parte_8", "rda_species.csv")) -->
+<!-- write.csv(a$biplot,here::here("doc", "tp3","aux_parte_8", "rda_biplot.csv")) -->
+<!-- ``` -->
+
+```{r}
+RsquareAdj(rda_)
+```
+
+\
+
+
+El porcentaje de varianza explicado de las variables de abundancia por la variables ambientales es del 55% lo cual coincide contra el coeficiente RV anteriormente descripto. Si se ajusta el coeficiente, la relación baja a 33%.
+
+\
+
+```{r}
+anova(rda_, permutations=1000) # significancia del modelo
+```
+
+\
+
+Si se realiza un anova basado en test de permutaciones, se ve que el modelo es significativo.
+
+Si en cambio se testea que variable dentro de las ambientales en el modelo restringido son significativas, el resultado es que solo una de ellas lo es: PRS: fósforo reactivo soluble. Se puede suponer que PRS tiene una alta correlación para con el resto de las variables relevantes y basta con ella sola para explicar las abundancias.
+
+\
+
+```{r}
+anova(rda_, by='margin', permutations=1000) # significancia var ambientales
+```
+
+\
+
+Finalmente, se ve que con una sola dimensión es posible explicar los datos, siendo solo una de ellas siginificativas.
+
+\
+
+```{r}
+anova(rda_, by='axis', permutations=1000) # significancia d
+```
+
+\
+
+Respecto a los grupos, se observa que la configuración resultante expresa muy bien la diferencia que existe entre los grupos de abundancias en los sitios. Sin embargo, se pierde calidad de la representación de las variables ambientales; a diferencia de del AFM, ya no es posible distinguir los cuatro grupos con claridad.
+
+```{r fig.width = 10, fig.height = 4.5}
+
+ind_data <- read.csv(here::here("doc", "tp3","aux_parte_8", "rda_sites.csv"))
+
+ind_data$etiqueta <- rownames(Y)
+
+ind_data$grupo_amb <-  grupos
+ind_data$grupo_amb <- paste("G_amb",ind_data$grupo_amb , sep="_")
+ind_data$grupo_sp <-  grupo_2
+ind_data$grupo_sp <- paste("G_sp",ind_data$grupo_sp , sep="_")
+
+ggplot(ind_data, aes(RDA1, RDA2,grupo_sp, grupo_amb)) + 
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+  geom_point(size = 2.5, aes(RDA1, RDA2,color =grupo_amb,pch=grupo_sp)) +
+  geom_text_repel(aes(label = etiqueta))   +
+  labs(    
+      x = "RDA 1",
+      y = "RDA 2"
+      )
+
+
+```
+
+e) Y en cuanto a la subcuenca a la que pertenecen los sitios, encuentra algún patrón ?
+
+En base a la configuración hallada en el análisis de RDA, no pareciera haber relación
+alguna para la subcuenca.
+
+```{r fig.width = 10, fig.height = 4.5, fig.cap="Impacto de la Subcuenca"}
+
+ind_data <- read.csv(here::here("doc", "tp3","aux_parte_8", "rda_sites.csv"))
+
+ind_data$etiqueta <- rownames(Y)
+
+ind_data$cuenca <- paste("G_sp",LACAR$cuenca , sep="_")
+
+
+ggplot(ind_data, aes(RDA1, RDA2,cuenca)) + 
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+  geom_point(size = 2.5, aes(RDA1, RDA2,color =cuenca)) +
+  geom_text_repel(aes(label = etiqueta))   +
+  labs(    
+      x = "RDA 1",
+      y = "RDA 2"
+      )
+
+
+```
+
+
+f) Verificar, en base a la longitud del gradiente implícito en Y, si fue adecuado usar RDA
+
+El eje 1 tiene una longitud de 2.6 desvíos estandares por lo cual, de a cuerdo lo visto en clase, al estar debajo de 3 un RDA es aceptable.
+
+
+```{r}
+decorana(Y)
+```
+
+
+
+g) Repita lo realizado en (d) recurriendo a Análisis Canónico de Correspondencia y compare resultados
+
+```{r}
+cca_ <- cca(stdY~.,data=stdX)
+cca_
+```
+
+
+<!-- ```{r include=FALSE} -->
+<!-- a<-plot(cca_) -->
+<!-- write.csv(a$sites,here::here("doc", "tp3","aux_parte_8", "cca_sites.csv")) -->
+<!-- write.csv(a$species,here::here("doc","tp3","aux_parte_8","cca_species.csv")) -->
+<!-- write.csv(a$biplot,here::here("doc", "tp3","aux_parte_8", "cca_biplot.csv")) -->
+<!-- ``` -->
+
+```{r}
+
+ind_data <- read.csv(here::here("doc", "tp3","aux_parte_8", "cca_sites.csv"))
+
+ind_data$etiqueta <- rownames(Y)
+
+ind_data$grupo_amb <-  grupos
+ind_data$grupo_amb <- paste("G_amb",ind_data$grupo_amb , sep="_")
+ind_data$grupo_sp <-  grupo_2
+ind_data$grupo_sp <- paste("G_sp",ind_data$grupo_sp , sep="_")
+
+ggplot(ind_data, aes(CCA1, CCA2,grupo_sp, grupo_amb)) + 
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
+  geom_point(size = 2.5, aes(CCA1, CCA2,color =grupo_amb,pch=grupo_sp)) +
+  geom_text_repel(aes(label = etiqueta))   +
+  labs(    
+      x = "CCA1",
+      y = "CCA2"
+      )
+
+
+```
+
