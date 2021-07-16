@@ -248,5 +248,3 @@ ggplot(concordancia_df) +
       y = "Distancia en el plano principal de MDS"
   )
 ```
-
-**NOTA:** Que les parece si borramos este grafico para ahorrar espacio?
