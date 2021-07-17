@@ -17,6 +17,7 @@ colores <- c("#003f5c", "#7a5195", "#ef5675", "#ffa600")
 
 ```{r}
 library(cluster)
+library(dplyr)
 library(FactoMineR)
 library(ggplot2)
 library(ggrepel)
@@ -71,7 +72,9 @@ concordancia_df <- data.frame(
   x = as.vector(distancia_c),
   y = as.vector(distancia_q)
 )
+
 corr <- cor(distancia_c, distancia_q) 
+
 ggplot(concordancia_df) + 
   geom_point(aes(x, y), size = 3, alpha = 0.7, color = "grey30") + 
   labs(
@@ -81,14 +84,8 @@ ggplot(concordancia_df) +
   )
 ```
 
-
-**pregunta** en la clase usa 
-
-```
-CUALI.SM2 <- 1 - CUALI.SM ** 2
-```
-
-pero daisy ya nos da la distancia, o no?
+El grado de asociacion es practicamente nulo. En parte se debe a que hay
+solo dos variables cualitativas.
 
 **b)** Recurra a la discretización de Escofier sobre las variables cuantitativas
 para poder aplicar Análisis de Correspondencias Múltiples y en función de los 
@@ -126,7 +123,6 @@ tabla <- tabla_disyuntiva(datos)
 acs <- CA(tabla, graph = FALSE)
 ```
 
-
 ```{r}
 vars <- as.data.frame(acs$col$coord[, 1:2])
 vars$label <- rownames(vars)
@@ -134,7 +130,6 @@ vars$label <- rownames(vars)
 inds <- as.data.frame(acs$row$coord[, 1:2])
 inds$label <- rownames(inds)
 ```
-
 
 ```{r, fig.height=14, fig.width=10}
 p1 <- ggplot(vars) + 
@@ -159,4 +154,78 @@ gridExtra::grid.arrange(
 )
 ```
 
-**INTERPRETAR**
+En el panel superior tenemos la representacion de las variables, y en el panel
+inferior la representacion de los individuos. 
+
+Lo primero que se puede notar es que todas las variables cuantitativa estan
+altamente correlacionadas. Esto tiene sentido ya que estas variables 
+representan cuestiones del tamaño de la planta. Vemos que aquellas son signo
+positivo, es decir, que indican tamanos por encima del promedio, se encuentran
+hacia la izquierda.
+
+Entonces, de este grafico se puede concluir que las plantas grandes estan
+asociadas a colores de tallos verdes y purpura diluido, y a posicion de hoja
+semi-erguida. Por otro lado, las plantas bajas son en general de hoja normal o
+semi-volcada y de color de tallo purpura, rojo y rojo sol diluido. 
+
+La lejania de la posicion de hoja semi-volcada nos indica que es una categoria poco
+frecuente (solo dos casos). Si ademas analizamos el grafico de los individuos 
+(panel inferior), vemos que los dos individuos mas alejados, M80 y M37, son los 
+dos que presentan posicion de hoja semi-volcada.
+
+En los graficos a continuacion se puede observar que las plantas con posicion
+de hoja semi-erguida suelen presentar valores mas altos en las variables 
+continuas, ya que la linea que las representa esta en general por encima de las 
+otras. 
+
+La situacion es similar para las plantas con color de tallo Verde y Purpura
+Diluido. Sobre todo en la altura de la planta, se observa que el valor medio
+es mayor para estos dos colores de tallo. En contraste, las plantas 
+con color de tallo purpura, suelen tener altura menor a las demas.
+
+```{r, fig.height=12, fig.width=10}
+df_hoja <- datos %>%
+  group_by(POSHOJA) %>%
+  summarise(across(where(is.numeric), mean)) %>%
+  tidyr::pivot_longer(cols = where(is.numeric))
+
+p1 <- ggplot(df_hoja) +
+  geom_point(aes(name, value, group = POSHOJA, color = POSHOJA), size=2) + 
+  geom_line(aes(name, value, group = POSHOJA, color = POSHOJA), size=1) + 
+  scale_color_manual(values = colores[1:3], name = "Posicion de hoja") + 
+  labs(
+    x = "Variable",
+    y = "Valor medio"
+  ) + 
+  theme(
+    legend.position = "top"
+  )
+
+df_tallo <- datos %>%
+  group_by(COLTALLO) %>%
+  summarise(across(where(is.numeric), mean)) %>%
+  tidyr::pivot_longer(cols = where(is.numeric))
+
+p2 <- ggplot(df_tallo) +
+  geom_point(aes(name, value, group = COLTALLO, color = COLTALLO), size=2) + 
+  geom_line(aes(name, value, group = COLTALLO, color = COLTALLO), size=1) + 
+  scale_color_manual(
+    values = c("#264653", "#2A9D8F", "#BC982F", "#F4A261", "#E76F51"), 
+    name = "Color de tallo"
+  ) + 
+  labs(
+    x = "Variable",
+    y = "Valor medio"
+  ) + 
+  theme(
+    legend.position = "top"
+  )
+
+p1 / p2
+```
+
+
+```{r}
+
+```
+
