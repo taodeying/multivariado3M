@@ -16,8 +16,8 @@ colores <- c("#003f5c", "#7a5195", "#ef5675", "#ffa600")
 ```
 
 ```{r}
+library(dplyr)
 library(cluster)
-library(ggforce)
 library(ggplot2)
 source(here::here("src", "utils.R"))
 ```
@@ -77,11 +77,25 @@ similaridad <- 1 - distancia
 Principales y conforme grupos de explotaciones agrícolas según la primer 
 coordenada y subgrupos en función de la segunda coordenada. 
 
-```{r, echo=TRUE}
+```{r}
 distancia_sqrt <- sqrt(distancia)
 mds <- cmdscale(distancia_sqrt, eig = TRUE, k = 2)
 ```
 
+En la **Figura 1** se observa la configuracion los individuos en el 
+plano principal de ACP y sus agrupamientos.
+
+* Grupo A: Conformados por los sub-grupos 1 y 2.
+  + Se caracterizan por tener valores muy bajos en la primer coordenada.
+  + Se diferencian en la segunda coordenada.
+
+* Grupo B: Conformado por los sub-grupos 3 y 4.
+  + Se caracterizan por tener valores altos en la primer coordenada.
+  + Se diferencian en la segunda coordenada.
+
+* Grupo C: Conformado el sub-grupo 5 solamente.
+  + Valores de bajos a promedio en la primer coordenada.
+  + Valores promedio en la segunda coordenada.
 
 ```{r}
 x_breaks <- c(-0.2, 0)
@@ -90,29 +104,34 @@ y_breaks <- c(0)
 df <- data.frame(mds$points)
 df$chacra <- rownames(datos)
 
-df$grupo <- "grupo3"
-df[df$X1 > 0 & df$X2 > 0, "grupo"] <- "grupo1"
-df[df$X1 > 0 & df$X2 < 0, "grupo"] <- "grupo2"
-df[df$X1 < -0.2 & df$X2 > 0, "grupo"] <- "grupo4"
-df[df$X1 < -0.2 & df$X2 < 0, "grupo"] <- "grupo5"
+df$grupo <- "5"
+df[df$X1 < -0.2 & df$X2 > 0, "grupo"] <- "1"
+df[df$X1 < -0.2 & df$X2 < 0, "grupo"] <- "2"
+df[df$X1 > 0 & df$X2 > 0, "grupo"] <- "3"
+df[df$X1 > 0 & df$X2 < 0, "grupo"] <- "4"
 ```
 
 
-
-```{r, fig.height=6, fig.width=10, fig.cap="Caracterizacion las variedades de pepino en el plano principal."}
-
+```{r, fig.height=6, fig.width=10, fig.cap="Caracterizacion los establecimientos frutícolas en el plano principal."}
 ggplot(df) + 
   geom_vline(xintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) + 
   geom_hline(yintercept = 0, linetype = "dashed", color = "gray30", alpha = 0.5) +
-  geom_mark_ellipse(aes(x=X1, y=X2, fill = grupo)) + 
-  geom_text(aes(X1, X2, label = chacra)) +
-  scale_fill_manual(
-    values = c("#264653", "#2A9D8F", "#E9C46A", "#F4A261", "#E76F51")
-  ) + 
+  geom_text(
+    aes(X1, X2, label = chacra, color = grupo), 
+    key_glyph = "point"
+  ) +
   labs(
     x = "Coordenada principal 1 (24.6%)",
     y = "Coordenada principal 2 (7.6%)",
     fill = "Grupo"
+  ) + 
+  scale_color_manual(
+    values = c("#264653", "#2A9D8F", "#BC982F", "#F4A261", "#E76F51"),
+    name = "Sub grupo"
+  ) +
+  theme(
+    legend.position = "top",
+    legend.key = element_blank()
   )
 ```
 
@@ -120,13 +139,162 @@ ggplot(df) +
 **c)** Caracterice grupos y subgrupos en forma descriptiva y somera en función 
 de las variables originales 
 
-Encontrar en que se parecen los individuos de la derecha, y en que se parecen
-los individuos de la izquierda (viendo variables originales)
+```{r}
+datos$chacra <- rownames(datos)
+datos_2 <- merge(datos, df[c("chacra", "grupo")], by = "chacra")
+```
 
-**pregunta**: que esta dado por las iniciales? se puede usar para colorear?
+
+```{r}
+agg <- datos_2 %>%
+  group_by(grupo) %>%
+  summarise(
+    n = n(),
+    # Estructura del establecimiento
+    superficie_min = min(X1.Sup),
+    superficie_max = max(X1.Sup),
+    superficie = mean(X1.Sup),
+    p_porcentaje = mean(X1.RegTen == "P"),
+    edad = mean(X1.EdadPEyMA),
+    mano_de_obra = mean(X1.MOtot),
+    # Comercializacion
+    comerc_ambos = mean(X2.Comerc == "Ambos"),
+    empaque_si = mean(X2.EmpPr == "Si"),
+    industrializacion_si = mean(X2.IndPr == "Si"),
+    
+    # Mano de obra
+    mano_pr_fl = mean(X3.MOfam == "pr+fl"),
+    mano_prod = mean(X3.MOfam == "prod"),
+    mano_nadie = mean(X3.MOfam == "nadie"),
+    meses_dentro = mean(X3.MH_PR),
+    
+    # Parque de maquinaria
+    tractores_n = mean(X4.Tract, na.rm = TRUE),
+    tractores_edad = mean(X4.EdTract, na.rm = TRUE),
+    tractores_potencia = mean(X4.PotTract, na.rm = TRUE),
+    pulverizador_n = mean(X4.Pulv, na.rm = TRUE),
+    pulverizador_edad = mean(X4.EdPulv, na.rm = TRUE),
+    pulverizador_potencia = mean(X4.CapPulv, na.rm = TRUE),
+    elevadores_n = mean(X4.Elev, na.rm = TRUE),
+    elevadores_edad = mean(X4.EdElev, na.rm = TRUE),
+    
+    # Tecnologia productiva
+    densidad_cuadros = mean(X5.Dens),
+    conduccion_libre = mean(X5.porc_Libre),
+    conduccion_espaldera = mean(X5.porc_Esp),
+    variedades_jovenes = mean(X5.porc_JOVEN),
+    variedades_nuevas = mean(X5.porc_NUEVAS),
+    
+    # Nivel productivo
+    rendimiento_red_delicious = mean(X6.RendRED),
+    estado_bueno = mean(X6.porc_BUE),
+    estado_regular = mean(X6.porc_REG),
+    estado_malo = mean(X6.porc_MAL),
+  )
+
+
+# datos_2 %>% filter(grupo %in% c("1", "2")) %>% summarise(mean(X1.Sup))
+# datos_2 %>% filter(grupo %in% c("1", "2")) %>% summarise(max(X1.Sup))
+# datos_2 %>% filter(grupo %in% c("1", "2")) %>% summarise(mean(X2.IndPr == "Si"))
+# datos_2 %>% filter(grupo %in% c("1", "2")) %>% summarise(mean(X3.MOfam == "nadie"))
+# datos_2 %>% filter(grupo %in% c("1", "2")) %>% summarise(mean(X3.MH_PR))
+# datos_2 %>% filter(grupo %in% c("1", "2")) %>% summarise(mean(X1.RegTen == "P"))
+```
+
+
+**Grupo A: Tipo empresarial** (25 establecimientos)
+
+El 29% de los establecimientos pertenece a este grupo. Las explotaciones tienen
+un tamaño entre 7 y 98.5 has, con un promedio de 35 ha (44 ha sub-grupo 1 y 27 ha sub-grupo 2). 
+De tenencia propia en el 92% de los casos. Todos los establecimientos de este grupo poseen 
+empaquetacion propia y comercializan en el mercado interno y externo. A su vez, 
+el 36% poseen ademas industrializacion propia (41% sub-grupo 1 y 30% sub-grupo 2). 
+En el 72% de los casos se observa que no trabaja ni el productor ni la familia 
+del mismo (83% sub-grupo 1 y 61% sub-grupo 2). El productor dedica un promedio 
+de 1.36 meses-hombre al año al trabajo en la chacra (1.5 sub-grupo 1 y 1.23 sub-grupo 2).
+En general tienen mas cantidad de maquinaria que los otros establecimientos. 
+Por ejemplo, estos establecimientos tienen en promedio mas de dos tractores, 
+mientras que los otros menos. El 98% de la superficie se encuentra en estado bueno.
+En conclusion, se puede inferir que estos establecimientos son de tipo empresarial,
+y se puede notar que los establecimientos del sub-grupo 1 tienden a ser mas
+grandes y mas desarrollados que los establecimientos del sub-grupo 2.
+
+Sub-grupo 1 - Modernos (12 establecimientos)
+
+* Montes frutales 19 años promedio.
+* Densidad media de 544 arboles por ha.
+* 66% bajo el sistema de conduccion en espaldera. 
+* 30.8% de montes jovenes.
+* 11.2% variedades nuevas.
+* Rendimiento promedio de los montes 38.4 tn/ha.
+
+Sub-grupo 2 - Tradicionales (13 establecimientos)
+
+* Montes frutales 26.8 años promedio.
+* Densidad media de 363 arboles por ha.
+* 77% bajo el sistema tradicional o libre.
+* 8.7% de montes jovenes.
+* 6.6% variedades nuevas.
+* Rendimiento promedio de los montes 36.8 tn/ha.
+
+
+**Grupo B: Tipo familiar** (54 establecimientos)
+
+Agrupa al 62% de los establecimientos. La superficie va entre 5 y 30 ha, con un
+promedio de 12 ha. De tenencia propia en el 88% de los casos. Ninguno
+de estos establecimientos industrializa, empaqueta, ni realiza la comercializacion
+de sus productos. Estos establecimientos se caracterizan por su componente familiar, ya que 
+en el 85% de los casos trabaja el productor o el productor junto a su familia. 
+Ademas, el productor dedica un promedio de 6.98 meses-hombre al año al trabajo 
+en el establecimiento. El promedio de tractores por establecimiento es 1.52, por debajo de la cantidad
+del grupo A. 
+
+Sub-grupo 3 - Modernos (30 establecimientos)
+
+* Montes frutales 16.8 años promedio.
+* Densidad media de 525.6 arboles por ha.
+* 52% bajo el sistema de conduccion en espaldera.
+* 31.8% de montes jovenes.
+* 13.53% variedades nuevas
+* Rendimiento promedio de los montes 41.85 tn/ha.
+
+Sub-grupo 4 - Tradicionales (24 establecimientos)
+
+* Montes frutales 28.9 años promedio.
+* Densidad media de 318 arboles por ha.
+* 79% bajo el sistema tradicional o libre
+* 9.97% de montes jovenes.
+* 3.1% variedades nuevas
+* Rendimiento promedio de los montes 34.8 tn/ha.
+
+
+**Grupo C: Tipo mixto** (7 establecimientos)
+
+La superficie esta entre 11.85 y 52.65 ha, promediando en 22.5 ha. De tenencia propia
+en el 85% de los casos. Montes frutales de edad 20 años promedio (situado
+entre los tradicionales y modernos). En el 71% de los casos trabaja el productor
+o el productor junto a su familia, dedicando el productor un promedio de 6
+meses-hombre al año. A diferencia del grupo familiar, el 85% de estos establecimientos
+posee empaque propio y el 28.5% industrializa sus productos. El rendimiento
+promedio es de 38.5 tn/ha. Presenta un 26% de montes jovenes y un 7.6% de
+variedades nuevas.
+
+De la comparacion de los datos mencionados, con los datos observados para los
+otros dos grupos claramente diferenciados, vemos que el Grupo C se situa
+entre el medio de los otros grupos. Tiene un componente familiar importante,
+pero tambien tiene un componente industrial.
 
 **d)** Verifique si encuentra esos grupos en un cluster UPGMA realizado a partir
 de la matriz de similaridad de Gower
+
+Todos establecimientos del grupo Grupo A (Empresarial) se corresponden con el cluster
+marcado en azul. Ademas, todos los establecimientos del Grupo B (Familiar) se 
+corresponden con el cluster marcado en rosa. Luego, de los 7 establecimientos
+del grupo C, 2 pertenecen al cluster violeta (se parecen mas al familiar), 
+3 pertenecen al cluster amarillo (se parecen mas al empresarial) y uno solo,
+el CST18, se mezclo con el grupo A en el cluster azul.
+
+En conclusion, es posible encontrar a estos grupos en el cluster UPGMA.
 
 ```{r}
 cluster_upgma <- hclust(distancia, method = "average")
@@ -135,7 +303,6 @@ dendro_data$labels$label <- df$chacra[as.numeric(dendro_data$labels$label)]
 ```
 
 ```{r, fig.height=9, fig.width=6, fig.cap="Dendograma ultrametrico con ligamiento UPGMA."}
-
 ggplot(dendro_data$segments) + 
   geom_segment(
     aes(x = x, y = y, xend = xend, yend = yend, color = as.factor(clust)),
@@ -166,3 +333,11 @@ ggplot(dendro_data$segments) +
     legend.position = "none"
   )
 ```
+
+```{r}
+# d <- merge(df[c("chacra", "grupo")], dendro_data$labels, by.x = "chacra", by.y = "label")
+# d <- d[c("chacra", "grupo", "clust")]
+# d <- arrange(d, grupo)
+# d
+```
+
