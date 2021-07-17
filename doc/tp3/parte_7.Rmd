@@ -148,3 +148,7 @@ ggplot(data.frame("x"=c(mnhtdist), "y"=c(prevosti))) +
 
 e) Podría aplicar el coeficiente de similaridad SM en este problema ? Porque ?
 
+Para marcadores moleculares, si el interés es analizar presencia y ausencia, de deberá utilizar un coeficiente de similaridad. En cambio si el interés es estudiar frecuencias
+alélicas, se deberá contemplar distancias genéticas. En el caso del juego de datos
+de Maíz que utiliza microsatélites (simple sequence) o SSR, tenemos un problema de factores
+codominantes multialélicos, por lo cual es mejor considerar una distancia genética.

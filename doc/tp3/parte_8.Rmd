@@ -437,7 +437,7 @@ ggplot(ind_data, aes(RDA1, RDA2,cuenca)) +
 
 f) Verificar, en base a la longitud del gradiente implícito en Y, si fue adecuado usar RDA
 
-El eje 1 tiene una longitud de 2.6 desvíos estandares por lo cual, de a cuerdo lo visto en clase, al estar debajo de 3 un RDA es aceptable.
+El eje 1 tiene una longitud de 2.6 desvíos estándares por lo cual, de a cuerdo lo visto en clase, al estar debajo de 3 un RDA es aceptable.
 
 
 ```{r}
@@ -450,8 +450,45 @@ g) Repita lo realizado en (d) recurriendo a Análisis Canónico de Correspondenc
 
 ```{r}
 cca_ <- cca(stdY~.,data=stdX)
-cca_
+cca_ 
 ```
+
+```{r}
+RsquareAdj(cca_)
+```
+
+\
+
+El porcentaje de varianza explicado de las variables de abundancia por la variables ambientales es un poco menor que el RDA, un 51%. Si se ajusta el coeficiente, la relación baja más que con RDA a 24%.
+
+\
+
+```{r}
+anova(cca_, permutations=1000) # significancia del modelo
+```
+
+\
+
+Si se realiza un anova basado en test de permutaciones, se ve que el modelo de CCA también es significativo.
+
+Si en cambio se testea que variable dentro de las ambientales en el modelo restringido son significativas, el resultado una de ellas lo es al 95%: PRS: fósforo reactivo soluble, y dos de ellas al 10% hierro(DU) y alcalinidad (ALC). Estas dos últimas no aparecían modelo de RDA.
+
+\
+
+```{r}
+anova(cca_, by='margin', permutations=1000) # significancia var ambientales
+```
+
+\
+
+Finalmente, la primera dimensión es muy significativa y a diferencia del RDA, la segunda dimensión el significativa al 90%.
+
+\
+
+```{r}
+anova(cca_, by='axis', permutations=1000) # significancia d
+```
+
 
 
 <!-- ```{r include=FALSE} -->
@@ -461,7 +498,7 @@ cca_
 <!-- write.csv(a$biplot,here::here("doc", "tp3","aux_parte_8", "cca_biplot.csv")) -->
 <!-- ``` -->
 
-```{r}
+```{r fig.width = 10, fig.height = 4.5 }
 
 ind_data <- read.csv(here::here("doc", "tp3","aux_parte_8", "cca_sites.csv"))
 
@@ -484,4 +521,7 @@ ggplot(ind_data, aes(CCA1, CCA2,grupo_sp, grupo_amb)) +
 
 
 ```
+
+En conclusión, se puede decir que CCA presenta una peor representación de los datos
+tanto en términos visuales como en términos numéricos.
 
