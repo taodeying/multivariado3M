@@ -449,7 +449,7 @@ decorana(Y)
 g) Repita lo realizado en (d) recurriendo a Análisis Canónico de Correspondencia y compare resultados
 
 ```{r}
-cca_ <- cca(stdY~.,data=stdX)
+cca_ <- cca(Y~.,data=X)
 cca_ 
 ```
 
@@ -459,7 +459,7 @@ RsquareAdj(cca_)
 
 \
 
-El porcentaje de varianza explicado de las variables de abundancia por la variables ambientales es un poco menor que el RDA, un 51%. Si se ajusta el coeficiente, la relación baja más que con RDA a 24%.
+El porcentaje de varianza explicado de las variables de abundancia por la variables ambientales es un poco menor que el RDA, un 50%. Si se ajusta el coeficiente, la relación baja más que con RDA a 26%.
 
 \
 
@@ -471,7 +471,7 @@ anova(cca_, permutations=1000) # significancia del modelo
 
 Si se realiza un anova basado en test de permutaciones, se ve que el modelo de CCA también es significativo.
 
-Si en cambio se testea que variable dentro de las ambientales en el modelo restringido son significativas, el resultado una de ellas lo es al 95%: PRS: fósforo reactivo soluble, y dos de ellas al 10% hierro(DU) y alcalinidad (ALC). Estas dos últimas no aparecían modelo de RDA.
+Si en cambio se testea que variable dentro de las ambientales en el modelo restringido son significativas, el resultado una de ellas lo es al 95%: PRS: fósforo reactivo soluble al igual que el modelo de RDA.
 
 \
 
@@ -481,7 +481,7 @@ anova(cca_, by='margin', permutations=1000) # significancia var ambientales
 
 \
 
-Finalmente, la primera dimensión es muy significativa y a diferencia del RDA, la segunda dimensión el significativa al 90%.
+Finalmente, la primera dimensión es muy significativa y a diferencia del RDA, la segunda dimensión el significativa al 95%.
 
 \
 
